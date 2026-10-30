@@ -199,15 +199,16 @@ footer{text-align:center;font-family:var(--f-hand);font-size:1.25rem;color:var(-
 /* ===== Hier die Inhalte eintragen =====
    video: ein YouTube Link (egal welches Format, z.B. https://youtu.be/abc123 oder https://www.youtube.com/watch?v=abc123)
    spotify: optional ein Spotify Link zum selben Song, z.B. https://open.spotify.com/track/...
+   titel: Name des Songs, wird in der Karte angezeigt
    song:  Name der MP3 im Ordner songs, ohne .mp3 (z.B. "t01-k7f3" für songs/t01-k7f3.mp3)
    text:  eine kleine Nachricht für den Tag (darf leer bleiben)
    Beispiel: 1: { video: "https://youtu.be/abc123", song: "t01-k7f3", text: "Hab einen schönen Tag!" }, */
 const JAHR = 2026;
 const TUERCHEN = {
-  1:  { video: "", text: "" },
-  2:  { video: "", text: "" },
-  3:  { video: "", text: "" },
-  4:  { video: "", text: "" },
+  1:  { video: "", song: "t01-3b94657d", titel: "Lily's Theme", text: "" },
+  2:  { video: "", song: "t02-8232f896", titel: "Those Eyes", text: "" },
+  3:  { video: "", song: "t03-861fdead", titel: "Hobbit", text: "" },
+  4:  { video: "", song: "t04-42593136", titel: "Creep", text: "" },
   5:  { video: "", text: "" },
   6:  { video: "", text: "" },
   7:  { video: "", text: "" },
@@ -263,6 +264,7 @@ let seen = new Set();
 try { seen = new Set(JSON.parse(localStorage.getItem("advent-seen")||"[]")); } catch(e){}
 function markSeen(n){ seen.add(n); try{ localStorage.setItem("advent-seen",JSON.stringify([...seen])); }catch(e){} }
 
+function esc(t){ return String(t).replace(/[&<>"]/g, c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c])); }
 function ytId(url){
   if(!url) return "";
   const m = url.match(/(?:youtu\.be\/|v=|embed\/|shorts\/|live\/)([A-Za-z0-9_-]{11})/);
@@ -355,10 +357,10 @@ function showCard(n){
     }
     if(song){
       html += `<div class="song">
-        <div class="song-head"><span class="ico">♫</span><span><b>Der Song von heute</b><small>zum Anhören oder für die Fahrt zur Arbeit</small></span></div>
+        <div class="song-head"><span class="ico">♫</span><span><b>${item.titel ? esc(item.titel) : "Der Song von heute"}</b><small>gespielt von Arne ♡ zum Anhören oder für die Fahrt zur Arbeit</small></span></div>
         ${!id ? `<div class="vinyl-wrap"><div class="vinyl" aria-hidden="true"><div class="label"><span>${n}</span></div></div></div>` : ""}
         <audio controls preload="none" src="songs/${song}.mp3"></audio>
-        <a class="save" href="songs/${song}.mp3" download="Tuerchen ${n}.mp3">↓ Song speichern</a>
+        <a class="save" href="songs/${song}.mp3" download="${item.titel ? esc(item.titel) : "Tuerchen " + n}.mp3">↓ Song speichern</a>
         <details class="guide"><summary>So landet der Song in deinem Spotify</summary><ol>
           <li class="once">Nur beim ersten Mal: In Spotify auf dein Profilbild tippen, dann Einstellungen und Datenschutz › Apps und Geräte › „Lokale Audiodateien“ einschalten.</li>
           <li>Hier auf „Song speichern“ tippen und mit „Laden“ bestätigen.</li>
