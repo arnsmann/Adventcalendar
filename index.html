@@ -299,7 +299,7 @@ const CAN_EMBED = !/claude\.ai|claudeusercontent|anthropic/.test(location.hostna
 
 /* Hintergrund */
 const bgLayers = [...document.querySelectorAll("#bg .layer")];
-let bgIdx = 0, bgCurrent = null;
+let bgIdx = 0, bgCurrent = null, bgPicked = false;
 function setBg(url){
   if(url === bgCurrent) return;
   bgCurrent = url;
@@ -423,13 +423,12 @@ function showCard(n){
   const note = document.getElementById("card-note");
   note.textContent = item.text || "";
   note.hidden = !item.text;
-  if(item.bild) setBg(item.bild);
+  if(item.bild){ setBg(item.bild); bgPicked = true; }
   scrim.hidden = false;
   document.getElementById("close").focus();
 }
 function closeCard(){
   scrim.hidden = true;
-  setBg(homeBg());
   try{ if(clipPlayer) clipPlayer.destroy(); }catch(e){}
   clipPlayer = null; clipReady = false;
   document.getElementById("card-media").innerHTML = "";
@@ -529,7 +528,7 @@ for(let i=0;i<14;i++){
 })();
 
 renderStatus(); refreshDoors(); setBg(homeBg());
-setInterval(()=>{ renderStatus(); refreshDoors(); if(scrim.hidden) setBg(homeBg()); }, 60000);
+setInterval(()=>{ renderStatus(); refreshDoors(); if(!bgPicked) setBg(homeBg()); }, 60000);
 addEventListener("hashchange", ()=>location.reload());
 </script>
 </body>
