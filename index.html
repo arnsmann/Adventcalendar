@@ -107,6 +107,7 @@ h1 .star{color:var(--honey)}
 .note{font-family:var(--f-hand);font-size:1.45rem;line-height:1.35;margin:0;color:var(--ink)}
 .video{aspect-ratio:16/9;max-width:100%;width:100%;border-radius:18px;overflow:hidden;background:var(--inside);border:0}
 .video iframe{width:100%;height:100%;border:0;display:block}
+.clip iframe{pointer-events:none}
 .watch{display:flex;align-items:center;justify-content:center;gap:12px;aspect-ratio:16/9;width:100%;max-width:100%;border-radius:18px;
   background:linear-gradient(135deg,var(--door-a),var(--door-d));color:var(--ink);text-decoration:none;font-family:var(--f-display);font-size:1.2rem;font-weight:500}
 .watch .play{width:64px;height:64px;border-radius:50%;background:var(--berry);display:grid;place-items:center;color:#fff;font-size:1.5rem;box-shadow:0 6px 16px rgba(0,0,0,.2)}
@@ -199,13 +200,14 @@ footer{text-align:center;font-family:var(--f-hand);font-size:1.25rem;color:var(-
 /* ===== Hier die Inhalte eintragen =====
    video: ein YouTube Link (egal welches Format, z.B. https://youtu.be/abc123 oder https://www.youtube.com/watch?v=abc123)
    spotify: optional ein Spotify Link zum selben Song, z.B. https://open.spotify.com/track/...
+   clip:  optional ein YouTube Link, der stumm und in Schleife zum Song läuft (statt der Schallplatte)
    titel: Name des Songs, wird in der Karte angezeigt
    song:  Name der MP3 im Ordner songs, ohne .mp3 (z.B. "t01-k7f3" für songs/t01-k7f3.mp3)
    text:  eine kleine Nachricht für den Tag (darf leer bleiben)
    Beispiel: 1: { video: "https://youtu.be/abc123", song: "t01-k7f3", text: "Hab einen schönen Tag!" }, */
 const JAHR = 2026;
 const TUERCHEN = {
-  1:  { video: "", song: "t01-3b94657d", titel: "Lily's Theme", text: "" },
+  1:  { video: "", song: "t01-3b94657d", titel: "Lily's Theme", clip: "https://youtu.be/BWp-MmUmhbA", text: "" },
   2:  { video: "", song: "t02-8232f896", titel: "Those Eyes", text: "" },
   3:  { video: "", song: "t03-861fdead", titel: "Hobbit", text: "" },
   4:  { video: "", song: "t04-42593136", titel: "Creep", text: "" },
@@ -343,6 +345,7 @@ function showCard(n){
   const id = ytId(item.video);
   const sp = (item.spotify || "").trim();
   const song = (item.song || "").replace(/[^A-Za-z0-9_-]/g,"");
+  const clipId = CAN_EMBED ? ytId(item.clip) : "";
   if(!id && !sp && !song){
     media.innerHTML = '<div class="soon">Hier versteckt sich bald eine Überraschung ✿</div>';
   } else {
@@ -358,7 +361,8 @@ function showCard(n){
     if(song){
       html += `<div class="song">
         <div class="song-head"><span class="ico">♫</span><span><b>${item.titel ? esc(item.titel) : "Der Song von heute"}</b><small>gespielt von Arne ♡ zum Anhören oder für die Fahrt zur Arbeit</small></span></div>
-        ${!id ? `<div class="vinyl-wrap"><div class="vinyl" aria-hidden="true"><div class="label"><span>${n}</span></div></div></div>` : ""}
+        ${clipId ? `<div class="video clip"><iframe src="https://www.youtube-nocookie.com/embed/${clipId}?enablejsapi=1&mute=1&controls=0&loop=1&playlist=${clipId}&playsinline=1&rel=0&modestbranding=1" title="Clip zu Türchen ${n}" allow="autoplay; encrypted-media"></iframe></div>` : ""}
+        ${!id && !clipId ? `<div class="vinyl-wrap"><div class="vinyl" aria-hidden="true"><div class="label"><span>${n}</span></div></div></div>` : ""}
         <audio controls preload="none" src="songs/${song}.mp3"></audio>
         <a class="save" href="songs/${song}.mp3" download="${item.titel ? esc(item.titel) : "Tuerchen " + n}.mp3">↓ Song speichern</a>
         <details class="guide"><summary>So landet der Song in deinem Spotify</summary><ol>
@@ -387,7 +391,10 @@ document.getElementById("close").addEventListener("click", closeCard);
 const cm = document.getElementById("card-media");
 ["play","pause","ended"].forEach(ev=>cm.addEventListener(ev, e=>{
   const box = e.target.closest && e.target.closest(".song");
-  if(box) box.classList.toggle("playing", ev === "play");
+  if(!box) return;
+  box.classList.toggle("playing", ev === "play");
+  const f = box.querySelector(".clip iframe");
+  if(f && f.contentWindow) f.contentWindow.postMessage(JSON.stringify({event:"command",func: ev === "play" ? "playVideo" : "pauseVideo",args:[]}), "*");
 }, true));
 scrim.addEventListener("click", e=>{ if(e.target === scrim) closeCard(); });
 document.addEventListener("keydown", e=>{ if(e.key === "Escape" && !scrim.hidden) closeCard(); });
