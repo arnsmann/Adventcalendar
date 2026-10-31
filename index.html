@@ -194,7 +194,7 @@ footer{text-align:center;font-family:var(--f-display);font-style:italic;font-wei
    text:  eine kleine Nachricht für den Tag (darf leer bleiben)
    Beispiel: 1: { video: "https://youtu.be/abc123", song: "t01-k7f3", text: "Hab einen schönen Tag!" }, */
 const JAHR = 2026;
-/* bild: ein Foto pro Tag im Ordner bilder, z.B. "bilder/01.jpg". Es wird zum Hintergrund, wenn das Türchen offen ist.
+/* bild: ein Foto pro Tag im Ordner bilder, z.B. "bilder/01.jpg". Es ist an diesem Dezembertag der Hintergrund der ganzen Seite.
    START_BILD ist der Hintergrund vor dem 1. Dezember. */
 const START_BILD = "";
 const TUERCHEN = {
@@ -394,13 +394,11 @@ function showCard(n){
   const note = document.getElementById("card-note");
   note.textContent = item.text || "";
   note.hidden = !item.text;
-  if(item.bild) setBg(item.bild);
   scrim.hidden = false;
   document.getElementById("close").focus();
 }
 function closeCard(){
   scrim.hidden = true;
-  setBg(homeBg());
   try{ if(clipPlayer) clipPlayer.destroy(); }catch(e){}
   clipPlayer = null; clipReady = false;
   document.getElementById("card-media").innerHTML = "";
@@ -499,7 +497,7 @@ for(let i=0;i<14;i++){
 })();
 
 renderStatus(); refreshDoors(); setBg(homeBg());
-setInterval(()=>{ renderStatus(); refreshDoors(); }, 60000);
+setInterval(()=>{ renderStatus(); refreshDoors(); setBg(homeBg()); }, 60000);
 addEventListener("hashchange", ()=>location.reload());
 </script>
 </body>
