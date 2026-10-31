@@ -46,41 +46,6 @@ body{background:var(--bg);color:var(--ink);font-family:var(--f-body);font-size:1
   background-image:radial-gradient(circle at 1px 1px,var(--door-edge) 1px,transparent 1.5px);background-size:22px 22px;min-height:100%}
 .wrap{max-width:980px;margin:0 auto;display:flex;flex-direction:column;gap:28px}
 
-/* Clip (YouTube Player, stumm im Hintergrund) */
-let clipPlayer = null, clipReady = false, ytApi = null;
-function loadYtApi(){
-  if(ytApi) return ytApi;
-  ytApi = new Promise(res=>{
-    if(window.YT && window.YT.Player) return res(window.YT);
-    const prev = window.onYouTubeIframeAPIReady;
-    window.onYouTubeIframeAPIReady = ()=>{ if(prev) prev(); res(window.YT); };
-    const sc = document.createElement("script"); sc.src = "https://www.youtube.com/iframe_api"; document.head.appendChild(sc);
-  });
-  return ytApi;
-}
-function initClip(el){
-  const vid = el.dataset.clip, box = el.closest(".song");
-  clipPlayer = null; clipReady = false;
-  loadYtApi().then(YT=>{
-    if(!document.body.contains(el)) return;
-    clipPlayer = new YT.Player(el, {
-      host: "https://www.youtube-nocookie.com",
-      videoId: vid,
-      playerVars: { mute:1, controls:0, loop:1, playlist:vid, playsinline:1, rel:0, iv_load_policy:3, disablekb:1, fs:0, modestbranding:1 },
-      events: {
-        onReady: e=>{
-          clipReady = true; e.target.mute();
-          if(box.classList.contains("playing")) e.target.playVideo();
-        },
-        onStateChange: e=>{
-          if(e.data === 1 && box.classList.contains("playing")) box.classList.add("clip-on");
-          else if(e.data === 2 || e.data === 0) box.classList.remove("clip-on");
-        }
-      }
-    });
-  });
-}
-
 /* Lichterkette */
 .lights{position:relative;height:56px;margin:0 -16px;overflow:hidden}
 .lights svg{position:absolute;inset:0;width:100%;height:100%}
@@ -447,6 +412,41 @@ const cm = document.getElementById("card-media");
 }, true));
 scrim.addEventListener("click", e=>{ if(e.target === scrim) closeCard(); });
 document.addEventListener("keydown", e=>{ if(e.key === "Escape" && !scrim.hidden) closeCard(); });
+
+/* Clip (YouTube Player, stumm im Hintergrund) */
+let clipPlayer = null, clipReady = false, ytApi = null;
+function loadYtApi(){
+  if(ytApi) return ytApi;
+  ytApi = new Promise(res=>{
+    if(window.YT && window.YT.Player) return res(window.YT);
+    const prev = window.onYouTubeIframeAPIReady;
+    window.onYouTubeIframeAPIReady = ()=>{ if(prev) prev(); res(window.YT); };
+    const sc = document.createElement("script"); sc.src = "https://www.youtube.com/iframe_api"; document.head.appendChild(sc);
+  });
+  return ytApi;
+}
+function initClip(el){
+  const vid = el.dataset.clip, box = el.closest(".song");
+  clipPlayer = null; clipReady = false;
+  loadYtApi().then(YT=>{
+    if(!document.body.contains(el)) return;
+    clipPlayer = new YT.Player(el, {
+      host: "https://www.youtube-nocookie.com",
+      videoId: vid,
+      playerVars: { mute:1, controls:0, loop:1, playlist:vid, playsinline:1, rel:0, iv_load_policy:3, disablekb:1, fs:0, modestbranding:1 },
+      events: {
+        onReady: e=>{
+          clipReady = true; e.target.mute();
+          if(box.classList.contains("playing")) e.target.playVideo();
+        },
+        onStateChange: e=>{
+          if(e.data === 1 && box.classList.contains("playing")) box.classList.add("clip-on");
+          else if(e.data === 2 || e.data === 0) box.classList.remove("clip-on");
+        }
+      }
+    });
+  });
+}
 
 /* Lichterkette */
 const bulbs = document.getElementById("bulbs");
