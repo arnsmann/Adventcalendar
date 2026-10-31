@@ -107,7 +107,13 @@ h1 .star{color:var(--honey)}
 .note{font-family:var(--f-hand);font-size:1.45rem;line-height:1.35;margin:0;color:var(--ink)}
 .video{aspect-ratio:16/9;max-width:100%;width:100%;border-radius:18px;overflow:hidden;background:var(--inside);border:0}
 .video iframe{width:100%;height:100%;border:0;display:block}
-.clip iframe{pointer-events:none}
+.clip{position:relative;overflow:hidden;isolation:isolate}
+.clip iframe{position:absolute;inset:0;pointer-events:none;transform:scale(1.42);opacity:0;transition:opacity .3s}
+.song.playing .clip iframe{opacity:1;transition:opacity 1s 1.8s}
+.clip::after{content:"";position:absolute;inset:0;pointer-events:none;box-shadow:inset 0 0 50px 18px rgba(30,20,19,.55);border-radius:inherit;z-index:2}
+.clip .cover{position:absolute;inset:0;z-index:1;background:var(--inside);opacity:1;transition:opacity .3s}
+.song.playing .clip .cover{opacity:0;transition:opacity 1s 1.8s}
+.clip .cover .vinyl{width:auto;height:78%;animation-play-state:running}
 .watch{display:flex;align-items:center;justify-content:center;gap:12px;aspect-ratio:16/9;width:100%;max-width:100%;border-radius:18px;
   background:linear-gradient(135deg,var(--door-a),var(--door-d));color:var(--ink);text-decoration:none;font-family:var(--f-display);font-size:1.2rem;font-weight:500}
 .watch .play{width:64px;height:64px;border-radius:50%;background:var(--berry);display:grid;place-items:center;color:#fff;font-size:1.5rem;box-shadow:0 6px 16px rgba(0,0,0,.2)}
@@ -361,7 +367,7 @@ function showCard(n){
     if(song){
       html += `<div class="song">
         <div class="song-head"><span class="ico">♫</span><span><b>${item.titel ? esc(item.titel) : "Der Song von heute"}</b><small>gespielt von Arne ♡ zum Anhören oder für die Fahrt zur Arbeit</small></span></div>
-        ${clipId ? `<div class="video clip"><iframe src="https://www.youtube-nocookie.com/embed/${clipId}?enablejsapi=1&mute=1&controls=0&loop=1&playlist=${clipId}&playsinline=1&rel=0&modestbranding=1" title="Clip zu Türchen ${n}" allow="autoplay; encrypted-media"></iframe></div>` : ""}
+        ${clipId ? `<div class="video clip"><iframe src="https://www.youtube-nocookie.com/embed/${clipId}?enablejsapi=1&mute=1&controls=0&loop=1&playlist=${clipId}&playsinline=1&rel=0&modestbranding=1&iv_load_policy=3&disablekb=1&fs=0" title="Clip zu Türchen ${n}" allow="autoplay; encrypted-media" tabindex="-1"></iframe><div class="vinyl-wrap cover" aria-hidden="true"><div class="vinyl"><div class="label"><span>${n}</span></div></div></div></div>` : ""}
         ${!id && !clipId ? `<div class="vinyl-wrap"><div class="vinyl" aria-hidden="true"><div class="label"><span>${n}</span></div></div></div>` : ""}
         <audio controls preload="none" src="songs/${song}.mp3"></audio>
         <a class="save" href="songs/${song}.mp3" download="${item.titel ? esc(item.titel) : "Tuerchen " + n}.mp3">↓ Song speichern</a>
