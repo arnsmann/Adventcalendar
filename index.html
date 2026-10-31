@@ -46,6 +46,41 @@ body{background:var(--bg);color:var(--ink);font-family:var(--f-body);font-size:1
   background-image:radial-gradient(circle at 1px 1px,var(--door-edge) 1px,transparent 1.5px);background-size:22px 22px;min-height:100%}
 .wrap{max-width:980px;margin:0 auto;display:flex;flex-direction:column;gap:28px}
 
+/* Clip (YouTube Player, stumm im Hintergrund) */
+let clipPlayer = null, clipReady = false, ytApi = null;
+function loadYtApi(){
+  if(ytApi) return ytApi;
+  ytApi = new Promise(res=>{
+    if(window.YT && window.YT.Player) return res(window.YT);
+    const prev = window.onYouTubeIframeAPIReady;
+    window.onYouTubeIframeAPIReady = ()=>{ if(prev) prev(); res(window.YT); };
+    const sc = document.createElement("script"); sc.src = "https://www.youtube.com/iframe_api"; document.head.appendChild(sc);
+  });
+  return ytApi;
+}
+function initClip(el){
+  const vid = el.dataset.clip, box = el.closest(".song");
+  clipPlayer = null; clipReady = false;
+  loadYtApi().then(YT=>{
+    if(!document.body.contains(el)) return;
+    clipPlayer = new YT.Player(el, {
+      host: "https://www.youtube-nocookie.com",
+      videoId: vid,
+      playerVars: { mute:1, controls:0, loop:1, playlist:vid, playsinline:1, rel:0, iv_load_policy:3, disablekb:1, fs:0, modestbranding:1 },
+      events: {
+        onReady: e=>{
+          clipReady = true; e.target.mute();
+          if(box.classList.contains("playing")) e.target.playVideo();
+        },
+        onStateChange: e=>{
+          if(e.data === 1 && box.classList.contains("playing")) box.classList.add("clip-on");
+          else if(e.data === 2 || e.data === 0) box.classList.remove("clip-on");
+        }
+      }
+    });
+  });
+}
+
 /* Lichterkette */
 .lights{position:relative;height:56px;margin:0 -16px;overflow:hidden}
 .lights svg{position:absolute;inset:0;width:100%;height:100%}
@@ -109,10 +144,10 @@ h1 .star{color:var(--honey)}
 .video iframe{width:100%;height:100%;border:0;display:block}
 .clip{position:relative;overflow:hidden;isolation:isolate}
 .clip iframe{position:absolute;inset:0;pointer-events:none;transform:scale(1.42);opacity:0;transition:opacity .3s}
-.song.playing .clip iframe{opacity:1;transition:opacity 1s 1.8s}
+.song.clip-on .clip iframe{opacity:1;transition:opacity 1s .9s}
 .clip::after{content:"";position:absolute;inset:0;pointer-events:none;box-shadow:inset 0 0 50px 18px rgba(30,20,19,.55);border-radius:inherit;z-index:2}
 .clip .cover{position:absolute;inset:0;z-index:1;background:var(--inside);opacity:1;transition:opacity .3s}
-.song.playing .clip .cover{opacity:0;transition:opacity 1s 1.8s}
+.song.clip-on .clip .cover{opacity:0;transition:opacity 1s .9s}
 .clip .cover .vinyl{width:auto;height:78%;animation-play-state:running}
 .watch{display:flex;align-items:center;justify-content:center;gap:12px;aspect-ratio:16/9;width:100%;max-width:100%;border-radius:18px;
   background:linear-gradient(135deg,var(--door-a),var(--door-d));color:var(--ink);text-decoration:none;font-family:var(--f-display);font-size:1.2rem;font-weight:500}
@@ -367,7 +402,7 @@ function showCard(n){
     if(song){
       html += `<div class="song">
         <div class="song-head"><span class="ico">♫</span><span><b>${item.titel ? esc(item.titel) : "Der Song von heute"}</b><small>gespielt von Arne ♡ zum Anhören oder für die Fahrt zur Arbeit</small></span></div>
-        ${clipId ? `<div class="video clip"><iframe src="https://www.youtube-nocookie.com/embed/${clipId}?enablejsapi=1&mute=1&controls=0&loop=1&playlist=${clipId}&playsinline=1&rel=0&modestbranding=1&iv_load_policy=3&disablekb=1&fs=0" title="Clip zu Türchen ${n}" allow="autoplay; encrypted-media" tabindex="-1"></iframe><div class="vinyl-wrap cover" aria-hidden="true"><div class="vinyl"><div class="label"><span>${n}</span></div></div></div></div>` : ""}
+        ${clipId ? `<div class="video clip"><div class="yt" data-clip="${clipId}"></div><div class="vinyl-wrap cover" aria-hidden="true"><div class="vinyl"><div class="label"><span>${n}</span></div></div></div></div>` : ""}
         ${!id && !clipId ? `<div class="vinyl-wrap"><div class="vinyl" aria-hidden="true"><div class="label"><span>${n}</span></div></div></div>` : ""}
         <audio controls preload="none" src="songs/${song}.mp3"></audio>
         <a class="save" href="songs/${song}.mp3" download="${item.titel ? esc(item.titel) : "Tuerchen " + n}.mp3">↓ Song speichern</a>
@@ -381,6 +416,8 @@ function showCard(n){
       </div>`;
     }
     media.innerHTML = html;
+    const yt = media.querySelector(".yt");
+    if(yt) initClip(yt);
   }
   const note = document.getElementById("card-note");
   note.textContent = item.text || "";
@@ -390,6 +427,8 @@ function showCard(n){
 }
 function closeCard(){
   scrim.hidden = true;
+  try{ if(clipPlayer) clipPlayer.destroy(); }catch(e){}
+  clipPlayer = null; clipReady = false;
   document.getElementById("card-media").innerHTML = "";
   if(lastDoor){ lastDoor.classList.remove("open"); lastDoor.focus(); }
 }
@@ -399,8 +438,10 @@ const cm = document.getElementById("card-media");
   const box = e.target.closest && e.target.closest(".song");
   if(!box) return;
   box.classList.toggle("playing", ev === "play");
-  const f = box.querySelector(".clip iframe");
-  if(f && f.contentWindow) f.contentWindow.postMessage(JSON.stringify({event:"command",func: ev === "play" ? "playVideo" : "pauseVideo",args:[]}), "*");
+  if(ev !== "play") box.classList.remove("clip-on");
+  if(clipPlayer && clipReady){
+    try{ if(ev === "play"){ clipPlayer.mute(); clipPlayer.playVideo(); } else clipPlayer.pauseVideo(); }catch(err){}
+  }
 }, true));
 scrim.addEventListener("click", e=>{ if(e.target === scrim) closeCard(); });
 document.addEventListener("keydown", e=>{ if(e.key === "Escape" && !scrim.hidden) closeCard(); });
