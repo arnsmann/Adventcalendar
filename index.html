@@ -110,11 +110,11 @@ h1 .star{color:var(--honey)}
 .video{aspect-ratio:16/9;max-width:100%;width:100%;border-radius:18px;overflow:hidden;background:var(--inside);border:0}
 .video iframe{width:100%;height:100%;border:0;display:block}
 .clip{position:relative;overflow:hidden;isolation:isolate}
-.clip iframe{position:absolute;inset:0;pointer-events:none;transform:scale(1.42);opacity:0;transition:opacity .3s}
-.song.clip-on .clip iframe{opacity:1;transition:opacity 1s .9s}
+.clip iframe{position:absolute;inset:0;pointer-events:none;transform:scale(1.62);opacity:0;transition:opacity .3s}
+.song.clip-on .clip iframe{opacity:1;transition:opacity 1.2s}
 .clip::after{content:"";position:absolute;inset:0;pointer-events:none;box-shadow:inset 0 0 50px 18px rgba(30,20,19,.55);border-radius:inherit;z-index:2}
 .clip .cover{position:absolute;inset:0;z-index:1;background:var(--inside);opacity:1;transition:opacity .3s}
-.song.clip-on .clip .cover{opacity:0;transition:opacity 1s .9s}
+.song.clip-on .clip .cover{opacity:0;transition:opacity 1.2s}
 .clip .cover .vinyl{width:auto;height:78%;animation-play-state:running}
 .watch{display:flex;align-items:center;justify-content:center;gap:12px;aspect-ratio:16/9;width:100%;max-width:100%;border-radius:18px;
   background:linear-gradient(135deg,var(--door-a),var(--door-d));color:var(--ink);text-decoration:none;font-family:var(--f-display);font-size:1.2rem;font-weight:500}
@@ -414,7 +414,15 @@ scrim.addEventListener("click", e=>{ if(e.target === scrim) closeCard(); });
 document.addEventListener("keydown", e=>{ if(e.key === "Escape" && !scrim.hidden) closeCard(); });
 
 /* Clip (YouTube Player, stumm im Hintergrund) */
-let clipPlayer = null, clipReady = false, ytApi = null;
+let clipPlayer = null, clipReady = false, ytApi = null, clipShowT = null;
+/* kurz vor Ende zurückspringen, damit YouTube kein Endbild und keinen Titel zeigt */
+setInterval(()=>{
+  try{
+    if(!clipPlayer || !clipReady || clipPlayer.getPlayerState() !== 1) return;
+    const d = clipPlayer.getDuration(), t = clipPlayer.getCurrentTime();
+    if(d > 2 && d - t < 1.2) clipPlayer.seekTo(0, true);
+  }catch(e){}
+}, 250);
 function loadYtApi(){
   if(ytApi) return ytApi;
   ytApi = new Promise(res=>{
@@ -440,8 +448,10 @@ function initClip(el){
           if(box.classList.contains("playing")) e.target.playVideo();
         },
         onStateChange: e=>{
-          if(e.data === 1 && box.classList.contains("playing")) box.classList.add("clip-on");
-          else if(e.data === 2 || e.data === 0) box.classList.remove("clip-on");
+          clearTimeout(clipShowT);
+          if(e.data === 1 && box.classList.contains("playing")){
+            clipShowT = setTimeout(()=>{ if(box.classList.contains("playing")) box.classList.add("clip-on"); }, 3000);
+          } else if(e.data === 2 || e.data === 0) box.classList.remove("clip-on");
         }
       }
     });
