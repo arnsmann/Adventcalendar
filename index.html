@@ -103,6 +103,8 @@ h1 .star{color:var(--honey)}
 
 .door{position:relative;aspect-ratio:1/1.12;max-width:100%;perspective:700px;border:0;padding:0;background:transparent;cursor:pointer;font:inherit;color:inherit}
 .door.big{grid-column:span 2;aspect-ratio:2/1.12}
+.door > *{pointer-events:none}
+.door{touch-action:manipulation;-webkit-tap-highlight-color:transparent}
 .door:focus-visible{outline:3px solid var(--berry);outline-offset:4px;border-radius:18px}
 .inside{position:absolute;inset:0;border-radius:16px;background:var(--inside);display:grid;place-items:center;overflow:hidden;
   box-shadow:inset 0 4px 14px rgba(0,0,0,.35)}
