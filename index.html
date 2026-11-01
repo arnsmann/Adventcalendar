@@ -24,7 +24,7 @@ body{background:#2b211d;color:var(--ink);font-family:var(--f-body);font-size:16p
 
 /* Fotohintergrund */
 .bg{position:fixed;inset:0;z-index:0;overflow:hidden;background:radial-gradient(120% 90% at 50% 0%,#5b4a42,#2b211d)}
-.bg .layer,.view .layer{position:absolute;inset:-2%;background-size:cover;background-position:center;opacity:0;transition:opacity 1.6s ease}
+.bg .layer,.view .layer{position:absolute;inset:0;background-size:cover;background-position:center;opacity:0;transition:opacity 1.6s ease}
 .bg .layer.on,.view .layer.on{opacity:1}
 .bg::after{content:"";position:absolute;inset:0;background:rgba(20,12,8,.25)}
 
@@ -609,7 +609,20 @@ function initClip(el){
 }
 
 renderStatus(); refreshDoors(); setBg(homeBg());
-(function(){ const sc = document.querySelector(".scene"); if(sc.scrollWidth > sc.clientWidth + 4){ const st = sc.querySelector(".stage"); sc.scrollLeft = st.clientWidth * (650 + 400) / 1800 - sc.clientWidth / 2; } })();
+/* Fenster zeigen genau den Ausschnitt des Hintergrunds, der dahinter liegt */
+function alignViews(){
+  const W = innerWidth, H = innerHeight;
+  document.querySelectorAll(".view").forEach(v=>{
+    const r = v.getBoundingClientRect();
+    v.querySelectorAll(".layer").forEach(l=>{ l.style.inset = "auto"; l.style.left = (-r.left) + "px"; l.style.top = (-r.top) + "px"; l.style.width = W + "px"; l.style.height = H + "px"; });
+  });
+}
+alignViews();
+addEventListener("resize", alignViews);
+addEventListener("scroll", alignViews, {passive:true});
+document.querySelector(".scene").addEventListener("scroll", alignViews, {passive:true});
+
+(function(){ const sc = document.querySelector(".scene"); if(sc.scrollWidth > sc.clientWidth + 4){ const st = sc.querySelector(".stage"); sc.scrollLeft = st.clientWidth * (650 + 400) / 1800 - sc.clientWidth / 2; } alignViews(); })();
 (function(){ const t = todayNum(); if(!t || PREVIEW || seen.has(t)) return;
   const b = grid.querySelector(`.door[data-n="${t}"]`);
   if(b) setTimeout(()=>b.scrollIntoView({behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block:"center", inline:"center"}), 700); })();
