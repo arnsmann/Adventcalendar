@@ -7,88 +7,100 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600&family=Gochi+Hand&family=Nunito:wght@400;600;700&display=swap">
 <style>
-/* Layout: ein warmes "Strickpulli" Brett mit Lichterkette oben, 24 bunt gemischte Türchen im Raster, Inhalt öffnet sich als Karte */
+/* Layout: oben die Wand mit Fenster (Ausblick = Foto des Tages) und Papierstern, darunter die Holztreppe im Zickzack vor der Apricotwand, auf jeder Stufe eine gestreifte Papiertüte */
 :root{
-  --bg:#f7e6e1;        /* zartes Rosa */
-  --board:#fff6f1;
-  --ink:#5a3a31;       /* Kakao */
-  --soft:#9a7469;
-  --pine:#4f7a63;      /* Tannengrün */
-  --berry:#c9566b;
-  --honey:#e8b04b;
-  --door-a:#f0c9c0; --door-b:#cfe0d2; --door-c:#f5ddb0; --door-d:#e7d3ea;
-  --door-edge:rgba(90,58,49,.18);
-  --inside:#5a3a31;
-  --shadow:0 10px 30px rgba(120,70,60,.16);
+  --wall:#f5efe7; --apricot:#f1c49a; --apricot-2:#ebb789;
+  --beech:#dca36a; --beech-light:#e9bb84; --beech-dark:#b67c45;
+  --steel:#a9b0b7; --floor:#c48a54;
+  --ink:#4a3128; --soft:#8a6a5d; --board:#fff8f1; --berry:#c9566b; --pine:#3f6f57; --honey:#d9a441;
+  --door-a:#f0c9c0; --door-b:#cfe0d2; --door-c:#f5ddb0; --door-d:#e7d3ea; --door-edge:rgba(90,58,49,.18); --inside:#3b2a24;
+  --shadow:0 10px 30px rgba(90,55,30,.18);
   --f-display:"Fredoka","Nunito",system-ui,sans-serif;
   --f-hand:"Gochi Hand","Comic Sans MS",cursive;
   --f-body:"Nunito",system-ui,sans-serif;
 }
-@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
-  --bg:#2a1d1b; --board:#352523; --ink:#f6e3dc; --soft:#c6a59b;
-  --pine:#7fb394; --berry:#ec8496; --honey:#f2c46a;
-  --door-a:#6b3f41; --door-b:#3f5a4b; --door-c:#6e5634; --door-d:#55405b;
-  --door-edge:rgba(255,230,220,.14); --inside:#1e1413;
-  --shadow:0 10px 30px rgba(0,0,0,.4); color-scheme:dark}}
-:root[data-theme="dark"]{
-  --bg:#2a1d1b; --board:#352523; --ink:#f6e3dc; --soft:#c6a59b;
-  --pine:#7fb394; --berry:#ec8496; --honey:#f2c46a;
-  --door-a:#6b3f41; --door-b:#3f5a4b; --door-c:#6e5634; --door-d:#55405b;
-  --door-edge:rgba(255,230,220,.14); --inside:#1e1413;
-  --shadow:0 10px 30px rgba(0,0,0,.4); color-scheme:dark}
-
 *{box-sizing:border-box}
 html,body{margin:0}
-html{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+html{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);background:var(--wall)}
 [hidden]{display:none!important}
-body{background:var(--bg);color:var(--ink);font-family:var(--f-body);font-size:16px;line-height:1.55;
-  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:0 48px;
-  background-image:radial-gradient(circle at 1px 1px,var(--door-edge) 1px,transparent 1.5px);background-size:22px 22px;min-height:100%}
-.wrap{max-width:980px;margin:0 auto;display:flex;flex-direction:column;gap:28px}
+body{background:var(--wall);color:var(--ink);font-family:var(--f-body);font-size:16px;line-height:1.55;overflow-x:hidden}
 
-/* Lichterkette */
-.lights{position:relative;height:56px;margin:0 -16px;overflow:hidden}
-.lights svg{position:absolute;inset:0;width:100%;height:100%}
-.bulbs{position:absolute;inset:0;display:flex;justify-content:space-around;padding:0 20px}
-.bulb{width:12px;height:18px;border-radius:50% 50% 50% 50%/60% 60% 40% 40%;margin-top:var(--y);background:var(--c);
-  box-shadow:0 0 12px var(--c);animation:glow 2.6s ease-in-out infinite;animation-delay:var(--d)}
-@keyframes glow{50%{opacity:.45;box-shadow:0 0 2px var(--c)}}
+/* Wand oben */
+.wall{position:relative;overflow-x:clip;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:clamp(28px,5vw,56px) 28px;
+  background:radial-gradient(90% 70% at 70% 30%,rgba(255,226,180,.55),transparent 70%),var(--wall)}
+.wall-inner{max-width:980px;margin:0 auto;display:grid;grid-template-columns:1fr 1fr;gap:clamp(20px,4vw,48px);align-items:center}
+@media (max-width:720px){.wall-inner{grid-template-columns:1fr}}
+header{display:flex;flex-direction:column;gap:8px}
+.eyebrow{font-family:var(--f-hand);font-size:1.45rem;color:var(--berry);transform:rotate(-2deg);transform-origin:left}
+h1{font-family:var(--f-display);font-weight:600;font-size:clamp(2.2rem,5.5vw,3.4rem);line-height:1.05;margin:0;text-wrap:balance}
+.status{font-family:var(--f-display);font-size:1.02rem;color:var(--soft);margin:6px 0 0;display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.pill{background:#fff;border:2px dashed var(--door-edge);border-radius:999px;padding:3px 14px;color:var(--ink)}
 
-header{text-align:center;display:flex;flex-direction:column;gap:6px;align-items:center}
-.eyebrow{font-family:var(--f-hand);font-size:1.5rem;color:var(--berry);transform:rotate(-2deg)}
-h1{font-family:var(--f-display);font-weight:600;font-size:clamp(2.2rem,6vw,3.6rem);line-height:1.05;margin:0;text-wrap:balance}
-h1 .star{color:var(--honey)}
-.status{font-family:var(--f-display);font-size:1.05rem;color:var(--soft);margin:4px 0 0;display:flex;gap:8px;align-items:center;flex-wrap:wrap;justify-content:center}
-.pill{background:var(--board);border:2px dashed var(--door-edge);border-radius:999px;padding:4px 14px;color:var(--ink)}
+/* Fenster mit Ausblick */
+.window{position:relative;justify-self:center;width:min(100%,440px);aspect-ratio:4/3.3;padding:14px;border-radius:6px;
+  background:linear-gradient(180deg,var(--beech-light),var(--beech));box-shadow:0 18px 40px rgba(90,55,30,.25),inset 0 0 0 2px rgba(255,255,255,.25)}
+.window .view{position:absolute;inset:14px;overflow:hidden;border-radius:2px;
+  background:radial-gradient(120% 90% at 50% 10%,#9fb6cf 0%,#5e7a99 45%,#2f3e55 100%)}
+.window .view .layer{position:absolute;inset:-3%;background-size:cover;background-position:center;opacity:0;transition:opacity 1.6s ease;transform:scale(1.03)}
+.window .view .layer.on{opacity:1}
+.window .view::after{content:"";position:absolute;inset:0;background:linear-gradient(115deg,rgba(255,255,255,.18) 0 18%,transparent 30% 60%,rgba(255,255,255,.08) 70%,transparent 80%);pointer-events:none}
+.window .bars{position:absolute;inset:14px;pointer-events:none}
+.window .bars::before{content:"";position:absolute;left:50%;top:0;bottom:0;width:12px;margin-left:-6px;background:linear-gradient(90deg,var(--beech-dark),var(--beech-light) 40%,var(--beech))}
+.window .bars::after{content:"";position:absolute;left:0;right:0;top:44%;height:12px;background:linear-gradient(180deg,var(--beech-light),var(--beech) 60%,var(--beech-dark))}
+.window .curtain{position:absolute;top:4px;bottom:22px;right:6px;width:30%;border-radius:0 0 8px 40%;
+  background:repeating-linear-gradient(90deg,rgba(255,255,255,.62) 0 7px,rgba(255,255,255,.42) 7px 14px);box-shadow:-4px 0 12px rgba(0,0,0,.06);pointer-events:none}
+.window .sill{position:absolute;left:-14px;right:-14px;bottom:-10px;height:16px;border-radius:3px;background:linear-gradient(180deg,var(--beech-light),var(--beech-dark));box-shadow:0 6px 12px rgba(90,55,30,.2)}
+.window .light{position:absolute;inset:-40%;background:radial-gradient(closest-side,rgba(255,236,200,.5),transparent);z-index:-1;pointer-events:none}
 
-.board{background:var(--board);border-radius:28px;padding:clamp(14px,3vw,28px);box-shadow:var(--shadow);border:3px solid var(--door-edge)}
-.grid{display:grid;grid-template-columns:repeat(6,1fr);gap:clamp(8px,1.6vw,16px)}
-@media (max-width:720px){.grid{grid-template-columns:repeat(4,1fr)}}
-@media (max-width:380px){.grid{grid-template-columns:repeat(3,1fr)}}
+/* Papierstern */
+.star{position:absolute;left:-6%;top:-26px;width:clamp(70px,13vw,110px);z-index:3;pointer-events:none;animation:sway 7s ease-in-out infinite;transform-origin:50% 0}
+.star::before{content:"";position:absolute;left:50%;top:-60px;height:62px;width:1px;background:rgba(80,60,50,.5)}
+.star svg{display:block;width:100%;height:auto;filter:drop-shadow(0 0 18px rgba(255,214,140,.85)) drop-shadow(0 0 4px rgba(255,240,210,.9))}
+@keyframes sway{50%{transform:rotate(3deg)}}
 
-.door{position:relative;aspect-ratio:1/1.12;max-width:100%;perspective:700px;border:0;padding:0;background:transparent;cursor:pointer;font:inherit;color:inherit}
-.door.big{grid-column:span 2;aspect-ratio:2/1.12}
+/* Treppe */
+.stairwell{position:relative;overflow-x:clip;background:linear-gradient(180deg,var(--apricot) 0%,var(--apricot-2) 100%);
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:28px 0;
+  box-shadow:inset 0 14px 18px -12px rgba(120,70,30,.25)}
+.stairwell::before{content:"";position:absolute;left:0;right:0;top:0;height:12px;background:linear-gradient(180deg,var(--beech-light),var(--beech));box-shadow:0 3px 6px rgba(90,55,30,.2)}
+#grid{position:relative;max-width:980px;margin:0 auto}
+.flight{position:relative}
+.plank{position:absolute;background:linear-gradient(180deg,var(--beech-light) 0%,var(--beech) 55%,var(--beech-dark) 100%);border-radius:2px}
+.plank.tread::after{content:"";position:absolute;left:0;right:0;top:100%;height:14px;background:linear-gradient(180deg,rgba(90,50,20,.22),transparent)}
+.plank.riser{background:linear-gradient(90deg,var(--beech-dark),var(--beech) 40%,var(--beech-light))}
+.plank.landing{border-radius:0}
+.rail{position:absolute;inset:0;pointer-events:none;overflow:visible}
+.floor{height:44px;margin:0 calc(-1 * max(16px,env(safe-area-inset-left,0px))) 0;background:repeating-linear-gradient(90deg,#c58b55 0 70px,#b97d48 70px 72px,#cf9862 72px 150px,#b97d48 150px 152px);box-shadow:inset 0 10px 14px -8px rgba(60,30,10,.35)}
+
+/* Papiertüten */
+.door{position:absolute;border:0;padding:0;background:none;cursor:pointer;font:inherit;color:inherit;touch-action:manipulation;-webkit-tap-highlight-color:transparent;
+  filter:drop-shadow(0 6px 6px rgba(70,35,15,.25));transform-origin:50% 100%}
 .door > *{pointer-events:none}
-.door{touch-action:manipulation;-webkit-tap-highlight-color:transparent}
-.door:focus-visible{outline:3px solid var(--berry);outline-offset:4px;border-radius:18px}
-.inside{position:absolute;inset:0;border-radius:16px;background:var(--inside);display:grid;place-items:center;overflow:hidden;
-  box-shadow:inset 0 4px 14px rgba(0,0,0,.35)}
-.inside span{font-size:1.9rem;filter:drop-shadow(0 2px 4px rgba(0,0,0,.3))}
-.leaf{position:absolute;inset:0;border-radius:16px;background:var(--dc);border:2px solid var(--door-edge);
-  transform-origin:left center;transition:transform .7s cubic-bezier(.3,1.4,.5,1);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;
-  box-shadow:0 3px 0 var(--door-edge)}
-.leaf::before{content:"";position:absolute;inset:7px;border:2px dashed var(--door-edge);border-radius:11px;pointer-events:none}
-.leaf::after{content:"";position:absolute;right:10px;top:50%;width:7px;height:7px;border-radius:50%;background:var(--honey);box-shadow:0 1px 0 var(--door-edge)}
-.num{font-family:var(--f-display);font-weight:600;font-size:clamp(1.5rem,4vw,2.3rem);line-height:1}
-.doodle{font-size:.9rem;opacity:.75;line-height:1}
-.door.locked .leaf{filter:saturate(.75)}
-.door.open .leaf{transform:rotateY(-105deg)}
-.door.opened .leaf{transform:rotateY(-105deg)}
-.door.today .leaf{animation:bob 2.4s ease-in-out infinite}
-.door.today .leaf::before{border-color:var(--berry)}
-@keyframes bob{50%{transform:translateY(-4px) rotate(-1deg)}}
-.door.shake .leaf{animation:shake .45s}
-@keyframes shake{20%{transform:rotate(-4deg)}40%{transform:rotate(4deg)}60%{transform:rotate(-3deg)}80%{transform:rotate(2deg)}}
+.door:focus-visible{outline:3px solid var(--berry);outline-offset:4px;border-radius:6px}
+.bag{position:absolute;inset:0;clip-path:polygon(9% 0,91% 0,100% 100%,0 100%)}
+.bag::after{content:"";position:absolute;inset:0;background:linear-gradient(90deg,rgba(0,0,0,.18),rgba(255,255,255,.08) 30%,rgba(0,0,0,0) 55%,rgba(0,0,0,.2))}
+.s0 .bag{background:repeating-linear-gradient(90deg,#b4502f 0 9px,#f1e4d1 9px 18px)}
+.s1 .bag{background:repeating-linear-gradient(90deg,#211c1a 0 8px,#eedfc8 8px 16px)}
+.s2 .bag{background:repeating-linear-gradient(90deg,#1f7a52 0 10px,#155a3c 10px 14px,#1f7a52 14px 22px,#2b8c61 22px 24px)}
+.fold{position:absolute;left:9%;right:9%;top:0;height:13%;background:rgba(0,0,0,.18);box-shadow:inset 0 -2px 0 rgba(255,255,255,.15)}
+.sticker{position:absolute;left:50%;top:52%;width:42%;aspect-ratio:1;transform:translate(-50%,-50%);border-radius:50%;background:#16120f;color:#fff;
+  display:grid;place-items:center;font-family:var(--f-hand);font-size:var(--fs,1.4rem);line-height:1;box-shadow:0 1px 2px rgba(0,0,0,.4)}
+.bclip{position:absolute;left:50%;top:-9%;width:30%;height:17%;transform:translateX(-50%);transition:transform .5s cubic-bezier(.3,1.4,.5,1),opacity .4s}
+.bclip::before{content:"";position:absolute;left:12%;right:12%;top:0;height:62%;border:2px solid #c99a34;border-bottom:0;border-radius:6px 6px 0 0}
+.bclip::after{content:"";position:absolute;left:0;right:0;bottom:0;height:52%;border-radius:2px;background:linear-gradient(180deg,#f3d27a,#c99a34 60%,#a67c22);box-shadow:0 1px 2px rgba(0,0,0,.3)}
+.door.open .bclip,.door.opened .bclip{transform:translate(-50%,-160%) rotate(-28deg);opacity:0}
+.door.opened .fold{background:#2b1f1a;height:9%;top:-1%;box-shadow:inset 0 4px 6px rgba(0,0,0,.5)}
+.door.opened .sticker{opacity:.85}
+.door.open{animation:hop .5s ease}
+@keyframes hop{40%{transform:translateY(-8%) rotate(-3deg)}}
+.door.today{animation:bob 2.6s ease-in-out infinite}
+.door.today .sticker{box-shadow:0 0 0 3px #f3d27a,0 0 14px rgba(243,210,122,.9)}
+@keyframes bob{50%{transform:translateY(-4%)}}
+.door.shake{animation:shake .45s}
+@keyframes shake{20%{transform:rotate(-5deg)}40%{transform:rotate(5deg)}60%{transform:rotate(-3deg)}80%{transform:rotate(2deg)}}
+.door.locked .bag{filter:saturate(.85)}
+
+footer{text-align:center;font-family:var(--f-hand);font-size:1.25rem;color:#fff8f1;background:#8f5f37;padding:10px 16px calc(14px + env(safe-area-inset-bottom,0px))}
 
 .toast{position:fixed;left:50%;bottom:calc(24px + env(safe-area-inset-bottom,0px));transform:translate(-50%,20px);opacity:0;
   background:var(--ink);color:var(--board);font-family:var(--f-display);padding:12px 20px;border-radius:999px;transition:.3s;pointer-events:none;
@@ -153,25 +165,11 @@ h1 .star{color:var(--honey)}
 .soon{aspect-ratio:16/9;width:100%;border-radius:18px;border:3px dashed var(--door-edge);display:grid;place-items:center;text-align:center;padding:16px;
   font-family:var(--f-hand);font-size:1.4rem;color:var(--soft)}
 
-footer{text-align:center;font-family:var(--f-hand);font-size:1.25rem;color:var(--soft)}
-
-
-/* Fotohintergrund */
-.bg{position:fixed;inset:0;z-index:0;overflow:hidden;background:var(--bg);background-image:radial-gradient(circle at 1px 1px,var(--door-edge) 1px,transparent 1.5px);background-size:22px 22px}
-.bg .layer{position:absolute;inset:-2%;background-size:cover;background-position:center;opacity:0;transition:opacity 1.6s ease}
-.bg .layer.on{opacity:1}
-.has-photo header{background:var(--board);border-radius:24px;padding:18px 22px;box-shadow:var(--shadow);border:3px solid var(--door-edge);align-self:center;max-width:100%}
-.has-photo footer{background:var(--board);border-radius:999px;padding:6px 18px;align-self:center;box-shadow:var(--shadow)}
-.has-photo .lights{display:none}
-.has-photo .wrap{padding-top:28px}
-@media (prefers-reduced-motion:reduce){.bg .layer{transition:none}}
-.snow{position:fixed;inset:0;pointer-events:none;z-index:1}
-.wrap{position:relative;z-index:2}
+footer{}
 @media (prefers-reduced-motion:reduce){
-  .bulb,.door.today .leaf{animation:none}
-  .leaf{transition:none}
+  .star,.door.today,.door.open{animation:none}
+  .bclip,.window .view .layer{transition:none}
   .card{animation:none}
-  .snow{display:none}
   .vinyl{animation:none}
 }
 </style>
@@ -179,26 +177,30 @@ footer{text-align:center;font-family:var(--f-hand);font-size:1.25rem;color:var(-
 <body>
 
 
-<div class="bg" id="bg" aria-hidden="true"><div class="layer"></div><div class="layer"></div></div>
-<canvas class="snow" id="snow" aria-hidden="true"></canvas>
-<div class="wrap">
-  <div class="lights" aria-hidden="true">
-    <svg viewBox="0 0 1000 56" preserveAspectRatio="none"><path d="M0 8 Q125 44 250 14 T500 14 T750 14 T1000 8" fill="none" stroke="var(--pine)" stroke-width="2.5"/></svg>
-    <div class="bulbs" id="bulbs"></div>
+<div class="wall">
+  <div class="wall-inner">
+    <header>
+      <div class="eyebrow">für meine Lieblingsschwester</div>
+      <h1>Dein Adventskalender</h1>
+      <p class="status" id="status"></p>
+    </header>
+    <div class="window" aria-hidden="true">
+      <div class="light"></div>
+      <div class="view" id="bg"><div class="layer"></div><div class="layer"></div></div>
+      <div class="bars"></div>
+      <div class="curtain"></div>
+      <div class="sill"></div>
+      <div class="star"><svg viewBox="-50 -50 100 100" aria-hidden="true"><polygon fill="#fff6e4" stroke="#f1dcb4" stroke-width="1" points="0.0,-46.0 6.9,-16.6 32.5,-32.5 16.6,-6.9 46.0,-0.0 16.6,6.9 32.5,32.5 6.9,16.6 0.0,46.0 -6.9,16.6 -32.5,32.5 -16.6,6.9 -46.0,0.0 -16.6,-6.9 -32.5,-32.5 -6.9,-16.6"/><circle r="5" fill="#ffe9b8"/></svg></div>
+    </div>
   </div>
-
-  <header>
-    <div class="eyebrow">für meine Lieblingsschwester</div>
-    <h1>Dein Adventskalender <span class="star">✦</span></h1>
-    <p class="status" id="status"></p>
-  </header>
-
-  <main class="board">
-    <div class="grid" id="grid"></div>
-  </main>
-
-  <footer>Jeden Tag ein Türchen. Nicht schummeln! ♡</footer>
 </div>
+
+<main class="stairwell">
+  <div id="grid"></div>
+  <div class="floor"></div>
+</main>
+
+<footer>Jeden Tag eine Tüte. Nicht schummeln! ♡</footer>
 
 <div class="toast" id="toast" role="status" aria-live="polite"></div>
 <div class="scrim" id="scrim" hidden>
@@ -332,17 +334,67 @@ function renderStatus(){
   }
 }
 
-/* Türchen */
+/* Treppe mit Tüten */
 const grid = document.getElementById("grid");
-ORDER.forEach((n,i)=>{
+const BAGS = ORDER.map((n,i)=>{
   const b = document.createElement("button");
-  b.className = "door" + (BIG.has(n) ? " big" : "");
+  b.className = "door s" + ((n*7+i)%3);
   b.dataset.n = n;
-  b.style.setProperty("--dc", COLORS[(i*3+n)%4]);
-  b.innerHTML = `<div class="inside"><span>${["🎄","☕","🍪","🧦","🎁","⭐","🕯️","🦌"][n%8]}</span></div>
-    <div class="leaf"><span class="num">${n}</span><span class="doodle">${DOODLES[n%6]}</span></div>`;
-  grid.appendChild(b);
+  b.dataset.h = (1.12 + ((n*13)%5)*0.06).toFixed(2);
+  b.innerHTML = `<span class="bag"></span><span class="fold"></span><span class="sticker">${n}</span><span class="bclip"></span>`;
+  return b;
 });
+let lastW = 0;
+function buildStairs(){
+  const W = grid.clientWidth; if(!W || W === lastW) return; lastW = W;
+  const per = W < 560 ? 4 : W < 860 ? 6 : 8;
+  const flights = Math.ceil(24 / per);
+  const run = W / per, rise = run * 0.5, t = Math.max(8, run * 0.09);
+  const bagW = Math.min(run * 0.66, 120);
+  const maxH = bagW * 1.36;
+  const railUp = maxH + bagW * 0.45 + 12;
+  grid.innerHTML = "";
+  let idx = 0;
+  for(let f = 0; f < flights; f++){
+    const ltr = f % 2 === 1;               // abwechselnd nach rechts und nach links
+    const H = per * rise + t + railUp + 18;
+    const fl = document.createElement("div"); fl.className = "flight"; fl.style.height = H + "px";
+    const xOf = k => ltr ? k * run : W - (k + 1) * run;
+    // Geländer: Stahlseile hinter den Tüten
+    const pts = k => { const x = xOf(k) + run/2; return [x, H - ((k + 1) * rise + t)]; };
+    const [x0,y0] = pts(0), [x1,y1] = pts(per - 1);
+    let svgBack = `<svg class="rail" width="${W}" height="${H}" viewBox="0 0 ${W} ${H}" style="z-index:0">`;
+    for(let c = 1; c <= 4; c++){ const o = railUp * c / 5; svgBack += `<line x1="${x0}" y1="${y0 - o}" x2="${x1}" y2="${y1 - o}" stroke="var(--steel)" stroke-width="2" opacity=".75"/>`; }
+    svgBack += `<line x1="${x0}" y1="${y0 - 6}" x2="${x0}" y2="${y0 - railUp}" stroke="var(--steel)" stroke-width="5"/><line x1="${x1}" y1="${y1 - 6}" x2="${x1}" y2="${y1 - railUp}" stroke="var(--steel)" stroke-width="5"/></svg>`;
+    fl.insertAdjacentHTML("beforeend", svgBack);
+    for(let k = 0; k < per; k++){
+      const x = xOf(k), top = H - (k + 1) * rise - t;
+      const tr = document.createElement("div"); tr.className = "plank tread";
+      Object.assign(tr.style,{left:(ltr ? x : x - t) + "px", top: top + "px", width:(run + t) + "px", height: t + "px", zIndex: 2});
+      const rs = document.createElement("div"); rs.className = "plank riser";
+      Object.assign(rs.style,{left:(ltr ? x : x + run - t) + "px", top:(top + t) + "px", width: t + "px", height:(rise - t) + "px", zIndex: 2});
+      fl.append(tr, rs);
+      const b = BAGS[idx++];
+      if(b){
+        const h = bagW * +b.dataset.h;
+        Object.assign(b.style,{left:(x + (run - bagW)/2) + "px", top:(top - h) + "px", width: bagW + "px", height: h + "px", zIndex: 3});
+        b.style.setProperty("--fs", (bagW * 0.24) + "px");
+        fl.appendChild(b);
+      }
+    }
+    // Handlauf aus Holz vor den Tüten
+    fl.insertAdjacentHTML("beforeend", `<svg class="rail" width="${W}" height="${H}" viewBox="0 0 ${W} ${H}" style="z-index:4"><line x1="${x0 - (ltr?run*.3:-run*.3)}" y1="${y0 - railUp + rise*.3}" x2="${x1 + (ltr?run*.3:-run*.3)}" y2="${y1 - railUp - rise*.3}" stroke="var(--beech-dark)" stroke-width="${Math.max(6,t*.8)}" stroke-linecap="round"/><line x1="${x0 - (ltr?run*.3:-run*.3)}" y1="${y0 - railUp + rise*.3 - 2}" x2="${x1 + (ltr?run*.3:-run*.3)}" y2="${y1 - railUp - rise*.3 - 2}" stroke="var(--beech-light)" stroke-width="2" stroke-linecap="round" opacity=".8"/></svg>`);
+    // Podest unter jedem Lauf
+    const ld = document.createElement("div"); ld.className = "plank landing";
+    Object.assign(ld.style,{left:(ltr ? 0 : W - run*1.15) + "px", width:(run*1.15) + "px", bottom:0, height:t + "px", zIndex:2});
+    fl.appendChild(ld);
+    grid.appendChild(fl);
+  }
+  // oberster Lauf zuerst sichtbar: Läufe von oben (höchste Stufen) nach unten
+  [...grid.children].reverse().forEach(c => grid.appendChild(c));
+}
+buildStairs();
+let rzT; addEventListener("resize", ()=>{ clearTimeout(rzT); rzT = setTimeout(buildStairs, 150); });
 function refreshDoors(){
   const today = todayNum();
   grid.querySelectorAll(".door").forEach(b=>{
@@ -350,7 +402,7 @@ function refreshDoors(){
     b.classList.toggle("locked", !ok);
     b.classList.toggle("opened", ok && seen.has(n));
     b.classList.toggle("today", !PREVIEW && n === today && !seen.has(n));
-    b.setAttribute("aria-label", ok ? `Türchen ${n} öffnen` : `Türchen ${n}, noch geschlossen`);
+    b.setAttribute("aria-label", ok ? `Tüte ${n} öffnen` : `Tüte ${n}, noch zu`);
   });
 }
 
@@ -493,41 +545,10 @@ function initClip(el){
   });
 }
 
-/* Lichterkette */
-const bulbs = document.getElementById("bulbs");
-const bc = ["var(--berry)","var(--honey)","var(--pine)","#f6a6b2","var(--honey)"];
-for(let i=0;i<14;i++){
-  const s = document.createElement("span"); s.className = "bulb";
-  const x = (i+0.5)/14;
-  s.style.setProperty("--y", (14 + 16*Math.abs(Math.sin(x*Math.PI*4))) + "px");
-  s.style.setProperty("--c", bc[i%bc.length]);
-  s.style.setProperty("--d", (i*0.37%2.6) + "s");
-  bulbs.appendChild(s);
-}
-
-/* Schnee */
-(function(){
-  if (matchMedia("(prefers-reduced-motion: reduce)").matches) return;
-  const c = document.getElementById("snow"), ctx = c.getContext("2d");
-  let w,h,flakes=[];
-  function size(){ w=c.width=innerWidth; h=c.height=innerHeight; }
-  size(); addEventListener("resize", size);
-  for(let i=0;i<60;i++) flakes.push({x:Math.random()*w,y:Math.random()*h,r:1+Math.random()*2.6,s:.3+Math.random()*.8,o:Math.random()*6});
-  function tick(t){
-    ctx.clearRect(0,0,w,h);
-    const col = getComputedStyle(document.documentElement).getPropertyValue("--soft").trim() || "#9a7469";
-    ctx.fillStyle = col; ctx.globalAlpha = .35;
-    for(const f of flakes){
-      f.y += f.s; f.x += Math.sin(t/1400 + f.o)*.3;
-      if(f.y > h+5){ f.y = -5; f.x = Math.random()*w; }
-      ctx.beginPath(); ctx.arc(f.x,f.y,f.r,0,Math.PI*2); ctx.fill();
-    }
-    requestAnimationFrame(tick);
-  }
-  requestAnimationFrame(tick);
-})();
-
 renderStatus(); refreshDoors(); setBg(homeBg());
+(function(){ const t = todayNum(); if(!t || PREVIEW || seen.has(t)) return;
+  const b = grid.querySelector(`.door[data-n="${t}"]`);
+  if(b) setTimeout(()=>b.scrollIntoView({behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block:"center"}), 700); })();
 setInterval(()=>{ renderStatus(); refreshDoors(); if(!bgPicked) setBg(homeBg()); }, 60000);
 addEventListener("hashchange", ()=>location.reload());
 </script>
