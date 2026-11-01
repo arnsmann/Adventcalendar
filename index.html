@@ -71,6 +71,7 @@ h1{font-family:var(--f-display);font-weight:600;font-size:clamp(1.6rem,4.6vw,2.3
 .door.shake{animation:shake .45s}
 @keyframes shake{20%{transform:rotate(-6deg)}40%{transform:rotate(6deg)}60%{transform:rotate(-3deg)}80%{transform:rotate(2deg)}}
 
+@media (max-width:520px){.scene{width:100%}header{padding:8px 16px 10px}.eyebrow{font-size:1rem}h1{font-size:1.55rem}.status{font-size:.85rem}}
 footer{font-family:var(--f-hand);font-size:1.1rem;color:#fff8f1;text-shadow:0 1px 8px rgba(0,0,0,.6);text-align:center}
 
 .toast{position:fixed;left:50%;bottom:calc(24px + env(safe-area-inset-bottom,0px));transform:translate(-50%,20px);opacity:0;
@@ -378,7 +379,7 @@ function renderStatus(){
   }
 }
 
-const SLOTS = [[556,491,"hang"],[628,426,"hang"],[700,361,"hang"],[772,296,"hang"],[844,230,"hang"],[916,165,"hang"],[592,329,"hang"],[664,263,"hang"],[736,198,"hang"],[808,133,"hang"],[530,624,"hang"],[606,687,"hang"],[682,750,"hang"],[758,812,"hang"],[834,875,"hang"],[568,781,"hang"],[644,844,"hang"],[720,907,"hang"],[796,970,"hang"],[530,905,"stand"],[672,1047,"stand"],[814,1189,"stand"],[300,935,"stand"],[392,935,"stand"]];
+const SLOTS = [[556,491,"hang"],[628,426,"hang"],[700,361,"hang"],[772,296,"hang"],[844,230,"hang"],[916,165,"hang"],[592,329,"hang"],[664,263,"hang"],[736,198,"hang"],[808,133,"hang"],[530,624,"hang"],[606,687,"hang"],[682,750,"hang"],[758,812,"hang"],[834,875,"hang"],[568,781,"hang"],[644,844,"hang"],[720,907,"hang"],[796,970,"hang"],[672,1047,"stand"],[814,1189,"stand"],[245,935,"stand"],[330,935,"stand"],[415,935,"stand"]];
 /* Tüten an Mamas Treppe */
 const grid = document.getElementById("grid");
 const VB = {x:200, y:20, w:790, h:1300}, BW = 66;
