@@ -37,28 +37,29 @@ h1{font-family:var(--f-display);font-weight:600;font-size:clamp(1.6rem,4.6vw,2.3
 .pill{background:#fff;border:2px dashed var(--door-edge);border-radius:999px;padding:1px 12px;color:var(--ink)}
 
 /* Szene */
-.scene{position:relative;container-type:inline-size;width:min(100%,calc((100vh - 150px) * 790 / 1300),620px);aspect-ratio:790/1300;
+.scene{position:relative;width:min(100%,calc((100vh - 150px) * 790 / 1300),620px);aspect-ratio:790/1300;
   border-radius:22px;overflow:hidden;box-shadow:var(--shadow);background:#f1ece6}
-.scene > svg{position:absolute;inset:0;width:100%;height:100%;display:block}
+.stage{position:absolute;top:0;right:0;height:100%;aspect-ratio:1000/1300;container-type:inline-size}
+.stage > svg{position:absolute;inset:0;width:100%;height:100%;display:block}
 .view{position:absolute;overflow:hidden;background:linear-gradient(#a9bfd4,#e6dccb)}
 #grid{position:absolute;inset:0}
 
 /* Papiertüten */
 .door{position:absolute;border:0;padding:0;background:none;cursor:pointer;font:inherit;color:inherit;touch-action:manipulation;-webkit-tap-highlight-color:transparent;
-  filter:drop-shadow(0 .6cqw .6cqw rgba(60,30,10,.35));transform-origin:50% 0}
+  filter:drop-shadow(0 0.47cqw 0.47cqw rgba(60,30,10,.35));transform-origin:50% 0}
 .door > *{pointer-events:none}
 .door:focus-visible{outline:3px solid var(--berry);outline-offset:3px;border-radius:4px}
 .bag{position:absolute;inset:0;clip-path:polygon(9% 0,91% 0,100% 100%,0 100%)}
 .bag::after{content:"";position:absolute;inset:0;background:linear-gradient(90deg,rgba(0,0,0,.2),rgba(255,255,255,.08) 30%,rgba(0,0,0,0) 55%,rgba(0,0,0,.22))}
-.s0 .bag{background:repeating-linear-gradient(90deg,#b4502f 0 1.05cqw,#f1e4d1 1.05cqw 2.1cqw)}
-.s1 .bag{background:repeating-linear-gradient(90deg,#211c1a 0 .95cqw,#eedfc8 .95cqw 1.9cqw)}
-.s2 .bag{background:repeating-linear-gradient(90deg,#1f7a52 0 1.2cqw,#155a3c 1.2cqw 1.6cqw,#1f7a52 1.6cqw 2.6cqw,#2b8c61 2.6cqw 2.8cqw)}
+.s0 .bag{background:repeating-linear-gradient(90deg,#b4502f 0 0.83cqw,#f1e4d1 0.83cqw 1.66cqw)}
+.s1 .bag{background:repeating-linear-gradient(90deg,#211c1a 0 0.75cqw,#eedfc8 0.75cqw 1.50cqw)}
+.s2 .bag{background:repeating-linear-gradient(90deg,#1f7a52 0 0.95cqw,#155a3c 0.95cqw 1.26cqw,#1f7a52 1.26cqw 2.05cqw,#2b8c61 2.05cqw 2.21cqw)}
 .fold{position:absolute;left:9%;right:9%;top:0;height:13%;background:rgba(0,0,0,.2);box-shadow:inset 0 -1px 0 rgba(255,255,255,.15)}
 .sticker{position:absolute;left:50%;top:54%;width:46%;aspect-ratio:1;transform:translate(-50%,-50%);border-radius:50%;background:#16120f;color:#fff;
-  display:grid;place-items:center;font-family:var(--f-hand);font-size:3.1cqw;line-height:1}
+  display:grid;place-items:center;font-family:var(--f-hand);font-size:2.45cqw;line-height:1}
 .bclip{position:absolute;left:50%;top:-10%;width:34%;height:18%;transform:translateX(-50%);transition:transform .5s cubic-bezier(.3,1.4,.5,1),opacity .4s}
-.bclip::before{content:"";position:absolute;left:12%;right:12%;top:0;height:62%;border:.3cqw solid #c99a34;border-bottom:0;border-radius:.8cqw .8cqw 0 0}
-.bclip::after{content:"";position:absolute;left:0;right:0;bottom:0;height:52%;border-radius:.2cqw;background:linear-gradient(180deg,#f3d27a,#c99a34 60%,#a67c22)}
+.bclip::before{content:"";position:absolute;left:12%;right:12%;top:0;height:62%;border:0.24cqw solid #c99a34;border-bottom:0;border-radius:0.63cqw 0.63cqw 0 0}
+.bclip::after{content:"";position:absolute;left:0;right:0;bottom:0;height:52%;border-radius:0.16cqw;background:linear-gradient(180deg,#f3d27a,#c99a34 60%,#a67c22)}
 .door.open .bclip,.door.opened .bclip{transform:translate(-50%,-160%) rotate(-28deg);opacity:0}
 .door.opened .fold{background:#2b1f1a;height:9%;top:-1%;box-shadow:inset 0 3px 5px rgba(0,0,0,.5)}
 .door.open{animation:hop .5s ease}
@@ -66,7 +67,7 @@ h1{font-family:var(--f-display);font-weight:600;font-size:clamp(1.6rem,4.6vw,2.3
 .door.hang{animation:sway 5s ease-in-out infinite;animation-delay:var(--d,0s)}
 @keyframes sway{50%{transform:rotate(1.6deg)}}
 .door.today{animation:bob 2.4s ease-in-out infinite}
-.door.today .sticker{box-shadow:0 0 0 .5cqw #f3d27a,0 0 2cqw rgba(243,210,122,.95)}
+.door.today .sticker{box-shadow:0 0 0 0.40cqw #f3d27a,0 0 1.58cqw rgba(243,210,122,.95)}
 @keyframes bob{50%{transform:translateY(-5%)}}
 .door.shake{animation:shake .45s}
 @keyframes shake{20%{transform:rotate(-6deg)}40%{transform:rotate(6deg)}60%{transform:rotate(-3deg)}80%{transform:rotate(2deg)}}
@@ -141,6 +142,17 @@ footer{font-family:var(--f-hand);font-size:1.1rem;color:#fff8f1;text-shadow:0 1p
   .door.hang,.door.today,.door.open,.card,.vinyl{animation:none}
   .bclip,.bg .layer,.view .layer{transition:none}
 }
+
+@media (min-width:900px) and (min-aspect-ratio:1/1){
+  .wrap{display:grid;grid-template-columns:minmax(260px,380px) auto;grid-template-rows:1fr auto;column-gap:clamp(24px,4vw,56px);row-gap:10px;
+    justify-content:center;align-items:center;padding-block:20px;min-height:100vh}
+  header{grid-column:1;grid-row:1;text-align:left;padding:24px 28px 26px;border-radius:24px}
+  .eyebrow{font-size:1.5rem}
+  h1{font-size:clamp(1.9rem,2.3vw,2.3rem)}
+  .status{justify-content:flex-start;font-size:1.05rem;margin-top:10px}
+  .scene{grid-column:2;grid-row:1 / span 2;width:auto;height:calc(100vh - 40px);aspect-ratio:1000/1300}
+  footer{grid-column:1;grid-row:2;align-self:start;text-align:left;padding-left:8px}
+}
 </style>
 </head>
 <body>
@@ -153,8 +165,8 @@ footer{font-family:var(--f-hand);font-size:1.1rem;color:#fff8f1;text-shadow:0 1p
     <h1>Dein Adventskalender</h1>
     <p class="status" id="status"></p>
   </header>
-  <main class="scene">
-    <svg viewBox="200 20 790 1300" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
+  <main class="scene"><div class="stage">
+    <svg viewBox="0 20 1000 1300" preserveAspectRatio="none" aria-hidden="true">
   <defs>
     <linearGradient id="beech" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#e7b47a"/><stop offset="1" stop-color="#cf955b"/></linearGradient>
     <linearGradient id="beechS" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#c88c52"/><stop offset="1" stop-color="#e2ab70"/></linearGradient>
@@ -163,11 +175,19 @@ footer{font-family:var(--f-hand);font-size:1.1rem;color:#fff8f1;text-shadow:0 1p
     <radialGradient id="warm" cx=".7" cy=".35" r=".8"><stop offset="0" stop-color="#fff1d8" stop-opacity=".55"/><stop offset="1" stop-color="#fff1d8" stop-opacity="0"/></radialGradient>
   </defs>
   <!-- Wände -->
-  <rect x="200" y="20" width="790" height="1300" fill="#f2eee9"/>
-  <rect x="200" y="20" width="77" height="850" fill="#e9e4ee"/>
-  <rect x="200" y="20" width="790" height="64" fill="#3d2b22"/>
-  <polygon points="760,84 990,84 990,300 760,300" fill="#4a362c"/>
-  <!-- Bilderrahmen links -->
+  <rect x="0" y="20" width="1000" height="1300" fill="#f2eee9"/>
+  <rect x="0" y="20" width="277" height="850" fill="#e9e4ee"/>
+  <rect x="0" y="20" width="1000" height="64" fill="#3d2b22"/>
+  <polygon points="760,84 1000,84 1000,300 760,300" fill="#4a362c"/>
+  <!-- weitere Bilderrahmen links -->
+  <rect x="-6" y="110" width="120" height="250" fill="#2a2522"/><rect x="2" y="118" width="104" height="234" fill="#7c6a5e"/>
+  <rect x="120" y="230" width="62" height="96" fill="#b07a45"/><rect x="126" y="236" width="50" height="84" fill="#8f8a7f"/>
+  <rect x="0" y="420" width="62" height="100" fill="#1f1f1f"/><rect x="5" y="425" width="52" height="90" fill="#b79a86"/>
+  <rect x="110" y="510" width="44" height="74" fill="#d8d8dc"/><rect x="114" y="514" width="36" height="66" fill="#a99886"/>
+  <rect x="148" y="400" width="52" height="66" fill="#3a3330"/><rect x="152" y="404" width="44" height="58" fill="#9e9184"/>
+  <rect x="0" y="600" width="64" height="100" fill="#a87443"/><rect x="5" y="605" width="54" height="90" fill="#8b9a86"/>
+  <rect x="150" y="610" width="34" height="34" fill="#c99b62"/><rect x="153" y="613" width="28" height="28" fill="#b9a690"/>
+  <!-- Bilderrahmen links (Fortsetzung) -->
   <rect x="206" y="150" width="54" height="98" fill="#8a5a33"/><rect x="211" y="155" width="44" height="88" fill="#6f6a62"/>
   <rect x="214" y="320" width="44" height="70" fill="#222"/><rect x="218" y="324" width="36" height="62" fill="#8d7f72"/>
   <rect x="200" y="455" width="46" height="96" fill="#c9cbd0"/><rect x="204" y="459" width="38" height="88" fill="#d8b9a3"/>
@@ -193,10 +213,10 @@ footer{font-family:var(--f-hand);font-size:1.1rem;color:#fff8f1;text-shadow:0 1p
   <!-- Fensterrahmen -->
   <rect x="694" y="555" width="152" height="254" rx="3" fill="#c88c52"/>
   <rect x="706" y="567" width="128" height="230" fill="#9fb3c8"/>
-  <rect x="200" y="20" width="790" height="1300" fill="url(#warm)"/>
+  <rect x="0" y="20" width="1000" height="1300" fill="url(#warm)"/>
 </svg>
-    <div class="view" aria-hidden="true" style="left:64.051%;top:42.077%;width:16.203%;height:17.692%"><div class="layer"></div><div class="layer"></div></div>
-    <svg viewBox="200 20 790 1300" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
+    <div class="view" aria-hidden="true" style="left:70.600%;top:42.077%;width:12.800%;height:17.692%"><div class="layer"></div><div class="layer"></div></div>
+    <svg viewBox="0 20 1000 1300" preserveAspectRatio="none" aria-hidden="true">
   <!-- Rollo und Gardine -->
   <rect x="706" y="567" width="128" height="30" fill="#6e4b3c"/>
   <path d="M722 597 h112 v200 h-120 q-6-80 8-200z" fill="#ffffff" opacity=".55"/>
@@ -207,15 +227,19 @@ footer{font-family:var(--f-hand);font-size:1.1rem;color:#fff8f1;text-shadow:0 1p
   <line x1="905" y1="300" x2="905" y2="440" stroke="#9a8f7a" stroke-width="2"/>
   <path d="M884 440 h42 l-6 60 h-30z" fill="#fff6dc" opacity=".55" stroke="#c9b98a"/><circle cx="905" cy="480" r="7" fill="#ffd27a"/><circle cx="905" cy="480" r="22" fill="#ffd27a" opacity=".25"/>
   <!-- Boden -->
-  <rect x="200" y="1150" width="790" height="170" fill="#c68f5b"/>
+  <rect x="0" y="1150" width="1000" height="170" fill="#c68f5b"/>
   <g stroke="#a8743f" stroke-width="2" opacity=".6"><line x1="300" y1="1150" x2="240" y2="1320"/><line x1="420" y1="1150" x2="400" y2="1320"/><line x1="560" y1="1150" x2="580" y2="1320"/><line x1="700" y1="1150" x2="760" y2="1320"/><line x1="840" y1="1150" x2="930" y2="1320"/><line x1="960" y1="1150" x2="990" y2="1220"/></g>
   <!-- Schrank -->
-  <polygon points="200,852 495,852 495,962 200,962" fill="#e0a96d"/>
-  <polygon points="200,852 495,852 488,866 200,866" fill="#efc18c"/>
-  <rect x="200" y="962" width="290" height="358" fill="url(#beech)"/>
-  <rect x="200" y="976" width="76" height="344" fill="#dca367" stroke="#b77e46" stroke-width="2"/>
-  <rect x="282" y="976" width="200" height="344" fill="#dca367" stroke="#b77e46" stroke-width="2"/>
-  <circle cx="262" cy="1150" r="8" fill="#e8b87f" stroke="#b77e46"/><circle cx="298" cy="1150" r="8" fill="#e8b87f" stroke="#b77e46"/>
+  <polygon points="43,852 495,852 495,962 43,962" fill="#e0a96d"/>
+  <polygon points="43,852 495,852 488,866 43,866" fill="#efc18c"/>
+  <rect x="43" y="962" width="447" height="358" fill="url(#beech)"/>
+  <rect x="58" y="976" width="210" height="344" fill="#dca367" stroke="#b77e46" stroke-width="2"/>
+  <rect x="274" y="976" width="208" height="344" fill="#dca367" stroke="#b77e46" stroke-width="2"/>
+  <circle cx="252" cy="1150" r="8" fill="#e8b87f" stroke="#b77e46"/><circle cx="290" cy="1150" r="8" fill="#e8b87f" stroke="#b77e46"/>
+  <!-- kleine Rahmen auf dem Schrank -->
+  <g><rect x="62" y="806" width="44" height="50" fill="#2a2a2a" transform="rotate(-8 84 830)"/><rect x="66" y="810" width="36" height="42" fill="#97a3ad" transform="rotate(-8 84 830)"/>
+  <rect x="150" y="814" width="34" height="40" fill="#dad7d2" transform="rotate(-6 167 834)"/><rect x="153" y="817" width="28" height="34" fill="#a78f7d" transform="rotate(-6 167 834)"/></g>
+  <rect x="0" y="1060" width="16" height="30" rx="3" fill="#f3f3f1" stroke="#ccc"/>
   <!-- Wendelstufen -->
   <rect x="300" y="790" width="190" height="16" fill="url(#beech)"/><rect x="345" y="742" width="150" height="14" fill="url(#beech)"/><rect x="398" y="698" width="100" height="14" fill="url(#beech)"/>
   <rect x="268" y="806" width="34" height="50" fill="#d39a5f"/><rect x="300" y="806" width="190" height="46" fill="#00000010"/>
@@ -240,7 +264,7 @@ footer{font-family:var(--f-hand);font-size:1.1rem;color:#fff8f1;text-shadow:0 1p
   <line x1="474" y1="535" x2="896" y2="883" stroke="#e8b97f" stroke-width="3" stroke-linecap="round"/>
 </svg>
     <div id="grid"></div>
-  </main>
+  </div></main>
   <footer>Jeden Tag eine Tüte. Nicht schummeln! ♡</footer>
 </div>
 
@@ -382,7 +406,7 @@ function renderStatus(){
 const SLOTS = [[556,491,"hang"],[628,426,"hang"],[700,361,"hang"],[772,296,"hang"],[844,230,"hang"],[916,165,"hang"],[592,329,"hang"],[664,263,"hang"],[736,198,"hang"],[808,133,"hang"],[530,624,"hang"],[606,687,"hang"],[682,750,"hang"],[758,812,"hang"],[834,875,"hang"],[568,781,"hang"],[644,844,"hang"],[720,907,"hang"],[796,970,"hang"],[672,1047,"stand"],[814,1189,"stand"],[245,935,"stand"],[330,935,"stand"],[415,935,"stand"]];
 /* Tüten an Mamas Treppe */
 const grid = document.getElementById("grid");
-const VB = {x:200, y:20, w:790, h:1300}, BW = 66;
+const VB = {x:0, y:20, w:1000, h:1300}, BW = 66;
 ORDER.forEach((n,i)=>{
   const [cx, y, kind] = SLOTS[i];
   const h = BW * (1.22 + ((n*13)%4)*0.06);
