@@ -150,6 +150,20 @@ footer{font-family:var(--f-hand);font-size:1.1rem;color:#fff8f1;text-shadow:0 1p
 .soon{aspect-ratio:16/9;width:100%;border-radius:18px;border:3px dashed var(--door-edge);display:grid;place-items:center;text-align:center;padding:16px;
   font-family:var(--f-hand);font-size:1.4rem;color:var(--soft)}
 
+/* Karte im Look des Tagesbilds */
+.card.has-pic{background:linear-gradient(rgba(25,15,12,.6),rgba(25,15,12,.82)),var(--pic) center/cover;border-color:rgba(255,255,255,.18);color:#fff8f1}
+.card.has-pic h2,.card.has-pic .note,.card.has-pic .song-head b{color:#fff8f1}
+.card.has-pic .date{color:#f6c3cc}
+.card.has-pic .song{background:rgba(255,255,255,.1);border-color:rgba(255,255,255,.18);-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px)}
+.card.has-pic .song-head small{color:rgba(255,248,241,.75)}
+.card.has-pic .save{background:#fff8f1;color:var(--ink)}
+.card.has-pic .guide{background:rgba(255,248,241,.94);color:var(--ink)}
+.card.has-pic .vinyl-wrap:not(.cover){aspect-ratio:16/9;max-width:100%;border-radius:14px;padding:0;background:var(--pic) center/cover;box-shadow:inset 0 0 40px 10px rgba(0,0,0,.35)}
+.card.has-pic .vinyl-wrap .vinyl{width:auto;height:70%;box-shadow:0 14px 34px rgba(0,0,0,.55)}
+.card.has-pic .clip .cover{background:var(--pic) center/cover}
+.card.has-pic .vinyl .label{background:center/cover var(--pic)}
+.card.has-pic .vinyl .label span{text-shadow:0 1px 6px rgba(0,0,0,.7)}
+
 @media (prefers-reduced-motion:reduce){
   .door.hang,.door.today,.door.open,.card,.vinyl{animation:none}
   .bclip,.bg .layer,.view .layer{transition:none}
@@ -490,6 +504,9 @@ function showCard(n){
   lastDoor = grid.querySelector(`.door[data-n="${n}"]`);
   const item = TUERCHEN[n] || {};
   document.getElementById("card-date").textContent = `${n}. Dezember`;
+  const cardEl = scrim.querySelector(".card");
+  if(item.bild){ cardEl.classList.add("has-pic"); cardEl.style.setProperty("--pic", `url("${item.bild}")`); }
+  else { cardEl.classList.remove("has-pic"); cardEl.style.removeProperty("--pic"); }
   document.getElementById("card-title").textContent = `Türchen ${n}`;
   const media = document.getElementById("card-media");
   const id = ytId(item.video);
