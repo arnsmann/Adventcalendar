@@ -813,8 +813,9 @@ function alignViews(){
   document.querySelectorAll(".view").forEach(v=>{
     const r = v.getBoundingClientRect();
     const st = (v.closest(".stage") || document.body).getBoundingClientRect();
-    const k = 1.25, W = st.width * k, H = st.height * k;
-    const L = st.left - (W - st.width) / 2, T = st.top - (H - st.height) / 2;
+    // kleiner Ausschnitt der Welt: das Bild liegt verkleinert hinter den Fenstern (rechte obere Hälfte des Treppenhauses)
+    const W = st.width * .8, H = st.height * .62;
+    const L = st.left + st.width * .2, T = st.top - st.height * .03;
     v.querySelectorAll(".layer").forEach(l=>{ l.style.inset = "auto"; l.style.left = (L - r.left) + "px"; l.style.top = (T - r.top) + "px"; l.style.width = W + "px"; l.style.height = H + "px"; });
   });
 }
