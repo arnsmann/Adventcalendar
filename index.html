@@ -218,46 +218,36 @@ footer{font-family:var(--f-hand);font-size:1.1rem;color:#fff8f1;text-shadow:0 1p
 .card.has-pic .song-head .cover-art{background:var(--pic) center/cover}
 .card.has-pic .song-head .cover-art::after{display:none}
 
-/* Schneekugel */
-.globe-wrap{position:relative;width:min(92vw,calc(100vh - 330px),720px);min-width:260px;display:flex;flex-direction:column;align-items:center;margin-top:6px}
-.globe{position:relative;width:100%;aspect-ratio:1;border-radius:50%;z-index:2;
-  box-shadow:0 30px 60px rgba(20,8,4,.45),0 0 0 2px rgba(255,255,255,.25)}
-.globe .scene{position:absolute;inset:0;width:100%;height:100%;aspect-ratio:auto;border-radius:50%;overflow:hidden;box-shadow:none;background:#2a1d18;max-width:none}
-.globe .stage{position:absolute;inset:auto;top:0;left:50%;height:100%;width:auto;aspect-ratio:1195/896;transform:translateX(-49.4%)}
-.globe-snow{position:absolute;inset:0;width:100%;height:100%;border-radius:50%;pointer-events:none;z-index:5}
-.glass{position:absolute;inset:0;border-radius:50%;pointer-events:none;z-index:6;
-  background:
-    radial-gradient(ellipse 34% 22% at 32% 20%,rgba(255,255,255,.55),rgba(255,255,255,0) 70%),
-    radial-gradient(ellipse 10% 5% at 70% 14%,rgba(255,255,255,.45),rgba(255,255,255,0) 80%),
-    radial-gradient(circle at 50% 50%,rgba(255,255,255,0) 62%,rgba(190,215,240,.18) 70%,rgba(255,255,255,.35) 71%,rgba(160,190,220,.22) 74%,rgba(20,30,50,.35) 100%);
-  box-shadow:inset 0 0 0 2px rgba(255,255,255,.4),inset -18px -26px 50px rgba(255,255,255,.12),inset 14px 18px 40px rgba(0,0,0,.25)}
-.globe-enter{display:none;position:absolute;inset:0;border-radius:50%;border:0;background:none;cursor:zoom-in;z-index:7;-webkit-tap-highlight-color:transparent}
+/* Schneekugel (gemalt) */
+.globe-wrap{position:relative;width:min(92vw,calc((100vh - 230px) * 478 / 566),600px);min-width:260px;aspect-ratio:478/566;margin-top:4px}
+.globe-img{position:absolute;inset:0;width:100%;height:100%;display:block;user-select:none;-webkit-user-select:none;pointer-events:none;
+  filter:drop-shadow(0 24px 30px rgba(30,10,5,.4));transform-origin:50% 92%}
+.globe{display:none}
+/* Kreis der Kugel im Bild: Mitte 50% / 42.4%, Durchmesser 97.5% der Breite */
+.globe-snow{position:absolute;left:1.26%;top:1.24%;width:97.5%;aspect-ratio:1;border-radius:50%;pointer-events:none;z-index:3;transform-origin:50% 92%}
+.globe-enter{position:absolute;left:1.26%;top:1.24%;width:97.5%;aspect-ratio:1;border-radius:50%;border:0;background:none;cursor:zoom-in;z-index:4;-webkit-tap-highlight-color:transparent}
 .globe-enter:focus-visible{outline:3px solid #ffe2a8;outline-offset:4px}
-.base{position:relative;width:78%;margin-top:-5.5%;z-index:3;display:block;filter:drop-shadow(0 14px 18px rgba(20,8,4,.45))}
-.ground{position:absolute;left:0;right:0;bottom:-4%;height:16%;z-index:1;border-radius:50%;pointer-events:none;
-  background:radial-gradient(ellipse at 50% 45%,rgba(255,255,255,.95),rgba(245,240,248,.85) 40%,rgba(255,255,255,0) 72%)}
-.shake-btn{position:absolute;left:11%;right:11%;bottom:0;height:22%;z-index:4;border:0;background:none;cursor:pointer;border-radius:30px;-webkit-tap-highlight-color:transparent}
+.shake-btn{position:absolute;left:12%;right:12%;bottom:1%;height:22%;z-index:5;border:0;background:none;cursor:pointer;border-radius:40px;-webkit-tap-highlight-color:transparent}
 .shake-btn:focus-visible{outline:3px solid #ffe2a8;outline-offset:2px}
 .globe-hint{font-family:var(--f-hand);font-size:1.05rem;color:#fff8f1;text-shadow:0 1px 8px rgba(0,0,0,.6);text-align:center;max-width:46ch}
-.globe-wrap.shaking .globe{animation:wobble .6s ease}
+.globe-wrap.shaking .globe-img,.globe-wrap.shaking .globe-snow{animation:wobble .6s ease}
 @keyframes wobble{20%{transform:rotate(-3deg)}45%{transform:rotate(2.5deg)}70%{transform:rotate(-1.2deg)}}
 .globe-back{position:fixed;top:calc(14px + env(safe-area-inset-top,0px));left:calc(14px + env(safe-area-inset-left,0px));z-index:16;border:0;
   background:var(--board);color:var(--ink);font-family:var(--f-display);font-weight:500;font-size:1rem;padding:10px 16px;border-radius:999px;box-shadow:var(--shadow);cursor:pointer}
-/* Handy: erst hineinzoomen, dann Tüten antippen */
-.globe-wrap:not(.zoomed) #grid{pointer-events:none}
-.globe-wrap:not(.zoomed) .globe-enter{display:block}
-@media (min-width:821px) and (min-aspect-ratio:1/1){ .globe-hint{font-size:1rem} }
 /* hineingezoomt */
-.globe-wrap.zoomed .globe{position:fixed;z-index:15;border-radius:18px;aspect-ratio:auto;width:auto;
+.globe-wrap.zoomed .globe{display:block;position:fixed;z-index:15;border-radius:18px;aspect-ratio:auto;width:auto;
   inset:calc(66px + env(safe-area-inset-top,0px)) max(10px,env(safe-area-inset-right,0px)) max(10px,env(safe-area-inset-bottom,0px)) max(10px,env(safe-area-inset-left,0px));
   animation:dive .55s cubic-bezier(.2,.9,.3,1)}
+@media (min-aspect-ratio:1/1){
+  .globe-wrap.zoomed .globe{left:0;right:0;margin:0 auto;width:min(calc(100vw - 20px),calc((100vh - 80px) * 1195 / 896));bottom:auto;aspect-ratio:1195/896}
+}
 @keyframes dive{from{transform:scale(.55);opacity:0;border-radius:50%}}
-.globe-wrap.zoomed .scene{border-radius:18px;overflow-x:auto;overflow-y:hidden;scrollbar-width:none;-webkit-overflow-scrolling:touch}
+.globe-wrap.zoomed .scene{position:absolute;inset:0;width:100%;height:100%;aspect-ratio:auto;max-width:none;box-shadow:none;border-radius:18px;overflow-x:auto;overflow-y:hidden;scrollbar-width:none;-webkit-overflow-scrolling:touch}
 .globe-wrap.zoomed .scene::-webkit-scrollbar{display:none}
-.globe-wrap.zoomed .stage{position:relative;left:auto;transform:none;margin:0 auto;height:100%}
-.globe-wrap.zoomed .glass,.globe-wrap.zoomed .globe-snow{display:none}
+.globe-wrap.zoomed .stage{position:relative;inset:auto;left:auto;transform:none;margin:0 auto;height:100%;width:auto;aspect-ratio:1195/896}
+.globe-wrap.zoomed .globe-snow{display:none}
 .globe-wrap.zoomed::before{content:"";position:fixed;inset:-50vh -50vw;background:rgba(15,8,6,.78);z-index:14}
-@media (prefers-reduced-motion:reduce){.globe-wrap.zoomed .globe,.globe-wrap.shaking .globe{animation:none}}
+@media (prefers-reduced-motion:reduce){.globe-wrap.zoomed .globe,.globe-wrap.shaking .globe-img,.globe-wrap.shaking .globe-snow{animation:none}}
 
 @media (prefers-reduced-motion:reduce){
   .door.hang,.door.today,.door.open,.card,.vinyl{animation:none}
@@ -277,32 +267,16 @@ footer{font-family:var(--f-hand);font-size:1.1rem;color:#fff8f1;text-shadow:0 1p
     <p class="status" id="status"></p>
   </header>
   <div class="globe-wrap" id="globeWrap">
+    <img class="globe-img" src="bilder/kugel-f77cf27a.webp" alt="Schneekugel mit unserem Treppenhaus" draggable="false">
     <div class="globe" id="globe">
     <main class="scene"><div class="stage">
     <div class="view" aria-hidden="true" style="left:0;top:0;width:100%;height:100%"><div class="layer"></div><div class="layer"></div></div>
     <img class="flur" src="bilder/flur-69aa759b.webp" alt="Unser Treppenhaus mit 24 Tüten" draggable="false">
     <div id="grid"></div>
   </div></main>
-      <canvas class="globe-snow" id="globeSnow" aria-hidden="true"></canvas>
-      <div class="glass" aria-hidden="true"></div>
-      <button type="button" class="globe-enter" id="globeEnter" aria-label="In die Schneekugel hineinschauen"></button>
     </div>
-    <div class="ground" aria-hidden="true"></div>
-    <svg class="base" viewBox="0 0 400 120" aria-hidden="true">
-      <defs>
-        <linearGradient id="wood" x1="0" x2="1"><stop offset="0" stop-color="#6e4026"/><stop offset=".25" stop-color="#a8683d"/><stop offset=".5" stop-color="#c98a55"/><stop offset=".75" stop-color="#a8683d"/><stop offset="1" stop-color="#5e3520"/></linearGradient>
-        <linearGradient id="woodTop" x1="0" x2="1"><stop offset="0" stop-color="#8a5432"/><stop offset=".5" stop-color="#d79a63"/><stop offset="1" stop-color="#7a4529"/></linearGradient>
-        <linearGradient id="gold" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#f6dc93"/><stop offset=".5" stop-color="#d4a84a"/><stop offset="1" stop-color="#a87b25"/></linearGradient>
-      </defs>
-      <path d="M58 22 Q200 44 342 22 L372 96 Q200 128 28 96 Z" fill="url(#wood)"/>
-      <path d="M28 96 Q200 128 372 96 L376 104 Q200 138 24 104 Z" fill="#4a2a18"/>
-      <ellipse cx="200" cy="22" rx="142" ry="16" fill="url(#woodTop)"/>
-      
-      <g opacity=".22" stroke="#3a2216" stroke-width="1.2" fill="none"><path d="M70 50 Q200 70 330 50"/><path d="M50 72 Q200 96 350 72"/></g>
-      <rect x="128" y="58" width="144" height="30" rx="5" fill="url(#gold)" stroke="#8a6420" stroke-width="1.5"/>
-      <rect x="133" y="62" width="134" height="22" rx="3" fill="none" stroke="#fff3c4" stroke-opacity=".55"/>
-      <text x="200" y="77.5" text-anchor="middle" font-family="Fredoka, Nunito, sans-serif" font-size="12.5" font-weight="600" fill="#5a3b12">Advent 2026 ♡</text>
-    </svg>
+    <canvas class="globe-snow" id="globeSnow" aria-hidden="true"></canvas>
+    <button type="button" class="globe-enter" id="globeEnter" aria-label="In die Schneekugel hineinschauen"></button>
     <button type="button" class="shake-btn" id="shakeBtn" aria-label="Schneekugel schütteln"></button>
   </div>
   <button type="button" class="globe-back" id="globeBack" hidden>← zurück zur Schneekugel</button>
@@ -639,7 +613,7 @@ renderStatus(); refreshDoors(); setBg(homeBg());
   const cv = document.getElementById("globeSnow"), ctx = cv.getContext("2d");
   const reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
   let W = 0, flakes = [];
-  function size(){ const r = globe.getBoundingClientRect(); const d = devicePixelRatio || 1; W = r.width; cv.width = W*d; cv.height = W*d; ctx.setTransform(d,0,0,d,0,0); }
+  function size(){ const r = cv.getBoundingClientRect(); const d = devicePixelRatio || 1; W = r.width; cv.width = W*d; cv.height = W*d; ctx.setTransform(d,0,0,d,0,0); }
   size(); addEventListener("resize", size);
   for(let i=0;i<110;i++) flakes.push({x:Math.random(), y:Math.random(), r:.6+Math.random()*2.1, vy:.0006+Math.random()*.0012, vx:0, o:Math.random()*6});
   function shake(){
