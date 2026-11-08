@@ -958,9 +958,12 @@ renderStatus(); refreshDoors(); setBg(homeBg());
       let asked = false;
       try{ asked = localStorage.getItem("advent-motion") === "ja"; }catch(e){}
       if(asked){
-        // Erlaubnis ist schon erteilt, wird beim ersten Tippen still erneuert
-        const once = ()=>{ DeviceMotionEvent.requestPermission().then(r=>{ if(r === "granted") startMotion(); }).catch(()=>{}); removeEventListener("touchend", once); };
-        addEventListener("touchend", once);
+        // Erlaubnis war schon erteilt: einfach lauschen, nie von selbst nachfragen.
+        // Kommen keine Bewegungsdaten an (iPhone hat es vergessen), erscheint nur der kleine Knopf wieder.
+        let got = false;
+        const probe = ()=>{ got = true; removeEventListener("devicemotion", probe); startMotion(); };
+        addEventListener("devicemotion", probe);
+        setTimeout(()=>{ if(!got){ removeEventListener("devicemotion", probe); motionBtn.hidden = false; } }, 1500);
       } else {
         motionBtn.hidden = false;
       }
