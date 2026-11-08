@@ -286,6 +286,24 @@ header .pill{background:none;border:0;padding:0;border-radius:0;color:var(--t-ac
   padding:8px 16px;border-radius:999px;box-shadow:0 6px 16px rgba(20,8,4,.3);cursor:pointer}
 .motion-btn:focus-visible{outline:3px solid #ffe2a8;outline-offset:2px}
 
+/* ganzes Hintergrundbild ansehen */
+.peek-btn{position:fixed;z-index:12;right:calc(12px + env(safe-area-inset-right,0px));bottom:calc(12px + env(safe-area-inset-bottom,0px));
+  display:flex;align-items:center;gap:6px;border:0;border-radius:999px;padding:8px 13px;cursor:pointer;
+  background:rgba(20,12,8,.5);color:#fff8f1;font-family:var(--f-display);font-size:.9rem;-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px)}
+.peek-btn:focus-visible,.peek-close:focus-visible{outline:3px solid #ffe2a8;outline-offset:2px}
+@media (max-width:520px){.peek-btn span{display:none}.peek-btn{padding:9px}}
+.peek-close{position:fixed;z-index:13;top:calc(14px + env(safe-area-inset-top,0px));left:calc(14px + env(safe-area-inset-left,0px));border:0;border-radius:999px;
+  padding:9px 15px;background:rgba(255,248,241,.92);color:var(--ink);font-family:var(--f-display);font-weight:500;font-size:1rem;box-shadow:var(--shadow);cursor:pointer}
+.peek-hint{position:fixed;z-index:13;left:50%;bottom:calc(22px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);
+  font-family:var(--f-hand);font-size:1.2rem;color:#fff8f1;text-shadow:0 1px 6px rgba(0,0,0,.7);pointer-events:none;animation:hintfade 3.5s forwards}
+@keyframes hintfade{0%,70%{opacity:1}100%{opacity:0}}
+body.peek .wrap,body.peek .peek-btn{opacity:0;pointer-events:none}
+.wrap{transition:opacity .5s}
+body.peek .bg{z-index:11;cursor:grab;touch-action:none}
+body.peek .bg::after{opacity:0}
+body.peek .bg .layer{transition:opacity 1.6s ease,background-size .5s ease}
+@media (min-aspect-ratio:16/10){ body.peek .bg .layer{background-size:contain!important;background-position:center!important} body.peek .bg{background:#120c0a} }
+
 @media (prefers-reduced-motion:reduce){
   .door.hang,.door.today,.door.open,.card,.vinyl{animation:none}
   .bclip,.bg .layer,.view .layer{transition:none}
@@ -297,6 +315,9 @@ header .pill{background:none;border:0;padding:0;border-radius:0;color:var(--t-ac
 
 
 <div class="bg" aria-hidden="true"><div class="layer"></div><div class="layer"></div></div>
+<button type="button" class="peek-btn" id="peekBtn" aria-label="Ganzes Bild ansehen"><svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path d="M3 7V4h3M21 7V4h-3M3 17v3h3M21 17v3h-3" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><path d="M5 16l4-5 3 3 3-4 4 6z" fill="currentColor"/></svg><span>Bild ansehen</span></button>
+<button type="button" class="peek-close" id="peekClose" hidden>✕ zurück</button>
+<div class="peek-hint" id="peekHint" hidden>← wischen →</div>
 <div class="wrap">
   <header>
     <div class="eyebrow">für meine Lieblingsschwester</div>
@@ -720,6 +741,38 @@ function initClip(el){
 }
 
 renderStatus(); refreshDoors(); setBg(homeBg());
+/* Bild ansehen: Oberfläche ausblenden, Bild mit dem Finger verschieben */
+(function(){
+  const btn = document.getElementById("peekBtn"), close = document.getElementById("peekClose"), hint = document.getElementById("peekHint"), bg = document.querySelector(".bg");
+  let px = 50, startX = 0, startPx = 50, drag = false;
+  const layers = () => [...bg.querySelectorAll(".layer")];
+  function apply(){ layers().forEach(l=>{ l.style.backgroundPosition = px + "% 50%"; }); }
+  function imgOverflow(){ // wie viel breiter das Bild ist als der Bildschirm (in px)
+    const l = bg.querySelector(".layer.on"); if(!l || !l._w){ return innerWidth; }
+    return Math.max(1, innerHeight * l._w / l._h - innerWidth);
+  }
+  function measure(){ layers().forEach(l=>{ const m = (l.style.backgroundImage||"").match(/url\("?(.*?)"?\)/); if(!m) return; const i = new Image(); i.onload = ()=>{ l._w = i.naturalWidth; l._h = i.naturalHeight; }; i.src = m[1]; }); }
+  function open(){
+    document.body.classList.add("peek"); close.hidden = false; measure();
+    const l = bg.querySelector(".layer.on"); const pos = l && l.style.backgroundPosition; px = 50;
+    if(pos && /%/.test(pos)) px = parseFloat(pos);
+    apply();
+    if(innerWidth / innerHeight < 1.6){ hint.hidden = false; hint.style.animation = "none"; void hint.offsetWidth; hint.style.animation = ""; }
+    close.focus();
+  }
+  function shut(){
+    document.body.classList.remove("peek"); close.hidden = true; hint.hidden = true;
+    layers().forEach(l=>{ l.style.backgroundPosition = ""; });
+    try{ bgCurrent && setBg.__reapply && setBg.__reapply(); }catch(e){}
+    const cur = bgCurrent; bgCurrent = null; setBg(cur);
+    btn.focus();
+  }
+  btn.addEventListener("click", open); close.addEventListener("click", shut);
+  document.addEventListener("keydown", e=>{ if(e.key === "Escape" && document.body.classList.contains("peek")) shut(); });
+  bg.addEventListener("pointerdown", e=>{ if(!document.body.classList.contains("peek")) return; drag = true; startX = e.clientX; startPx = px; bg.setPointerCapture(e.pointerId); bg.style.cursor = "grabbing"; });
+  bg.addEventListener("pointermove", e=>{ if(!drag) return; const ov = imgOverflow(); px = Math.max(0, Math.min(100, startPx - (e.clientX - startX) / ov * 100)); apply(); });
+  ["pointerup","pointercancel"].forEach(t=>bg.addEventListener(t, ()=>{ drag = false; bg.style.cursor = ""; }));
+})();
 /* Schneekugel: Schnee, Schütteln, Hineinzoomen */
 (function(){
   const wrap = document.getElementById("globeWrap"), globe = document.getElementById("globe");
