@@ -982,7 +982,13 @@ renderStatus(); refreshDoors(); setBg(homeBg());
         let got = false;
         const probe = ()=>{ got = true; removeEventListener("devicemotion", probe); startMotion(); };
         addEventListener("devicemotion", probe);
-        setTimeout(()=>{ if(!got){ removeEventListener("devicemotion", probe); motionBtn.hidden = false; } }, 1500);
+        // Hat das iPhone die Erlaubnis vergessen (passiert in der Homebildschirm App bei jedem Start),
+        // kommt kein Knopf mehr: beim ersten Tippen auf den Sockel wird still nachgefragt, einmal pro Start.
+        setTimeout(()=>{ if(!got){ removeEventListener("devicemotion", probe);
+          const sb = document.getElementById("shakeBtn");
+          const ask = ()=>{ sb.removeEventListener("click", ask); DeviceMotionEvent.requestPermission().then(r=>{ if(r === "granted") startMotion(); }).catch(()=>{}); };
+          sb.addEventListener("click", ask);
+        } }, 1500);
       } else {
         motionBtn.hidden = false;
       }
