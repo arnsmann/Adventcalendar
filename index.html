@@ -332,6 +332,7 @@ header .pill{background:none;border:0;padding:0;border-radius:0;color:var(--t-ac
    bild:  Foto für diesen Tag (siehe oben)
    bildpos: optional, welcher Teil des Bildes im Hintergrund zu sehen ist (z.B. "100% 50%" = rechter Rand, damit Personen links neben der Kugel stehen)
    wetter: was sich in der Kugel bewegt: "schnee" (Standard), "regen", "magie", "elben", "gluehwuermchen" oder "pusteblume"
+   fenster: optional, was die Fenster im Treppenhaus zeigen: [Größe, Ausschnitt], z.B. ["240%", "92% 42%"] für den Wald weiter hinten
    kugelversatz: optional, schiebt die Kugel am Computer nach rechts (z.B. "12vw"), damit Personen im Bild frei stehen
    kugelrand: nur bei breiten Kugeln, wie weit das Bild links und oben über die Kugel hinausragt (Pixel bei 956 px Grundbreite)
    kugel: optional eine eigene Schneekugel für diesen Tag (z.B. Harry Potter Sockel)
@@ -348,7 +349,7 @@ const TUERCHEN = {
   2:  { video: "", song: "t02-3147c97f", titel: "Those Eyes", bild: "bilder/b02-24e36be5.jpg", wetter: "gluehwuermchen", kugel: "bilder/kugel-mond-4b3af2f3.webp", clip: "https://youtu.be/memUamSICTc", text: "" },
   3:  { video: "", song: "t03-861fdead", titel: "Hobbit", bild: "bilder/b03-54943730.jpg", wetter: "elben", kugel: "bilder/kugel-elben-913df12a.webp", clip: "https://youtu.be/chxX9uucndY", text: "" },
   4:  { video: "", song: "t04-42593136", titel: "Creep", bild: "bilder/b04-e39107ba.jpg", wetter: "regen", kugel: "bilder/kugel-regen-b47fee09.webp", text: "" },
-  5:  { video: "", song: "t05-ebefd28c", titel: "Memories", kugel: "bilder/kugel-wald-58817d5f.webp", kugelrand: [200,80], kugelversatz: "12vw", bildpos: "100% 50%", bild: "bilder/b05-208fe068.jpg", wetter: "pusteblume", text: "" },
+  5:  { video: "", song: "t05-ebefd28c", titel: "Memories", kugel: "bilder/kugel-wald-58817d5f.webp", kugelrand: [200,80], kugelversatz: "12vw", fenster: ["240%", "92% 42%"], bildpos: "100% 50%", bild: "bilder/b05-208fe068.jpg", wetter: "pusteblume", text: "" },
   6:  { video: "", text: "" },
   7:  { video: "", text: "" },
   8:  { video: "", text: "" },
@@ -947,8 +948,11 @@ function alignViews(){
     let W = st.width * .8, H = st.height * .62, L = st.left + st.width * .2, T = st.top - st.height * .03;
     // In der Schneekugel: durch die Fenster sieht man genau die Welt, die hinter der Kugel liegt
     const wrapEl = document.getElementById("globeWrap");
-    if(wrapEl && !wrapEl.classList.contains("zoomed")){ W = innerWidth; H = innerHeight; L = 0; T = 0; }
-    v.querySelectorAll(".layer").forEach(l=>{ l.style.inset = "auto"; l.style.left = (L - r.left) + "px"; l.style.top = (T - r.top) + "px"; l.style.width = W + "px"; l.style.height = H + "px"; });
+    const zoomedIn = !wrapEl || wrapEl.classList.contains("zoomed");
+    if(!zoomedIn){ W = innerWidth; H = innerHeight; L = 0; T = 0; }
+    let fz = null;
+    for(const d in TUERCHEN){ if(TUERCHEN[d].bild && TUERCHEN[d].bild === bgCurrent && TUERCHEN[d].fenster){ fz = TUERCHEN[d].fenster; break; } }
+    v.querySelectorAll(".layer").forEach(l=>{ l.style.backgroundSize = (zoomedIn && fz) ? fz[0] : ""; l.style.backgroundPosition = (zoomedIn && fz) ? fz[1] : ""; l.style.inset = "auto"; l.style.left = (L - r.left) + "px"; l.style.top = (T - r.top) + "px"; l.style.width = W + "px"; l.style.height = H + "px"; });
   });
 }
 alignViews();
