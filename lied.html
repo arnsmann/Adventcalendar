@@ -1,0 +1,71 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="robots" content="noindex">
+<title>Dein Song</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@500;700&family=Nunito:wght@400;600;700&display=swap">
+<style>
+:root{--ink:#fff6ea;--soft:rgba(255,246,234,.78);--card:rgba(25,15,12,.55)}
+*{box-sizing:border-box}
+html,body{margin:0;min-height:100%;background:#2b211d;color:var(--ink);font-family:"Nunito",system-ui,sans-serif}
+.bg{position:fixed;inset:0;background:#2b211d center/cover no-repeat}
+.bg::after{content:"";position:absolute;inset:0;background:linear-gradient(rgba(20,12,8,.25),rgba(20,12,8,.7))}
+main{position:relative;min-height:100vh;display:grid;place-items:center;
+  padding-block:max(24px,env(safe-area-inset-top,0px)) max(24px,env(safe-area-inset-bottom,0px));
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+.card{width:min(100%,460px);background:var(--card);border:1px solid rgba(255,255,255,.18);border-radius:24px;padding:28px 24px;text-align:center;
+  -webkit-backdrop-filter:blur(14px);backdrop-filter:blur(14px);box-shadow:0 30px 70px rgba(0,0,0,.45);display:flex;flex-direction:column;gap:14px;align-items:center}
+.day{font-family:"Dancing Script",cursive;font-size:1.5rem;color:#ffd98a}
+h1{font-family:"Dancing Script",cursive;font-weight:700;font-size:clamp(2.4rem,9vw,3.2rem);line-height:1;margin:0}
+.by{color:var(--soft);font-size:.95rem;margin:-4px 0 4px}
+.vinyl{width:min(62vw,220px);aspect-ratio:1;border-radius:50%;position:relative;
+  background:repeating-radial-gradient(circle,#1c1513 0 2px,#2c221f 2px 4px);box-shadow:0 14px 30px rgba(0,0,0,.5);animation:spin 3.4s linear infinite;animation-play-state:paused}
+.vinyl .label{position:absolute;inset:32%;border-radius:50%;background:#c9566b center/cover}
+.vinyl .label::after{content:"";position:absolute;left:50%;top:50%;width:9%;aspect-ratio:1;margin:-4.5% 0 0 -4.5%;border-radius:50%;background:#2b211d}
+.playing .vinyl{animation-play-state:running}
+@keyframes spin{to{transform:rotate(360deg)}}
+audio{width:100%}
+.save{display:inline-block;text-decoration:none;background:var(--ink);color:#3a241a;font-weight:700;padding:11px 20px;border-radius:999px}
+.save:focus-visible{outline:3px solid #ffd98a;outline-offset:3px}
+.miss{color:var(--soft)}
+@media (prefers-reduced-motion:reduce){.vinyl{animation:none}}
+</style>
+</head>
+<body>
+<div class="bg" id="bg"></div>
+<main><div class="card" id="card"><p class="miss">Einen Moment …</p></div></main>
+<script>
+(async function(){
+  const card = document.getElementById("card");
+  const key = location.hash.replace("#","");
+  try{
+    const html = await (await fetch("index.html", {cache:"no-store"})).text();
+    const block = html.match(/const TUERCHEN = \{([\s\S]*?)\n\};/)[1];
+    const lines = block.split("\n").filter(l => /^\s*\d+:/.test(l));
+    let found = null;
+    for(const l of lines){
+      const n = +l.match(/^\s*(\d+):/)[1];
+      const get = k => { const m = l.match(new RegExp(k + ':\\s*"([^"]*)"')); return m ? m[1] : ""; };
+      if(get("song") && get("song") === key){ found = {n, song:get("song"), titel:get("titel"), bild:get("bild")}; break; }
+    }
+    if(!found){ card.innerHTML = '<p class="miss">Diesen Song gibt es hier nicht.</p>'; return; }
+    document.title = found.titel || "Dein Song";
+    if(found.bild) document.getElementById("bg").style.backgroundImage = `url("${found.bild}")`;
+    const esc = t => t.replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+    card.innerHTML = `
+      <div class="day">${found.n}. Dezember</div>
+      <h1>${esc(found.titel || "Dein Song")}</h1>
+      <div class="by">gespielt von Arne ♡</div>
+      <div class="vinyl" aria-hidden="true"><div class="label" style="${found.bild ? `background-image:url('${found.bild}')` : ""}"></div></div>
+      <audio controls preload="none" src="songs/${found.song}.mp3"></audio>
+      <a class="save" href="songs/${found.song}.mp3" download="${esc(found.titel || "Song")}.mp3">↓ Song speichern</a>`;
+    const a = card.querySelector("audio");
+    a.addEventListener("play", () => card.classList.add("playing"));
+    ["pause","ended"].forEach(e => a.addEventListener(e, () => card.classList.remove("playing")));
+  }catch(e){ card.innerHTML = '<p class="miss">Das hat gerade nicht geklappt. Versuch es gleich nochmal.</p>'; }
+})();
+</script>
+</body>
+</html>
