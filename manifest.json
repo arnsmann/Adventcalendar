@@ -1,6 +1,6 @@
 {
-  "name": "Dein Adventskalender",
-  "short_name": "Advent",
+  "name": "Adventskalender",
+  "short_name": "Adventskalender",
   "start_url": "./",
   "scope": "./",
   "display": "standalone",
