@@ -131,7 +131,7 @@ footer{font-family:var(--f-hand);font-size:1.1rem;color:#fff8f1;text-shadow:0 1p
 .video{aspect-ratio:16/9;max-width:100%;width:100%;border-radius:18px;overflow:hidden;background:var(--inside);border:0}
 .video iframe{width:100%;height:100%;border:0;display:block}
 .clip{position:relative;overflow:hidden;isolation:isolate}
-.clip iframe{position:absolute;inset:0;pointer-events:none;transform:scale(1.42);opacity:0;transition:opacity .3s}
+.clip iframe{position:absolute;inset:0;pointer-events:none;transform:scale(1.15);opacity:0;transition:opacity .3s}
 .song.clip-on .clip iframe{opacity:1;transition:opacity 1.2s}
 .clip::after{content:"";position:absolute;inset:0;pointer-events:none;box-shadow:inset 0 0 50px 18px rgba(30,20,19,.55);border-radius:inherit;z-index:2}
 .clip .cover{position:absolute;inset:0;z-index:1;background:var(--inside);opacity:1;transition:opacity .3s}
@@ -202,7 +202,7 @@ footer{font-family:var(--f-hand);font-size:1.1rem;color:#fff8f1;text-shadow:0 1p
 .card.theater .song{position:absolute;inset:0;padding:0;border:0;border-radius:0;background:#000;display:block}
 .card.theater .clip,.card.theater .song > .vinyl-wrap{position:absolute;inset:0;width:100%;height:100%;max-width:none;aspect-ratio:auto;border-radius:0;container-type:size}
 .card.theater .clip::after{box-shadow:inset 0 0 120px 30px rgba(0,0,0,.55);border-radius:0}
-.card.theater .clip iframe{inset:auto;left:50%;top:50%;width:max(100cqw,calc(100cqh * 16 / 9));height:max(100cqh,calc(100cqw * 9 / 16));transform:translate(-50%,-50%) scale(1.42)}
+.card.theater .clip iframe{inset:auto;left:50%;top:50%;width:max(100cqw,calc(100cqh * 16 / 9));height:max(100cqh,calc(100cqw * 9 / 16));transform:translate(-50%,-50%) scale(1.15)}
 .card.theater .clip .cover{border-radius:0}
 .card.theater .vinyl-wrap .vinyl{height:46%;width:auto}
 .card.theater .song > .vinyl-wrap{box-shadow:inset 0 0 160px 40px rgba(0,0,0,.6)}
