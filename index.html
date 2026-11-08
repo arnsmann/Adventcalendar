@@ -220,7 +220,7 @@ footer{font-family:var(--f-hand);font-size:1.1rem;color:#fff8f1;text-shadow:0 1p
 
 /* Schneekugel (gemalt) */
 .globe-wrap{position:relative;width:min(92vw,calc((100vh - 230px) * 478 / 566),600px);min-width:260px;aspect-ratio:478/566;margin-top:4px}
-.globe-img{position:absolute;inset:0;width:100%;height:100%;display:block;user-select:none;-webkit-user-select:none;pointer-events:none;
+.globe-img{transition:opacity .35s;position:absolute;inset:0;width:100%;height:100%;display:block;user-select:none;-webkit-user-select:none;pointer-events:none;
   filter:drop-shadow(0 24px 30px rgba(30,10,5,.4));transform-origin:50% 92%}
 /* echtes Treppenhaus im Glas */
 .globe{position:absolute;left:1.26%;top:1.24%;width:97.5%;aspect-ratio:1;border-radius:50%;z-index:1;overflow:hidden;transform-origin:50% 92%}
@@ -317,6 +317,7 @@ footer{font-family:var(--f-hand);font-size:1.1rem;color:#fff8f1;text-shadow:0 1p
    spotify: optional ein Spotify Link zum selben Song, z.B. https://open.spotify.com/track/...
    clip:  optional ein YouTube Link, der stumm und in Schleife zum Song läuft (statt der Schallplatte)
    bild:  Foto für diesen Tag (siehe oben)
+   kugel: optional eine eigene Schneekugel für diesen Tag (z.B. Harry Potter Sockel)
    titel: Name des Songs, wird in der Karte angezeigt
    song:  Name der MP3 im Ordner songs, ohne .mp3 (z.B. "t01-k7f3" für songs/t01-k7f3.mp3)
    text:  eine kleine Nachricht für den Tag (darf leer bleiben)
@@ -326,7 +327,7 @@ const JAHR = 2026;
    und beim Öffnen eines älteren Türchens kommt sein Foto zurück. START_BILD ist der Hintergrund vor dem 1. Dezember. */
 const START_BILD = "bilder/start-87591f46.jpg";
 const TUERCHEN = {
-  1:  { video: "", song: "t01-3b94657d", titel: "Lily's Theme", bild: "bilder/b01-68e822e2.jpg", clip: "https://youtu.be/BWp-MmUmhbA", text: "" },
+  1:  { video: "", song: "t01-3b94657d", titel: "Lily's Theme", bild: "bilder/b01-68e822e2.jpg", kugel: "bilder/kugel-hp-c2040a50.webp", clip: "https://youtu.be/BWp-MmUmhbA", text: "" },
   2:  { video: "", song: "t02-3147c97f", titel: "Those Eyes", bild: "bilder/b02-f6a0500b.jpg", clip: "https://youtu.be/memUamSICTc", text: "" },
   3:  { video: "", song: "t03-861fdead", titel: "Hobbit", bild: "bilder/b03-7ad789f9.jpg", clip: "https://youtu.be/chxX9uucndY", text: "" },
   4:  { video: "", song: "t04-42593136", titel: "Creep", bild: "bilder/b04-090d379b.jpg", text: "" },
@@ -396,6 +397,16 @@ const CAN_EMBED = !/claude\.ai|claudeusercontent|anthropic/.test(location.hostna
 /* Hintergrund */
 const bgSets = [document.querySelector(".bg"), ...document.querySelectorAll(".view")].map(el=>[...el.querySelectorAll(".layer")]);
 let bgIdx = 0, bgCurrent = null, bgPicked = false;
+const GLOBE_DEFAULT = document.querySelector(".globe-img").getAttribute("src");
+function setGlobe(url){
+  let k = GLOBE_DEFAULT;
+  for(const d in TUERCHEN){ if(TUERCHEN[d].bild === url && TUERCHEN[d].kugel){ k = TUERCHEN[d].kugel; break; } }
+  const g = document.querySelector(".globe-img");
+  if(g.getAttribute("src") === k) return;
+  const pre = new Image();
+  pre.onload = ()=>{ g.style.opacity = 0; setTimeout(()=>{ g.setAttribute("src", k); g.style.opacity = 1; }, 350); };
+  pre.src = k;
+}
 function setTint(img){
   try{
     const c = document.createElement("canvas"); c.width = c.height = 16;
@@ -417,6 +428,7 @@ function setBg(url){
     bgSets.forEach(l=>{ const next = l[1 - bgIdx], cur = l[bgIdx]; next.style.backgroundImage = `url("${url}")`; next.classList.add("on"); cur.classList.remove("on"); });
     bgIdx = 1 - bgIdx;
     setTint(img);
+    setGlobe(url);
   };
   img.src = url;
 }
