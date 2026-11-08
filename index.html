@@ -527,7 +527,7 @@ function showCard(n){
     }
     if(song){
       html += `<div class="song">
-        <div class="song-head"><span class="ico">♫</span><span><b>${item.titel ? esc(item.titel) : "Der Song von heute"}</b><small>gespielt von Arne ♡ für die Arbeit oder den Weg dorthin</small></span></div>
+        <div class="song-head"><span class="ico">♫</span><span><b>${item.titel ? esc(item.titel) : "Der Song von heute"}</b><small>gespielt von Arne ♡ zum Korrigieren und Vorbereiten am Schreibtisch</small></span></div>
         ${clipId ? `<div class="video clip"><div class="yt" data-clip="${clipId}"></div><div class="vinyl-wrap cover" aria-hidden="true"><div class="vinyl"><div class="label"><span>${n}</span></div></div></div></div>` : ""}
         ${!id && !clipId ? `<div class="vinyl-wrap"><div class="vinyl" aria-hidden="true"><div class="label"><span>${n}</span></div></div></div>` : ""}
         <audio controls preload="none" src="songs/${song}.mp3"></audio>
