@@ -814,8 +814,10 @@ function alignViews(){
     const r = v.getBoundingClientRect();
     const st = (v.closest(".stage") || document.body).getBoundingClientRect();
     // kleiner Ausschnitt der Welt: das Bild liegt verkleinert hinter den Fenstern (rechte obere Hälfte des Treppenhauses)
-    const W = st.width * .8, H = st.height * .62;
-    const L = st.left + st.width * .2, T = st.top - st.height * .03;
+    let W = st.width * .8, H = st.height * .62, L = st.left + st.width * .2, T = st.top - st.height * .03;
+    // In der Schneekugel: durch die Fenster sieht man genau die Welt, die hinter der Kugel liegt
+    const wrapEl = document.getElementById("globeWrap");
+    if(wrapEl && !wrapEl.classList.contains("zoomed")){ W = innerWidth; H = innerHeight; L = 0; T = 0; }
     v.querySelectorAll(".layer").forEach(l=>{ l.style.inset = "auto"; l.style.left = (L - r.left) + "px"; l.style.top = (T - r.top) + "px"; l.style.width = W + "px"; l.style.height = H + "px"; });
   });
 }
