@@ -219,7 +219,7 @@ footer{font-family:var(--f-hand);font-size:1.1rem;color:#fff8f1;text-shadow:0 1p
 .card.has-pic .song-head .cover-art::after{display:none}
 
 /* Schneekugel (gemalt) */
-.globe-wrap{transition:margin-bottom .35s;position:relative;width:min(92vw,calc((100vh - 270px) * 478 / 625),600px);min-width:260px;aspect-ratio:478/566;margin-top:4px}
+.globe-wrap{transition:margin-bottom .35s;position:relative;width:calc(min(92vw,calc((100vh - 270px) * 478 / 625),600px) * var(--gk,1));min-width:260px;aspect-ratio:478/566;margin-top:4px}
 .globe-img{transition:opacity .35s;position:absolute;top:0;left:0;width:100%;height:auto;display:block;user-select:none;-webkit-user-select:none;pointer-events:none;
   filter:drop-shadow(0 24px 30px rgba(30,10,5,.4));transform-origin:50% 92%}
 /* echtes Treppenhaus im Glas */
@@ -332,6 +332,7 @@ header .pill{background:none;border:0;padding:0;border-radius:0;color:var(--t-ac
    bild:  Foto für diesen Tag (siehe oben)
    bildpos: optional, welcher Teil des Bildes im Hintergrund zu sehen ist (z.B. "100% 50%" = rechter Rand, damit Personen links neben der Kugel stehen)
    wetter: was sich in der Kugel bewegt: "schnee" (Standard), "regen", "magie", "elben", "gluehwuermchen" oder "pusteblume"
+   kugelrand: nur bei breiten Kugeln, wie weit das Bild links und oben über die Kugel hinausragt (Pixel bei 956 px Grundbreite)
    kugel: optional eine eigene Schneekugel für diesen Tag (z.B. Harry Potter Sockel)
    titel: Name des Songs, wird in der Karte angezeigt
    song:  Name der MP3 im Ordner songs, ohne .mp3 (z.B. "t01-k7f3" für songs/t01-k7f3.mp3)
@@ -346,7 +347,7 @@ const TUERCHEN = {
   2:  { video: "", song: "t02-3147c97f", titel: "Those Eyes", bild: "bilder/b02-24e36be5.jpg", wetter: "gluehwuermchen", kugel: "bilder/kugel-mond-4b3af2f3.webp", clip: "https://youtu.be/memUamSICTc", text: "" },
   3:  { video: "", song: "t03-861fdead", titel: "Hobbit", bild: "bilder/b03-54943730.jpg", wetter: "elben", kugel: "bilder/kugel-elben-913df12a.webp", clip: "https://youtu.be/chxX9uucndY", text: "" },
   4:  { video: "", song: "t04-42593136", titel: "Creep", bild: "bilder/b04-e39107ba.jpg", wetter: "regen", kugel: "bilder/kugel-regen-b47fee09.webp", text: "" },
-  5:  { video: "", song: "t05-ebefd28c", titel: "Memories", bildpos: "100% 50%", bild: "bilder/b05-208fe068.jpg", wetter: "pusteblume", text: "" },
+  5:  { video: "", song: "t05-ebefd28c", titel: "Memories", kugel: "bilder/kugel-wald-3803d4f4.webp", kugelrand: [200,80], bildpos: "100% 50%", bild: "bilder/b05-208fe068.jpg", wetter: "pusteblume", text: "" },
   6:  { video: "", text: "" },
   7:  { video: "", text: "" },
   8:  { video: "", text: "" },
@@ -414,16 +415,32 @@ const bgSets = [document.querySelector(".bg"), ...document.querySelectorAll(".vi
 let bgIdx = 0, bgCurrent = null, bgPicked = false;
 const GLOBE_DEFAULT = document.querySelector(".globe-img").getAttribute("src");
 (function(){ const g = document.querySelector(".globe-img"), w = document.getElementById("globeWrap");
-  function fit(){ if(!g.naturalWidth) return; const extra = g.naturalHeight / g.naturalWidth - 566/478; w.style.marginBottom = extra > 0 ? (extra * w.offsetWidth) + "px" : ""; }
+  function fit(){
+    if(!g.naturalWidth) return;
+    const pad = (window.globePad || [0,0]);
+    g.style.width = (g.naturalWidth / 956 * 100) + "%";
+    g.style.left = (-pad[0] / 956 * 100) + "%";
+    g.style.top = (-pad[1] / 1132 * 100) + "%";
+    // breite Kugeln auf schmalen Bildschirmen etwas kleiner machen
+    w.style.setProperty("--gk", 1);
+    const base = w.offsetWidth, need = base * g.naturalWidth / 956;
+    const k = Math.min(1, (innerWidth - 12) / need);
+    w.style.setProperty("--gk", k);
+    w.style.marginTop = pad[1] ? (pad[1] / 956 * w.offsetWidth + 4) + "px" : "";
+    const extra = (g.naturalHeight - pad[1]) / 956 - 566/478;
+    w.style.marginBottom = extra > 0 ? (extra * w.offsetWidth) + "px" : "";
+    try{ alignViews(); }catch(e){}
+  }
+  window.globeFit = fit;
   g.addEventListener("load", fit); addEventListener("resize", fit); if(g.complete) fit(); })();
 function setGlobe(url){
-  let k = GLOBE_DEFAULT, mode = "schnee";
-  for(const d in TUERCHEN){ if(TUERCHEN[d].bild === url){ if(TUERCHEN[d].kugel) k = TUERCHEN[d].kugel; if(TUERCHEN[d].wetter) mode = TUERCHEN[d].wetter; break; } }
+  let k = GLOBE_DEFAULT, mode = "schnee", pad = [0,0];
+  for(const d in TUERCHEN){ if(TUERCHEN[d].bild === url){ if(TUERCHEN[d].kugel) k = TUERCHEN[d].kugel; if(TUERCHEN[d].kugelrand) pad = TUERCHEN[d].kugelrand; if(TUERCHEN[d].wetter) mode = TUERCHEN[d].wetter; break; } }
   window.globeMode = mode;
   const g = document.querySelector(".globe-img");
   if(g.getAttribute("src") === k) return;
   const pre = new Image();
-  pre.onload = ()=>{ g.style.opacity = 0; setTimeout(()=>{ g.setAttribute("src", k); g.style.opacity = 1; }, 350); };
+  pre.onload = ()=>{ g.style.opacity = 0; setTimeout(()=>{ window.globePad = pad; g.setAttribute("src", k); g.style.opacity = 1; }, 350); };
   pre.src = k;
 }
 function setTitleTone(img){
