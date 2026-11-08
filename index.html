@@ -218,6 +218,13 @@ footer{font-family:var(--f-hand);font-size:1.1rem;color:#fff8f1;text-shadow:0 1p
 }
 .song-bar{display:none}
 
+/* kleines Albumcover statt Notensymbol */
+.song-head .cover-art{width:46px;height:46px;flex:none;border-radius:8px;font-size:0;
+  background:repeating-radial-gradient(circle at 50% 50%,#1c1513 0 1.5px,#2c221f 1.5px 3px);box-shadow:0 4px 12px rgba(0,0,0,.35),inset 0 0 0 1px rgba(255,255,255,.12);position:relative}
+.song-head .cover-art::after{content:"";position:absolute;inset:34%;border-radius:50%;background:var(--berry);box-shadow:0 0 0 2px rgba(0,0,0,.25)}
+.card.has-pic .song-head .cover-art{background:var(--pic) center/cover}
+.card.has-pic .song-head .cover-art::after{display:none}
+
 @media (prefers-reduced-motion:reduce){
   .door.hang,.door.today,.door.open,.card,.vinyl{animation:none}
   .bclip,.bg .layer,.view .layer{transition:none}
@@ -464,7 +471,7 @@ function showCard(n){
     }
     if(song){
       html += `<div class="song">
-        <div class="song-head"><span class="ico">♫</span><span><b>${item.titel ? esc(item.titel) : "Der Song von heute"}</b><small>gespielt von Arne ♡ zum Korrigieren und Vorbereiten am Schreibtisch</small></span></div>
+        <div class="song-head"><span class="ico cover-art" aria-hidden="true"></span><span><b>${item.titel ? esc(item.titel) : "Der Song von heute"}</b><small>gespielt von Arne ♡ zum Korrigieren und Vorbereiten am Schreibtisch</small></span></div>
         ${clipId ? `<div class="video clip"><div class="yt" data-clip="${clipId}"></div><div class="vinyl-wrap cover" aria-hidden="true"><div class="vinyl"><div class="label"><span>${n}</span></div></div></div></div>` : ""}
         ${!id && !clipId ? `<div class="vinyl-wrap"><div class="vinyl" aria-hidden="true"><div class="label"><span>${n}</span></div></div></div>` : ""}
         <audio controls preload="none" src="songs/${song}.mp3"></audio>
