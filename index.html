@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>Adventskalender für dich</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600&family=Gochi+Hand&family=Nunito:wght@400;600;700&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@500;700&family=Fredoka:wght@400;500;600&family=Gochi+Hand&family=Nunito:wght@400;600;700&display=swap">
 <style>
 /* Layout: Foto des Tages als Vollbild Hintergrund. Mittig eine nahe Ansicht der Treppe zu Hause (ein Bildschirm), die Tüten hängen am Edelstahlgeländer. */
 :root{
@@ -261,6 +261,19 @@ footer{font-family:var(--f-hand);font-size:1.1rem;color:#fff8f1;text-shadow:0 1p
 .globe-wrap.zoomed::before{content:"";position:fixed;inset:-50vh -50vw;background:rgba(15,8,6,.78);z-index:14}
 @media (prefers-reduced-motion:reduce){.globe-wrap.zoomed .globe,.globe-wrap.shaking .globe-img,.globe-wrap.shaking .globe-snow{animation:none}}
 
+/* Titel als gemalte Schrift direkt im Bild */
+:root{--t-ink:#4a2413;--t-glow:rgba(255,236,205,.9);--t-glow2:rgba(255,214,160,.55);--t-accent:#7a2e1c}
+html.dark-top{--t-ink:#fff4e2;--t-glow:rgba(25,12,6,.85);--t-glow2:rgba(255,190,120,.35);--t-accent:#ffd98a}
+header{background:none;box-shadow:none;border-radius:0;padding:4px 10px 0}
+header .eyebrow,header h1,header .status{font-family:"Dancing Script","Segoe Script",cursive;color:var(--t-ink);transition:color .8s}
+header .eyebrow{font-size:clamp(1.15rem,2.4vw,1.45rem);font-weight:500;
+  text-shadow:0 0 6px var(--t-glow),0 0 14px var(--t-glow),0 0 26px var(--t-glow2)}
+header h1{font-weight:700;font-size:clamp(2.3rem,5.6vw,3.4rem);line-height:1.02;letter-spacing:.005em;
+  text-shadow:0 0 8px var(--t-glow),0 0 18px var(--t-glow),0 0 40px var(--t-glow2)}
+header .status{font-size:clamp(1.1rem,2.3vw,1.4rem);font-weight:500;margin-top:2px;
+  text-shadow:0 0 6px var(--t-glow),0 0 14px var(--t-glow),0 0 26px var(--t-glow2)}
+header .pill{background:none;border:0;padding:0;border-radius:0;color:var(--t-accent);font-weight:700}
+
 @media (prefers-reduced-motion:reduce){
   .door.hang,.door.today,.door.open,.card,.vinyl{animation:none}
   .bclip,.bg .layer,.view .layer{transition:none}
@@ -412,6 +425,18 @@ function setGlobe(url){
   pre.onload = ()=>{ g.style.opacity = 0; setTimeout(()=>{ g.setAttribute("src", k); g.style.opacity = 1; }, 350); };
   pre.src = k;
 }
+function setTitleTone(img){
+  try{
+    const c = document.createElement("canvas"); c.width = 32; c.height = 32;
+    const x = c.getContext("2d");
+    // nur die obere Mitte, wo der Titel steht
+    x.drawImage(img, img.naturalWidth*.25, 0, img.naturalWidth*.5, img.naturalHeight*.25, 0, 0, 32, 32);
+    const d = x.getImageData(0,0,32,32).data; let L = 0;
+    for(let i=0;i<d.length;i+=4) L += .2126*d[i] + .7152*d[i+1] + .0722*d[i+2];
+    L /= d.length/4;
+    document.documentElement.classList.toggle("dark-top", L < 110);
+  }catch(e){}
+}
 function setTint(img){
   try{
     const c = document.createElement("canvas"); c.width = c.height = 16;
@@ -432,7 +457,7 @@ function setBg(url){
     if(bgCurrent !== url) return;
     bgSets.forEach(l=>{ const next = l[1 - bgIdx], cur = l[bgIdx]; next.style.backgroundImage = `url("${url}")`; next.classList.add("on"); cur.classList.remove("on"); });
     bgIdx = 1 - bgIdx;
-    setTint(img);
+    setTint(img); setTitleTone(img);
     setGlobe(url);
   };
   img.src = url;
