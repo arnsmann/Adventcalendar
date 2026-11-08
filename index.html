@@ -219,8 +219,8 @@ footer{font-family:var(--f-hand);font-size:1.1rem;color:#fff8f1;text-shadow:0 1p
 .card.has-pic .song-head .cover-art::after{display:none}
 
 /* Schneekugel (gemalt) */
-.globe-wrap{position:relative;width:min(92vw,calc((100vh - 230px) * 478 / 566),600px);min-width:260px;aspect-ratio:478/566;margin-top:4px}
-.globe-img{transition:opacity .35s;position:absolute;inset:0;width:100%;height:100%;display:block;user-select:none;-webkit-user-select:none;pointer-events:none;
+.globe-wrap{transition:margin-bottom .35s;position:relative;width:min(92vw,calc((100vh - 270px) * 478 / 625),600px);min-width:260px;aspect-ratio:478/566;margin-top:4px}
+.globe-img{transition:opacity .35s;position:absolute;top:0;left:0;width:100%;height:auto;display:block;user-select:none;-webkit-user-select:none;pointer-events:none;
   filter:drop-shadow(0 24px 30px rgba(30,10,5,.4));transform-origin:50% 92%}
 /* echtes Treppenhaus im Glas */
 .globe{position:absolute;left:1.26%;top:1.24%;width:97.5%;aspect-ratio:1;border-radius:50%;z-index:1;overflow:hidden;transform-origin:50% 92%}
@@ -331,7 +331,7 @@ const TUERCHEN = {
   1:  { video: "", song: "t01-3b94657d", titel: "Lily's Theme", bild: "bilder/b01-68e822e2.jpg", wetter: "magie", kugel: "bilder/kugel-hp-c2040a50.webp", clip: "https://youtu.be/BWp-MmUmhbA", text: "" },
   2:  { video: "", song: "t02-3147c97f", titel: "Those Eyes", bild: "bilder/b02-f6a0500b.jpg", clip: "https://youtu.be/memUamSICTc", text: "" },
   3:  { video: "", song: "t03-861fdead", titel: "Hobbit", bild: "bilder/b03-7ad789f9.jpg", clip: "https://youtu.be/chxX9uucndY", text: "" },
-  4:  { video: "", song: "t04-42593136", titel: "Creep", bild: "bilder/b04-e39107ba.jpg", wetter: "regen", kugel: "bilder/kugel-regen-8c3c7a46.webp", text: "" },
+  4:  { video: "", song: "t04-42593136", titel: "Creep", bild: "bilder/b04-e39107ba.jpg", wetter: "regen", kugel: "bilder/kugel-regen-b47fee09.webp", text: "" },
   5:  { video: "", song: "t05-ebefd28c", titel: "Memories", text: "" },
   6:  { video: "", text: "" },
   7:  { video: "", text: "" },
@@ -399,6 +399,9 @@ const CAN_EMBED = !/claude\.ai|claudeusercontent|anthropic/.test(location.hostna
 const bgSets = [document.querySelector(".bg"), ...document.querySelectorAll(".view")].map(el=>[...el.querySelectorAll(".layer")]);
 let bgIdx = 0, bgCurrent = null, bgPicked = false;
 const GLOBE_DEFAULT = document.querySelector(".globe-img").getAttribute("src");
+(function(){ const g = document.querySelector(".globe-img"), w = document.getElementById("globeWrap");
+  function fit(){ if(!g.naturalWidth) return; const extra = g.naturalHeight / g.naturalWidth - 566/478; w.style.marginBottom = extra > 0 ? (extra * w.offsetWidth) + "px" : ""; }
+  g.addEventListener("load", fit); addEventListener("resize", fit); if(g.complete) fit(); })();
 function setGlobe(url){
   let k = GLOBE_DEFAULT, mode = "schnee";
   for(const d in TUERCHEN){ if(TUERCHEN[d].bild === url){ if(TUERCHEN[d].kugel) k = TUERCHEN[d].kugel; if(TUERCHEN[d].wetter) mode = TUERCHEN[d].wetter; break; } }
