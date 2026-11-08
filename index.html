@@ -765,10 +765,14 @@ renderStatus(); refreshDoors(); setBg(homeBg());
 
 /* Fenster zeigen genau den Ausschnitt des Hintergrunds, der dahinter liegt */
 function alignViews(){
-  const W = innerWidth, H = innerHeight;
+  // Der Ausblick wird an der Größe des Treppenhauses gemessen, nicht am Bildschirm.
+  // So sieht er in der kleinen Kugel genauso aus wie hineingezoomt.
   document.querySelectorAll(".view").forEach(v=>{
     const r = v.getBoundingClientRect();
-    v.querySelectorAll(".layer").forEach(l=>{ l.style.inset = "auto"; l.style.left = (-r.left) + "px"; l.style.top = (-r.top) + "px"; l.style.width = W + "px"; l.style.height = H + "px"; });
+    const st = (v.closest(".stage") || document.body).getBoundingClientRect();
+    const k = 1.25, W = st.width * k, H = st.height * k;
+    const L = st.left - (W - st.width) / 2, T = st.top - (H - st.height) / 2;
+    v.querySelectorAll(".layer").forEach(l=>{ l.style.inset = "auto"; l.style.left = (L - r.left) + "px"; l.style.top = (T - r.top) + "px"; l.style.width = W + "px"; l.style.height = H + "px"; });
   });
 }
 alignViews();
