@@ -317,7 +317,7 @@ footer{font-family:var(--f-hand);font-size:1.1rem;color:#fff8f1;text-shadow:0 1p
    spotify: optional ein Spotify Link zum selben Song, z.B. https://open.spotify.com/track/...
    clip:  optional ein YouTube Link, der stumm und in Schleife zum Song läuft (statt der Schallplatte)
    bild:  Foto für diesen Tag (siehe oben)
-   wetter: was sich in der Kugel bewegt: "schnee" (Standard), "regen" oder "magie"
+   wetter: was sich in der Kugel bewegt: "schnee" (Standard), "regen", "magie" oder "elben"
    kugel: optional eine eigene Schneekugel für diesen Tag (z.B. Harry Potter Sockel)
    titel: Name des Songs, wird in der Karte angezeigt
    song:  Name der MP3 im Ordner songs, ohne .mp3 (z.B. "t01-k7f3" für songs/t01-k7f3.mp3)
@@ -330,7 +330,7 @@ const START_BILD = "bilder/start-87591f46.jpg";
 const TUERCHEN = {
   1:  { video: "", song: "t01-3b94657d", titel: "Lily's Theme", bild: "bilder/b01-68e822e2.jpg", wetter: "magie", kugel: "bilder/kugel-hp-c2040a50.webp", clip: "https://youtu.be/BWp-MmUmhbA", text: "" },
   2:  { video: "", song: "t02-3147c97f", titel: "Those Eyes", bild: "bilder/b02-f6a0500b.jpg", clip: "https://youtu.be/memUamSICTc", text: "" },
-  3:  { video: "", song: "t03-861fdead", titel: "Hobbit", bild: "bilder/b03-54943730.jpg", clip: "https://youtu.be/chxX9uucndY", text: "" },
+  3:  { video: "", song: "t03-861fdead", titel: "Hobbit", bild: "bilder/b03-54943730.jpg", wetter: "elben", kugel: "bilder/kugel-elben-87cd84c0.webp", clip: "https://youtu.be/chxX9uucndY", text: "" },
   4:  { video: "", song: "t04-42593136", titel: "Creep", bild: "bilder/b04-e39107ba.jpg", wetter: "regen", kugel: "bilder/kugel-regen-b47fee09.webp", text: "" },
   5:  { video: "", song: "t05-ebefd28c", titel: "Memories", text: "" },
   6:  { video: "", text: "" },
@@ -653,10 +653,18 @@ renderStatus(); refreshDoors(); setBg(homeBg());
   const orbs = [];
   function newOrb(){ return {x:.15+Math.random()*.7, y:.25+Math.random()*.65, r:1.8+Math.random()*3, vx:(Math.random()-.5)*.0012, vy:-(.0003+Math.random()*.0009), o:Math.random()*6.28, hue:Math.random()<.75 ? 44 : 190, life:0, max:500+Math.random()*700}; }
   for(let i=0;i<42;i++){ const o = newOrb(); o.life = Math.random()*o.max; orbs.push(o); }
+  // elbisches Licht: silberne Lichtfunken und fallende Herbstblätter
+  const motes = [], leaves = [];
+  function newMote(){ return {x:.12+Math.random()*.76, y:.12+Math.random()*.8, r:1+Math.random()*2.2, vx:(Math.random()-.5)*.0006, vy:(Math.random()-.5)*.0004, o:Math.random()*6.28, hue:Math.random()<.6 ? 175 : 95, life:0, max:600+Math.random()*900}; }
+  for(let i=0;i<46;i++){ const o = newMote(); o.life = Math.random()*o.max; motes.push(o); }
+  function newLeaf(top){ return {x:.15+Math.random()*.7, y: top ? .05 : Math.random(), s:5+Math.random()*5, rot:Math.random()*6.28, vr:(Math.random()-.5)*.05, vy:.0012+Math.random()*.0012, sw:Math.random()*6.28, col:["#d9893a","#c9612f","#e3b24f","#b5502a"][Math.floor(Math.random()*4)]}; }
+  for(let i=0;i<9;i++) leaves.push(newLeaf(false));
   function inside(x,y,m){ const dx = x - .5, dy = y - .5; return dx*dx + dy*dy <= (m||.24); }
   function shake(){
     flakes.forEach(f=>{ f.vy = -(.004 + Math.random()*.012); f.vx = (Math.random()-.5)*.02; });
     drops.forEach(d=>{ d.wait = 0; d.vy = .004 + Math.random()*.006; });
+    motes.forEach(o=>{ const a = Math.random()*6.28, v = .003 + Math.random()*.006; o.vx = Math.cos(a)*v; o.vy = Math.sin(a)*v; });
+    leaves.forEach(l=>{ l.vy = -(.004 + Math.random()*.008); l.vx = (Math.random()-.5)*.012; l.vr = (Math.random()-.5)*.25; });
     orbs.forEach(o=>{ const a = Math.random()*6.28, v = .004 + Math.random()*.008; o.vx = Math.cos(a)*v; o.vy = Math.sin(a)*v; });
     wrap.classList.remove("shaking"); void wrap.offsetWidth; wrap.classList.add("shaking");
   }
@@ -701,6 +709,40 @@ renderStatus(); refreshDoors(); setBg(homeBg());
       ctx.beginPath(); ctx.arc(X - R*.3, Y - R*.4, Math.max(.6, R*.28), 0, 6.283); ctx.fill();
     }
   }
+  function drawElves(t){
+    ctx.globalCompositeOperation = "lighter";
+    for(const o of motes){
+      o.life++;
+      o.vx += (Math.sin(t/2100 + o.o)*.0005 - o.vx) * .015;
+      o.vy += (Math.cos(t/2600 + o.o*1.3)*.0004 - o.vy) * .015;
+      o.x += o.vx; o.y += o.vy;
+      if(o.life > o.max || !inside(o.x,o.y,.23)){ Object.assign(o, newMote()); continue; }
+      const fade = Math.min(1, o.life/90, (o.max - o.life)/110);
+      const tw = .55 + .45*Math.sin(t/420 + o.o*4);
+      const X = o.x*W, Y = o.y*W, R = o.r*(W/460);
+      const g = ctx.createRadialGradient(X,Y,0,X,Y,R*7);
+      g.addColorStop(0, `hsla(${o.hue},60%,92%,${.85*fade*tw})`);
+      g.addColorStop(.3, `hsla(${o.hue},55%,75%,${.28*fade*tw})`);
+      g.addColorStop(1, `hsla(${o.hue},50%,70%,0)`);
+      ctx.fillStyle = g; ctx.beginPath(); ctx.arc(X,Y,R*7,0,6.283); ctx.fill();
+      ctx.fillStyle = `hsla(${o.hue},40%,98%,${fade*tw})`; ctx.beginPath(); ctx.arc(X,Y,R*.6,0,6.283); ctx.fill();
+    }
+    ctx.globalCompositeOperation = "source-over";
+    for(const l of leaves){
+      l.vy += (.0015 - l.vy) * .02;
+      l.y += l.vy; l.x += Math.sin(t/900 + l.sw)*.0012 + (l.vx||0); if(l.vx) l.vx *= .97;
+      l.rot += l.vr + Math.sin(t/700 + l.sw)*.01;
+      if(l.y > .97 || l.y < -.05){ Object.assign(l, newLeaf(true)); continue; }
+      if(!inside(l.x,l.y,.225)) continue;
+      const X = l.x*W, Y = l.y*W, S = l.s*(W/460);
+      ctx.save(); ctx.translate(X,Y); ctx.rotate(l.rot); ctx.scale(1, .55 + .45*Math.abs(Math.sin(t/500 + l.sw)));
+      ctx.globalAlpha = .9; ctx.fillStyle = l.col;
+      ctx.beginPath(); ctx.moveTo(0,-S); ctx.quadraticCurveTo(S*.75,-S*.2,0,S); ctx.quadraticCurveTo(-S*.75,-S*.2,0,-S); ctx.fill();
+      ctx.globalAlpha = .5; ctx.strokeStyle = "#6b3a1c"; ctx.lineWidth = Math.max(.6, S*.08);
+      ctx.beginPath(); ctx.moveTo(0,-S*.9); ctx.lineTo(0,S*1.15); ctx.stroke();
+      ctx.restore();
+    }
+  }
   function drawMagic(t){
     ctx.globalCompositeOperation = "lighter";
     for(const o of orbs){
@@ -733,6 +775,7 @@ renderStatus(); refreshDoors(); setBg(homeBg());
     const m = window.globeMode || "schnee";
     if(m === "regen") drawRain();
     else if(m === "magie"){ drawMagic(t); ctx.globalAlpha = .5; }
+    else if(m === "elben") drawElves(t);
     else drawSnow(t);
     ctx.globalAlpha = 1;
     requestAnimationFrame(tick);
