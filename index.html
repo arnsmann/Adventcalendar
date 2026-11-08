@@ -317,7 +317,7 @@ footer{font-family:var(--f-hand);font-size:1.1rem;color:#fff8f1;text-shadow:0 1p
    spotify: optional ein Spotify Link zum selben Song, z.B. https://open.spotify.com/track/...
    clip:  optional ein YouTube Link, der stumm und in Schleife zum Song läuft (statt der Schallplatte)
    bild:  Foto für diesen Tag (siehe oben)
-   wetter: was sich in der Kugel bewegt: "schnee" (Standard), "regen", "magie" oder "elben"
+   wetter: was sich in der Kugel bewegt: "schnee" (Standard), "regen", "magie", "elben" oder "gluehwuermchen"
    kugel: optional eine eigene Schneekugel für diesen Tag (z.B. Harry Potter Sockel)
    titel: Name des Songs, wird in der Karte angezeigt
    song:  Name der MP3 im Ordner songs, ohne .mp3 (z.B. "t01-k7f3" für songs/t01-k7f3.mp3)
@@ -329,7 +329,7 @@ const JAHR = 2026;
 const START_BILD = "bilder/start-87591f46.jpg";
 const TUERCHEN = {
   1:  { video: "", song: "t01-3b94657d", titel: "Lily's Theme", bild: "bilder/b01-68e822e2.jpg", wetter: "magie", kugel: "bilder/kugel-hp-c2040a50.webp", clip: "https://youtu.be/BWp-MmUmhbA", text: "" },
-  2:  { video: "", song: "t02-3147c97f", titel: "Those Eyes", bild: "bilder/b02-24e36be5.jpg", kugel: "bilder/kugel-mond-722ec051.webp", clip: "https://youtu.be/memUamSICTc", text: "" },
+  2:  { video: "", song: "t02-3147c97f", titel: "Those Eyes", bild: "bilder/b02-24e36be5.jpg", wetter: "gluehwuermchen", kugel: "bilder/kugel-mond-722ec051.webp", clip: "https://youtu.be/memUamSICTc", text: "" },
   3:  { video: "", song: "t03-861fdead", titel: "Hobbit", bild: "bilder/b03-54943730.jpg", wetter: "elben", kugel: "bilder/kugel-elben-87cd84c0.webp", clip: "https://youtu.be/chxX9uucndY", text: "" },
   4:  { video: "", song: "t04-42593136", titel: "Creep", bild: "bilder/b04-e39107ba.jpg", wetter: "regen", kugel: "bilder/kugel-regen-b47fee09.webp", text: "" },
   5:  { video: "", song: "t05-ebefd28c", titel: "Memories", text: "" },
@@ -659,6 +659,31 @@ renderStatus(); refreshDoors(); setBg(homeBg());
   for(let i=0;i<46;i++){ const o = newMote(); o.life = Math.random()*o.max; motes.push(o); }
   function newLeaf(top){ return {x:.15+Math.random()*.7, y: top ? .05 : Math.random(), s:5+Math.random()*5, rot:Math.random()*6.28, vr:(Math.random()-.5)*.05, vy:.0012+Math.random()*.0012, sw:Math.random()*6.28, col:["#d9893a","#c9612f","#e3b24f","#b5502a"][Math.floor(Math.random()*4)]}; }
   for(let i=0;i<9;i++) leaves.push(newLeaf(false));
+  // Glühwürmchen
+  const flies = [];
+  function newFly(){ return {x:.15+Math.random()*.7, y:.3+Math.random()*.6, a:Math.random()*6.28, sp:.0006+Math.random()*.0008, r:2.2+Math.random()*2, ph:Math.random()*6.28, per:2200+Math.random()*2600, life:0}; }
+  for(let i=0;i<38;i++) flies.push(newFly());
+  function drawFlies(t){
+    ctx.globalCompositeOperation = "lighter";
+    for(const f of flies){
+      f.life++;
+      f.a += (Math.random()-.5)*.25;
+      const v = f.boost ? f.boost : f.sp; if(f.boost){ f.boost *= .97; if(f.boost < f.sp) f.boost = 0; }
+      f.x += Math.cos(f.a)*v; f.y += Math.sin(f.a)*v*.7;
+      if(!inside(f.x,f.y,.22)){ f.a += Math.PI; f.x += Math.cos(f.a)*.01; f.y += Math.sin(f.a)*.01; if(!inside(f.x,f.y,.24)){ if(f.ex){ f.ex = 1; continue; } Object.assign(f, newFly()); } }
+      const blink = Math.max(0, Math.sin((t + f.ph*1000) / f.per * 6.283));
+      const glow = Math.pow(blink, 1.3) * Math.min(1, f.life/60) * ex(f);
+      if(glow < .02) continue;
+      const X = f.x*W, Y = f.y*W, R = f.r*(W/460);
+      const g = ctx.createRadialGradient(X,Y,0,X,Y,R*8);
+      g.addColorStop(0, `rgba(250,255,170,${.95*glow})`);
+      g.addColorStop(.25, `rgba(215,240,90,${.4*glow})`);
+      g.addColorStop(1, "rgba(180,220,60,0)");
+      ctx.fillStyle = g; ctx.beginPath(); ctx.arc(X,Y,R*8,0,6.283); ctx.fill();
+      ctx.fillStyle = `rgba(255,255,225,${glow})`; ctx.beginPath(); ctx.arc(X,Y,R*.7,0,6.283); ctx.fill();
+    }
+    ctx.globalCompositeOperation = "source-over";
+  }
   // beim Schütteln kommen für ein paar Sekunden zusätzliche Teilchen dazu
   let NOW = 0;
   const ex = p => p.ex ? Math.max(0, Math.min(1, (p.ex - NOW) / 1200)) : 1;
@@ -668,6 +693,7 @@ renderStatus(); refreshDoors(); setBg(homeBg());
     const m = window.globeMode || "schnee";
     if(m === "regen"){ for(let i=0;i<90;i++){ const d = newDrop(false); d.wait = 0; d.vy = .003 + Math.random()*.008; d.ex = until(); drops.push(d); } }
     else if(m === "magie"){ for(let i=0;i<70;i++){ const o = newOrb(); o.x = .5 + (Math.random()-.5)*.3; o.y = .75 + Math.random()*.1; const a = Math.random()*6.28, v = .004 + Math.random()*.01; o.vx = Math.cos(a)*v; o.vy = Math.sin(a)*v - .004; o.life = 60; o.ex = until(); orbs.push(o); } }
+    else if(m === "gluehwuermchen"){ for(let i=0;i<60;i++){ const f = newFly(); f.x = .5 + (Math.random()-.5)*.4; f.y = .7 + Math.random()*.2; f.boost = .006 + Math.random()*.008; f.per = 600 + Math.random()*900; f.life = 60; f.ex = until(); flies.push(f); } flies.forEach(f=>{ if(!f.ex) f.boost = .005 + Math.random()*.006; }); }
     else if(m === "elben"){
       for(let i=0;i<70;i++){ const o = newMote(); const a = Math.random()*6.28, v = .003 + Math.random()*.008; o.vx = Math.cos(a)*v; o.vy = Math.sin(a)*v; o.life = 90; o.ex = until(); motes.push(o); }
       for(let i=0;i<22;i++){ const l = newLeaf(false); l.y = .55 + Math.random()*.35; l.vy = -(.005 + Math.random()*.01); l.vx = (Math.random()-.5)*.015; l.vr = (Math.random()-.5)*.3; l.ex = until(); leaves.push(l); }
@@ -791,10 +817,11 @@ renderStatus(); refreshDoors(); setBg(homeBg());
     NOW = t;
     ctx.clearRect(0,0,W,W);
     const m = window.globeMode || "schnee";
-    prune(flakes); prune(drops); prune(orbs); prune(motes); prune(leaves);
+    prune(flakes); prune(drops); prune(orbs); prune(motes); prune(leaves); prune(flies);
     if(m === "regen") drawRain();
     else if(m === "magie"){ drawMagic(t); ctx.globalAlpha = .5; }
     else if(m === "elben") drawElves(t);
+    else if(m === "gluehwuermchen") drawFlies(t);
     else drawSnow(t);
     ctx.globalAlpha = 1;
     requestAnimationFrame(tick);
