@@ -188,6 +188,23 @@ footer{font-family:var(--f-hand);font-size:1.1rem;color:#fff8f1;text-shadow:0 1p
 .card.has-pic .vinyl .label{background:center/cover var(--pic)}
 .card.has-pic .vinyl .label span{text-shadow:0 1px 6px rgba(0,0,0,.7)}
 
+/* Großbild: fast Vollbild für Clip oder Schallplatte */
+.song-actions{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+.big-btn{border:2px solid var(--door-edge);background:transparent;color:inherit;font-family:var(--f-display);font-size:1rem;font-weight:500;padding:8px 16px;border-radius:999px;cursor:pointer}
+.card.has-pic .big-btn{border-color:rgba(255,248,241,.45);color:#fff8f1}
+.big-btn:focus-visible{outline:3px solid var(--berry);outline-offset:3px}
+.scrim.theater{background:rgba(8,4,3,.94);padding:max(10px,env(safe-area-inset-top,0px)) max(10px,env(safe-area-inset-right,0px)) max(10px,env(safe-area-inset-bottom,0px)) max(10px,env(safe-area-inset-left,0px))}
+.card.theater{max-width:none;width:100%;height:100%;max-height:none;padding:12px 14px;gap:10px;border-radius:18px;overflow:hidden}
+.card.theater .card-head{flex:none}
+.card.theater h2{font-size:1.3rem}
+.card.theater .note,.card.theater .guide,.card.theater .song-head small{display:none}
+.card.theater #card-media{flex:1;min-height:0}
+.card.theater .song{flex:1;min-height:0;display:flex;flex-direction:column;gap:10px;padding:10px}
+.card.theater .song-head{flex:none}
+.card.theater .clip,.card.theater .song > .vinyl-wrap{flex:1;min-height:0;width:100%;aspect-ratio:auto;align-self:center}
+.card.theater .clip iframe{inset:50% auto auto 50%;width:max(100%,calc((100vh - 200px) * 16 / 9));height:max(100%,calc(100vw * 9 / 16));transform:translate(-50%,-50%) scale(1.42)}
+.card.theater audio,.card.theater .song-actions{flex:none}
+
 @media (prefers-reduced-motion:reduce){
   .door.hang,.door.today,.door.open,.card,.vinyl{animation:none}
   .bclip,.bg .layer,.view .layer{transition:none}
@@ -438,7 +455,7 @@ function showCard(n){
         ${clipId ? `<div class="video clip"><div class="yt" data-clip="${clipId}"></div><div class="vinyl-wrap cover" aria-hidden="true"><div class="vinyl"><div class="label"><span>${n}</span></div></div></div></div>` : ""}
         ${!id && !clipId ? `<div class="vinyl-wrap"><div class="vinyl" aria-hidden="true"><div class="label"><span>${n}</span></div></div></div>` : ""}
         <audio controls preload="none" src="songs/${song}.mp3"></audio>
-        <a class="save" href="songs/${song}.mp3" download="${item.titel ? esc(item.titel) : "Tuerchen " + n}.mp3">↓ Song speichern</a>
+        <div class="song-actions"><button type="button" class="big-btn" aria-pressed="false">⤢ Großbild</button><a class="save" href="songs/${song}.mp3" download="${item.titel ? esc(item.titel) : "Tuerchen " + n}.mp3">↓ Song speichern</a></div>
         <details class="guide"><summary>So landet der Song in deinem Spotify</summary><ol>
           <li class="once">Nur beim ersten Mal: In Spotify auf dein Profilbild tippen, dann Einstellungen und Datenschutz › Apps und Geräte › „Lokale Audiodateien“ einschalten.</li>
           <li>Hier auf „Song speichern“ tippen und mit „Laden“ bestätigen.</li>
@@ -460,6 +477,7 @@ function showCard(n){
   document.getElementById("close").focus();
 }
 function closeCard(){
+  scrim.classList.remove("theater"); scrim.querySelector(".card").classList.remove("theater");
   scrim.classList.remove("cinema"); scrim.querySelector(".card").classList.remove("cinema");
   scrim.hidden = true;
   try{ if(clipPlayer) clipPlayer.destroy(); }catch(e){}
@@ -468,6 +486,13 @@ function closeCard(){
   if(lastDoor){ lastDoor.classList.remove("open"); lastDoor.focus(); }
 }
 document.getElementById("close").addEventListener("click", closeCard);
+document.getElementById("card-media").addEventListener("click", e=>{
+  const b = e.target.closest(".big-btn"); if(!b) return;
+  const on = !scrim.classList.contains("theater");
+  scrim.classList.toggle("theater", on); scrim.querySelector(".card").classList.toggle("theater", on);
+  b.setAttribute("aria-pressed", on); b.textContent = on ? "⤡ Kleiner" : "⤢ Großbild";
+  setTimeout(()=>{ try{ alignViews(); }catch(err){} }, 50);
+});
 const cm = document.getElementById("card-media");
 ["play","pause","ended"].forEach(ev=>cm.addEventListener(ev, e=>{
   const box = e.target.closest && e.target.closest(".song");
