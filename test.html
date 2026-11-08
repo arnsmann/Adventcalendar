@@ -1,0 +1,19 @@
+<!doctype html>
+<html lang="de"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<link rel="manifest" href="manifest-test.json">
+<link rel="apple-touch-icon" href="icon-test-180.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Kalender Test">
+<meta name="robots" content="noindex">
+<title>Kalender Test</title>
+<style>html,body{margin:0;background:#2b211d;color:#fff8f1;font-family:system-ui,sans-serif}body{display:grid;place-items:center;min-height:100vh}</style>
+</head><body>
+<p>Vorschau wird geladen …</p>
+<script>
+// Testversion: öffnet den Kalender mit allen Türchen offen
+setTimeout(function(){ location.replace("./#vorschau"); }, (window.navigator.standalone || matchMedia("(display-mode: standalone)").matches) ? 0 : 60000);
+</script>
+<noscript><a href="./#vorschau" style="color:#ffd98a">Zur Vorschau</a></noscript>
+</body></html>
