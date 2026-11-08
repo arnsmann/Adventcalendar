@@ -281,6 +281,10 @@ header .status{font-size:clamp(1.1rem,2.3vw,1.4rem);font-weight:500;margin-top:2
   text-shadow:0 0 6px var(--t-glow),0 0 14px var(--t-glow),0 0 26px var(--t-glow2)}
 header .pill{background:none;border:0;padding:0;border-radius:0;color:var(--t-accent);font-weight:700}
 
+.motion-btn{border:0;background:rgba(255,248,241,.92);color:var(--ink);font-family:var(--f-display);font-weight:500;font-size:.95rem;
+  padding:8px 16px;border-radius:999px;box-shadow:0 6px 16px rgba(20,8,4,.3);cursor:pointer}
+.motion-btn:focus-visible{outline:3px solid #ffe2a8;outline-offset:2px}
+
 @media (prefers-reduced-motion:reduce){
   .door.hang,.door.today,.door.open,.card,.vinyl{animation:none}
   .bclip,.bg .layer,.view .layer{transition:none}
@@ -312,6 +316,7 @@ header .pill{background:none;border:0;padding:0;border-radius:0;color:var(--t-ac
     <button type="button" class="shake-btn" id="shakeBtn" aria-label="Schneekugel schütteln"></button>
   </div>
   <button type="button" class="globe-back" id="globeBack" hidden>← zurück zur Schneekugel</button>
+  <button type="button" class="motion-btn" id="motionBtn" hidden>Handy schütteln einschalten</button>
   <div class="globe-hint" id="globeHint">Tipp auf die Kugel, um hineinzuschauen · auf den Sockel, um sie zu schütteln</div>
   <footer>Jeden Tag eine Tüte. Nicht schummeln! ♡</footer>
 </div>
@@ -925,9 +930,54 @@ renderStatus(); refreshDoors(); setBg(homeBg());
   if(!reduce) requestAnimationFrame(tick);
   document.getElementById("shakeBtn").addEventListener("click", shake);
 
+  /* Handy schütteln = Kugel schütteln */
+  const motionBtn = document.getElementById("motionBtn");
+  const touch = matchMedia("(pointer: coarse)").matches;
+  let lastShake = 0, motionOn = false;
+  function onMotion(e){
+    const a = e.acceleration && e.acceleration.x != null ? e.acceleration : null;
+    let mag;
+    if(a){ mag = Math.hypot(a.x||0, a.y||0, a.z||0); }
+    else { const g = e.accelerationIncludingGravity || {}; mag = Math.abs(Math.hypot(g.x||0, g.y||0, g.z||0) - 9.81); }
+    const now = Date.now();
+    if(mag > 13 && now - lastShake > 900 && !wrap.classList.contains("zoomed") && scrim.hidden){
+      lastShake = now; shake();
+      try{ navigator.vibrate && navigator.vibrate(30); }catch(err){}
+    }
+  }
+  function startMotion(){
+    if(motionOn) return; motionOn = true;
+    addEventListener("devicemotion", onMotion);
+    motionBtn.hidden = true;
+    document.getElementById("globeHint").textContent = "Tipp auf die Kugel, um hineinzuschauen · schüttel dein Handy für Schnee";
+  }
+  if(touch && "DeviceMotionEvent" in window){
+    const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) || (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1);
+    if(isIOS && typeof DeviceMotionEvent.requestPermission === "function"){
+      // iPhone: Apple verlangt einmal eine Erlaubnis per Knopfdruck
+      let asked = false;
+      try{ asked = localStorage.getItem("advent-motion") === "ja"; }catch(e){}
+      if(asked){
+        // Erlaubnis ist schon erteilt, wird beim ersten Tippen still erneuert
+        const once = ()=>{ DeviceMotionEvent.requestPermission().then(r=>{ if(r === "granted") startMotion(); }).catch(()=>{}); removeEventListener("touchend", once); };
+        addEventListener("touchend", once);
+      } else {
+        motionBtn.hidden = false;
+      }
+      motionBtn.addEventListener("click", ()=>{
+        DeviceMotionEvent.requestPermission().then(r=>{
+          if(r === "granted"){ try{ localStorage.setItem("advent-motion","ja"); }catch(e){} startMotion(); shake(); }
+          else { motionBtn.hidden = true; toast("Schade! Du kannst auch auf den Sockel tippen."); }
+        }).catch(()=>{ motionBtn.hidden = true; });
+      });
+    } else {
+      startMotion();
+    }
+  }
+
   const back = document.getElementById("globeBack"), hint = document.getElementById("globeHint");
   const isSmall = () => matchMedia("(max-width:820px), (max-aspect-ratio:1/1)").matches;
-  hint.textContent = isSmall() ? "Tipp auf die Kugel, um hineinzuschauen" : "Klick auf die Kugel, um hineinzuschauen · auf den Sockel, um sie zu schütteln";
+  if(!motionOn) hint.textContent = isSmall() ? "Tipp auf die Kugel, um hineinzuschauen" : "Klick auf die Kugel, um hineinzuschauen · auf den Sockel, um sie zu schütteln";
   function enter(){
     wrap.classList.add("zoomed"); document.body.classList.add("zoomed-on"); back.hidden = false;
     requestAnimationFrame(()=>{
