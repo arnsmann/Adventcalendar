@@ -741,6 +741,30 @@ function initClip(el){
 }
 
 renderStatus(); refreshDoors(); setBg(homeBg());
+/* Neue Version automatisch holen: prüft beim Zurückkehren in die App und alle 30 Minuten,
+   ob sich die Seite auf GitHub geändert hat, und lädt dann neu (nur wenn gerade nichts offen ist). */
+(function(){
+  let mark = null, pending = false;
+  async function stamp(){
+    try{
+      const r = await fetch("index.html?check=" + Date.now(), {cache:"no-store"});
+      return r.headers.get("etag") || r.headers.get("last-modified") || String((await r.text()).length);
+    }catch(e){ return null; }
+  }
+  async function check(){
+    const s = await stamp(); if(!s) return;
+    if(mark === null){ mark = s; return; }
+    if(s !== mark) pending = true;
+    tryReload();
+  }
+  function idle(){ return scrim.hidden && !document.body.classList.contains("peek") && !document.getElementById("globeWrap").classList.contains("zoomed"); }
+  function tryReload(){ if(pending && idle()) location.reload(); }
+  check();
+  document.addEventListener("visibilitychange", ()=>{ if(document.visibilityState === "visible") check(); });
+  addEventListener("pageshow", e=>{ if(e.persisted) check(); });
+  setInterval(check, 30*60*1000);
+  setInterval(tryReload, 5000);
+})();
 /* Bild ansehen: Oberfläche ausblenden, Bild mit dem Finger verschieben */
 (function(){
   const btn = document.getElementById("peekBtn"), close = document.getElementById("peekClose"), hint = document.getElementById("peekHint"), bg = document.querySelector(".bg");
