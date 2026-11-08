@@ -659,6 +659,21 @@ renderStatus(); refreshDoors(); setBg(homeBg());
   for(let i=0;i<46;i++){ const o = newMote(); o.life = Math.random()*o.max; motes.push(o); }
   function newLeaf(top){ return {x:.15+Math.random()*.7, y: top ? .05 : Math.random(), s:5+Math.random()*5, rot:Math.random()*6.28, vr:(Math.random()-.5)*.05, vy:.0012+Math.random()*.0012, sw:Math.random()*6.28, col:["#d9893a","#c9612f","#e3b24f","#b5502a"][Math.floor(Math.random()*4)]}; }
   for(let i=0;i<9;i++) leaves.push(newLeaf(false));
+  // beim Schütteln kommen für ein paar Sekunden zusätzliche Teilchen dazu
+  let NOW = 0;
+  const ex = p => p.ex ? Math.max(0, Math.min(1, (p.ex - NOW) / 1200)) : 1;
+  function prune(arr){ for(let i = arr.length - 1; i >= 0; i--) if(arr[i].ex && arr[i].ex < NOW) arr.splice(i, 1); }
+  function burst(){
+    const until = () => NOW + 3500 + Math.random()*2500;
+    const m = window.globeMode || "schnee";
+    if(m === "regen"){ for(let i=0;i<90;i++){ const d = newDrop(false); d.wait = 0; d.vy = .003 + Math.random()*.008; d.ex = until(); drops.push(d); } }
+    else if(m === "magie"){ for(let i=0;i<70;i++){ const o = newOrb(); o.x = .5 + (Math.random()-.5)*.3; o.y = .75 + Math.random()*.1; const a = Math.random()*6.28, v = .004 + Math.random()*.01; o.vx = Math.cos(a)*v; o.vy = Math.sin(a)*v - .004; o.life = 60; o.ex = until(); orbs.push(o); } }
+    else if(m === "elben"){
+      for(let i=0;i<70;i++){ const o = newMote(); const a = Math.random()*6.28, v = .003 + Math.random()*.008; o.vx = Math.cos(a)*v; o.vy = Math.sin(a)*v; o.life = 90; o.ex = until(); motes.push(o); }
+      for(let i=0;i<22;i++){ const l = newLeaf(false); l.y = .55 + Math.random()*.35; l.vy = -(.005 + Math.random()*.01); l.vx = (Math.random()-.5)*.015; l.vr = (Math.random()-.5)*.3; l.ex = until(); leaves.push(l); }
+    }
+    else { for(let i=0;i<220;i++) flakes.push({x:.2+Math.random()*.6, y:.6+Math.random()*.35, r:.6+Math.random()*2.3, vy:-(.004+Math.random()*.014), vx:(Math.random()-.5)*.022, o:Math.random()*6, ex: until()}); }
+  }
   function inside(x,y,m){ const dx = x - .5, dy = y - .5; return dx*dx + dy*dy <= (m||.24); }
   function shake(){
     flakes.forEach(f=>{ f.vy = -(.004 + Math.random()*.012); f.vx = (Math.random()-.5)*.02; });
@@ -666,6 +681,7 @@ renderStatus(); refreshDoors(); setBg(homeBg());
     motes.forEach(o=>{ const a = Math.random()*6.28, v = .003 + Math.random()*.006; o.vx = Math.cos(a)*v; o.vy = Math.sin(a)*v; });
     leaves.forEach(l=>{ l.vy = -(.004 + Math.random()*.008); l.vx = (Math.random()-.5)*.012; l.vr = (Math.random()-.5)*.25; });
     orbs.forEach(o=>{ const a = Math.random()*6.28, v = .004 + Math.random()*.008; o.vx = Math.cos(a)*v; o.vy = Math.sin(a)*v; });
+    burst();
     wrap.classList.remove("shaking"); void wrap.offsetWidth; wrap.classList.add("shaking");
   }
   function drawSnow(t){
@@ -674,11 +690,11 @@ renderStatus(); refreshDoors(); setBg(homeBg());
       f.vy += (.0009 + f.r*.0002 - f.vy) * .03;
       f.vx *= .97;
       f.y += f.vy; f.x += f.vx + Math.sin(t/1600 + f.o)*.0004;
-      if(f.y > 1.02){ f.y = -.02; f.x = Math.random(); }
+      if(f.y > 1.02){ if(f.ex){ f.ex = 1; continue; } f.y = -.02; f.x = Math.random(); }
       if(f.y < -.05) f.y = 1.0;
       if(f.x < 0) f.x += 1; if(f.x > 1) f.x -= 1;
       if(!inside(f.x,f.y)) continue;
-      ctx.globalAlpha = .55 + f.r*.15;
+      ctx.globalAlpha = (.55 + f.r*.15) * ex(f);
       ctx.beginPath(); ctx.arc(f.x*W, f.y*W, f.r, 0, 6.283); ctx.fill();
     }
   }
@@ -692,20 +708,21 @@ renderStatus(); refreshDoors(); setBg(homeBg());
         d.trail.push([d.x, d.y]); if(d.trail.length > 26) d.trail.shift();
         d.x += (Math.random()-.5)*.0006;
       }
-      if(d.y > 1.05){ Object.assign(d, newDrop(true)); continue; }
+      if(d.y > 1.05){ if(d.ex){ d.ex = 1; continue; } Object.assign(d, newDrop(true)); continue; }
+      const ea = ex(d);
       if(!inside(d.x,d.y,.235)) continue;
       const X = d.x*W, Y = d.y*W, R = d.r*(W/460);
       // Spur
       if(d.trail.length > 2){
-        ctx.globalAlpha = .28; ctx.strokeStyle = "#e6f0f8"; ctx.lineWidth = Math.max(1, R*.7); ctx.lineCap = "round";
+        ctx.globalAlpha = .28*ea; ctx.strokeStyle = "#e6f0f8"; ctx.lineWidth = Math.max(1, R*.7); ctx.lineCap = "round";
         ctx.beginPath(); d.trail.forEach(([x,y],i)=>{ i ? ctx.lineTo(x*W,y*W) : ctx.moveTo(x*W,y*W); }); ctx.stroke();
       }
       // Tropfen: dunkler Rand, helle Kante, Glanzpunkt
-      ctx.globalAlpha = .5; ctx.fillStyle = "#16202b";
+      ctx.globalAlpha = .5*ea; ctx.fillStyle = "#16202b";
       ctx.beginPath(); ctx.ellipse(X, Y + R*.15, R*.95, R*1.2, 0, 0, 6.283); ctx.fill();
-      ctx.globalAlpha = .7; ctx.fillStyle = "#d6e6f3";
+      ctx.globalAlpha = .7*ea; ctx.fillStyle = "#d6e6f3";
       ctx.beginPath(); ctx.ellipse(X, Y, R*.8, R*1.05, 0, 0, 6.283); ctx.fill();
-      ctx.globalAlpha = .9; ctx.fillStyle = "#fff";
+      ctx.globalAlpha = .9*ea; ctx.fillStyle = "#fff";
       ctx.beginPath(); ctx.arc(X - R*.3, Y - R*.4, Math.max(.6, R*.28), 0, 6.283); ctx.fill();
     }
   }
@@ -716,8 +733,8 @@ renderStatus(); refreshDoors(); setBg(homeBg());
       o.vx += (Math.sin(t/2100 + o.o)*.0005 - o.vx) * .015;
       o.vy += (Math.cos(t/2600 + o.o*1.3)*.0004 - o.vy) * .015;
       o.x += o.vx; o.y += o.vy;
-      if(o.life > o.max || !inside(o.x,o.y,.23)){ Object.assign(o, newMote()); continue; }
-      const fade = Math.min(1, o.life/90, (o.max - o.life)/110);
+      if(o.life > o.max || !inside(o.x,o.y,.23)){ if(o.ex){ o.ex = 1; continue; } Object.assign(o, newMote()); continue; }
+      const fade = Math.min(1, o.life/90, (o.max - o.life)/110) * ex(o);
       const tw = .55 + .45*Math.sin(t/420 + o.o*4);
       const X = o.x*W, Y = o.y*W, R = o.r*(W/460);
       const g = ctx.createRadialGradient(X,Y,0,X,Y,R*7);
@@ -732,11 +749,11 @@ renderStatus(); refreshDoors(); setBg(homeBg());
       l.vy += (.0015 - l.vy) * .02;
       l.y += l.vy; l.x += Math.sin(t/900 + l.sw)*.0012 + (l.vx||0); if(l.vx) l.vx *= .97;
       l.rot += l.vr + Math.sin(t/700 + l.sw)*.01;
-      if(l.y > .97 || l.y < -.05){ Object.assign(l, newLeaf(true)); continue; }
+      if(l.y > .97 || l.y < -.05){ if(l.ex){ l.ex = 1; continue; } Object.assign(l, newLeaf(true)); continue; }
       if(!inside(l.x,l.y,.225)) continue;
       const X = l.x*W, Y = l.y*W, S = l.s*(W/460);
       ctx.save(); ctx.translate(X,Y); ctx.rotate(l.rot); ctx.scale(1, .55 + .45*Math.abs(Math.sin(t/500 + l.sw)));
-      ctx.globalAlpha = .9; ctx.fillStyle = l.col;
+      ctx.globalAlpha = .9*ex(l); ctx.fillStyle = l.col;
       ctx.beginPath(); ctx.moveTo(0,-S); ctx.quadraticCurveTo(S*.75,-S*.2,0,S); ctx.quadraticCurveTo(-S*.75,-S*.2,0,-S); ctx.fill();
       ctx.globalAlpha = .5; ctx.strokeStyle = "#6b3a1c"; ctx.lineWidth = Math.max(.6, S*.08);
       ctx.beginPath(); ctx.moveTo(0,-S*.9); ctx.lineTo(0,S*1.15); ctx.stroke();
@@ -750,8 +767,8 @@ renderStatus(); refreshDoors(); setBg(homeBg());
       o.vx += (Math.sin(t/1300 + o.o)*.0006 - o.vx) * .02;
       o.vy += (-(.0004 + o.r*.00012) - o.vy) * .02;
       o.x += o.vx; o.y += o.vy;
-      if(o.life > o.max || o.y < .02 || !inside(o.x,o.y,.25)){ Object.assign(o, newOrb(), {y:.8 + Math.random()*.15}); continue; }
-      const fade = Math.min(1, o.life/60, (o.max - o.life)/80);
+      if(o.life > o.max || o.y < .02 || !inside(o.x,o.y,.25)){ if(o.ex){ o.ex = 1; continue; } Object.assign(o, newOrb(), {y:.8 + Math.random()*.15}); continue; }
+      const fade = Math.min(1, o.life/60, (o.max - o.life)/80) * ex(o);
       const tw = .6 + .4*Math.sin(t/260 + o.o*5);
       const X = o.x*W, Y = o.y*W, R = o.r*(W/460);
       const g = ctx.createRadialGradient(X,Y,0,X,Y,R*6);
@@ -771,8 +788,10 @@ renderStatus(); refreshDoors(); setBg(homeBg());
   }
   function tick(t){
     if(!W){ requestAnimationFrame(tick); return; }
+    NOW = t;
     ctx.clearRect(0,0,W,W);
     const m = window.globeMode || "schnee";
+    prune(flakes); prune(drops); prune(orbs); prune(motes); prune(leaves);
     if(m === "regen") drawRain();
     else if(m === "magie"){ drawMagic(t); ctx.globalAlpha = .5; }
     else if(m === "elben") drawElves(t);
