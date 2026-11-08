@@ -330,6 +330,7 @@ header .pill{background:none;border:0;padding:0;border-radius:0;color:var(--t-ac
    spotify: optional ein Spotify Link zum selben Song, z.B. https://open.spotify.com/track/...
    clip:  optional ein YouTube Link, der stumm und in Schleife zum Song läuft (statt der Schallplatte)
    bild:  Foto für diesen Tag (siehe oben)
+   bildpos: optional, welcher Teil des Bildes im Hintergrund zu sehen ist (z.B. "100% 50%" = rechter Rand, damit Personen links neben der Kugel stehen)
    wetter: was sich in der Kugel bewegt: "schnee" (Standard), "regen", "magie", "elben", "gluehwuermchen" oder "pusteblume"
    kugel: optional eine eigene Schneekugel für diesen Tag (z.B. Harry Potter Sockel)
    titel: Name des Songs, wird in der Karte angezeigt
@@ -345,7 +346,7 @@ const TUERCHEN = {
   2:  { video: "", song: "t02-3147c97f", titel: "Those Eyes", bild: "bilder/b02-24e36be5.jpg", wetter: "gluehwuermchen", kugel: "bilder/kugel-mond-4b3af2f3.webp", clip: "https://youtu.be/memUamSICTc", text: "" },
   3:  { video: "", song: "t03-861fdead", titel: "Hobbit", bild: "bilder/b03-54943730.jpg", wetter: "elben", kugel: "bilder/kugel-elben-913df12a.webp", clip: "https://youtu.be/chxX9uucndY", text: "" },
   4:  { video: "", song: "t04-42593136", titel: "Creep", bild: "bilder/b04-e39107ba.jpg", wetter: "regen", kugel: "bilder/kugel-regen-b47fee09.webp", text: "" },
-  5:  { video: "", song: "t05-ebefd28c", titel: "Memories", bild: "bilder/b05-81847768.jpg", wetter: "pusteblume", text: "" },
+  5:  { video: "", song: "t05-ebefd28c", titel: "Memories", bildpos: "100% 50%", bild: "bilder/b05-caffcc64.jpg", wetter: "pusteblume", text: "" },
   6:  { video: "", text: "" },
   7:  { video: "", text: "" },
   8:  { video: "", text: "" },
@@ -455,7 +456,9 @@ function setBg(url){
   const img = new Image();
   img.onload = ()=>{
     if(bgCurrent !== url) return;
-    bgSets.forEach(l=>{ const next = l[1 - bgIdx], cur = l[bgIdx]; next.style.backgroundImage = `url("${url}")`; next.classList.add("on"); cur.classList.remove("on"); });
+    let pos = "";
+    for(const d in TUERCHEN){ if(TUERCHEN[d].bild === url && TUERCHEN[d].bildpos){ pos = TUERCHEN[d].bildpos; break; } }
+    bgSets.forEach((l,li)=>{ const next = l[1 - bgIdx], cur = l[bgIdx]; next.style.backgroundImage = `url("${url}")`; if(li === 0) next.style.backgroundPosition = (pos && innerWidth > innerHeight) ? pos : ""; next.classList.add("on"); cur.classList.remove("on"); });
     bgIdx = 1 - bgIdx;
     setTint(img); setTitleTone(img);
     setGlobe(url);
