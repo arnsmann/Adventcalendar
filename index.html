@@ -51,6 +51,15 @@ h1{font-family:var(--f-display);font-weight:600;font-size:clamp(1.6rem,4.6vw,2.3
 .view{position:absolute;overflow:hidden;background:linear-gradient(#a9bfd4,#e6dccb)}
 #grid{position:absolute;inset:0}
 
+/* Licht, Farbe und Textur über der Szene */
+.fx{position:absolute;inset:0;width:100%;height:100%;pointer-events:none}
+.shade{mix-blend-mode:multiply;z-index:5}
+.tint{z-index:6;mix-blend-mode:soft-light;opacity:.5}
+.tint rect{fill:var(--tint,#c9b28f);transition:fill 1.6s}
+.glow{mix-blend-mode:screen;z-index:7}
+.grain{mix-blend-mode:overlay;z-index:8}
+#grid{z-index:4}
+
 /* Papiertüten */
 .door{position:absolute;border:0;padding:0;background:none;cursor:pointer;font:inherit;color:inherit;touch-action:manipulation;-webkit-tap-highlight-color:transparent;
   filter:drop-shadow(0 0.38cqw 0.38cqw rgba(60,30,10,.35));transform-origin:50% 0}
@@ -200,6 +209,10 @@ footer{font-family:var(--f-hand);font-size:1.1rem;color:#fff8f1;text-shadow:0 1p
   <rect x="490" y="860" width="390" height="290" fill="url(#apri)"/>
   <!-- Regal mit Pokalen -->
   <rect x="270" y="428" width="490" height="10" fill="#d5cbbf"/>
+  <!-- Schatten der Treppe an der Wand -->
+  <filter id="soft" x="-20%" y="-20%" width="140%" height="140%"><feGaussianBlur stdDeviation="14"/></filter>
+  <polygon points="500,800 980,370 980,430 500,860" fill="#3a2418" opacity=".22" filter="url(#soft)"/>
+  <polygon points="520,880 940,1240 940,1270 520,920" fill="#3a2418" opacity=".18" filter="url(#soft)"/>
   <!-- Fensterrahmen -->
   <rect x="694" y="555" width="152" height="254" rx="3" fill="#c88c52"/>
   <rect x="706" y="567" width="128" height="230" fill="#9fb3c8"/>
@@ -310,6 +323,40 @@ footer{font-family:var(--f-hand);font-size:1.1rem;color:#fff8f1;text-shadow:0 1p
   <line x1="474" y1="535" x2="896" y2="883" stroke="#e8b97f" stroke-width="3" stroke-linecap="round"/>
 </svg>
     <div id="grid"></div>
+    <!-- Abendlicht: Raum dunkler, Fenster bleiben hell -->
+    <svg class="fx shade" viewBox="-400 20 1800 1300" preserveAspectRatio="none" aria-hidden="true">
+      <defs>
+        <radialGradient id="dim" gradientUnits="userSpaceOnUse" cx="640" cy="640" r="1150">
+          <stop offset="0" stop-color="#f4e3d0"/><stop offset=".3" stop-color="#d2b9a3"/><stop offset=".65" stop-color="#836a5d"/><stop offset="1" stop-color="#352930"/>
+        </radialGradient>
+        <mask id="nowin" maskUnits="userSpaceOnUse" x="-400" y="20" width="1800" height="1300">
+          <rect x="-400" y="20" width="1800" height="1300" fill="#fff"/>
+          <polygon points="-352.0,282.1 -72.0,294.1 -72.0,715.2 -352.0,765.4" fill="#000"/><polygon points="1352.0,282.1 1072.0,294.1 1072.0,715.2 1352.0,765.4" fill="#000"/><polygon points="706.0,567.0 834.0,567.0 834.0,797.0 706.0,797.0" fill="#000"/>
+        </mask>
+      </defs>
+      <rect x="-400" y="20" width="1800" height="1300" fill="url(#dim)" mask="url(#nowin)"/>
+    </svg>
+    <svg class="fx tint" viewBox="-400 20 1800 1300" preserveAspectRatio="none" aria-hidden="true"><rect x="-400" y="20" width="1800" height="1300" mask="url(#nowin)"/></svg>
+    <!-- Licht: Laterne und Fensterlicht in der Farbe des Tages -->
+    <svg class="fx glow" viewBox="-400 20 1800 1300" preserveAspectRatio="none" aria-hidden="true">
+      <defs>
+        <radialGradient id="lamp"><stop offset="0" stop-color="#ffd08a" stop-opacity=".75"/><stop offset=".4" stop-color="#ffb860" stop-opacity=".25"/><stop offset="1" stop-color="#ffb860" stop-opacity="0"/></radialGradient>
+        <radialGradient id="winlight"><stop offset="0" style="stop-color:var(--tint,#c9b28f)" stop-opacity=".3"/><stop offset="1" style="stop-color:var(--tint,#c9b28f)" stop-opacity="0"/></radialGradient>
+      </defs>
+      <ellipse cx="905" cy="480" rx="230" ry="230" fill="url(#lamp)"/>
+      <ellipse cx="-212" cy="514" rx="330" ry="300" fill="url(#winlight)"/>
+      <ellipse cx="1212" cy="514" rx="330" ry="300" fill="url(#winlight)"/>
+      <ellipse cx="770" cy="690" rx="170" ry="160" fill="url(#winlight)"/>
+      <ellipse cx="-120" cy="1250" rx="260" ry="60" fill="url(#winlight)"/>
+      <ellipse cx="1120" cy="1250" rx="260" ry="60" fill="url(#winlight)"/>
+    </svg>
+    <!-- gemalte Textur -->
+    <svg class="fx grain" width="100%" height="100%" aria-hidden="true">
+      <filter id="paper"><feTurbulence type="fractalNoise" baseFrequency=".85" numOctaves="2" stitchTiles="stitch"/><feColorMatrix type="saturate" values="0"/></filter>
+      <filter id="brush"><feTurbulence type="fractalNoise" baseFrequency=".006 .012" numOctaves="3" seed="4"/><feColorMatrix type="saturate" values="0"/></filter>
+      <rect width="100%" height="100%" filter="url(#brush)" opacity=".22"/>
+      <rect width="100%" height="100%" filter="url(#paper)" opacity=".2"/>
+    </svg>
   </div></main>
   <div class="swipe">← wischen, um den ganzen Flur zu sehen →</div>
   <footer>Jeden Tag eine Tüte. Nicht schummeln! ♡</footer>
@@ -415,6 +462,17 @@ const CAN_EMBED = !/claude\.ai|claudeusercontent|anthropic/.test(location.hostna
 /* Hintergrund */
 const bgSets = [document.querySelector(".bg"), ...document.querySelectorAll(".view")].map(el=>[...el.querySelectorAll(".layer")]);
 let bgIdx = 0, bgCurrent = null, bgPicked = false;
+function setTint(img){
+  try{
+    const c = document.createElement("canvas"); c.width = c.height = 16;
+    const x = c.getContext("2d"); x.drawImage(img, 0, 0, 16, 16);
+    const d = x.getImageData(0, 0, 16, 16).data; let r=0,g=0,b=0,n=0;
+    for(let i=0;i<d.length;i+=4){ const l = d[i]+d[i+1]+d[i+2]; if(l < 60) continue; r+=d[i]; g+=d[i+1]; b+=d[i+2]; n++; }
+    if(!n) return;
+    r/=n; g/=n; b/=n; const m = Math.max(r,g,b) || 1, k = 210 / m;   // aufhellen, Farbton behalten
+    document.querySelector(".stage").style.setProperty("--tint", `rgb(${Math.min(255,r*k)|0},${Math.min(255,g*k)|0},${Math.min(255,b*k)|0})`);
+  }catch(e){}
+}
 function setBg(url){
   if(url === bgCurrent) return;
   bgCurrent = url;
@@ -424,6 +482,7 @@ function setBg(url){
     if(bgCurrent !== url) return;
     bgSets.forEach(l=>{ const next = l[1 - bgIdx], cur = l[bgIdx]; next.style.backgroundImage = `url("${url}")`; next.classList.add("on"); cur.classList.remove("on"); });
     bgIdx = 1 - bgIdx;
+    setTint(img);
   };
   img.src = url;
 }
