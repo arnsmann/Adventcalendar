@@ -304,6 +304,17 @@ body.peek .bg::after{opacity:0}
 body.peek .bg .layer{transition:opacity 1.6s ease,background-size .5s ease}
 @media (min-aspect-ratio:16/10){ body.peek .bg .layer{background-size:contain!important;background-position:center!important} body.peek .bg{background:#120c0a} }
 
+/* Kugel steht unten im Bild auf dem Boden, Texte oben */
+.wrap{min-height:100vh;min-height:100dvh}
+.wrap > header{order:0}
+.wrap > .motion-btn,.wrap > .globe-hint,.wrap > footer{order:1}
+.wrap > .globe-wrap{order:2;margin-top:auto}
+.wrap > .globe-back{order:3}
+.globe-wrap::after{content:"";position:absolute;left:8%;right:8%;bottom:calc(-1 * var(--mb, 0px) - 6px);height:7%;z-index:0;pointer-events:none;border-radius:50%;
+  background:radial-gradient(closest-side,rgba(20,10,5,.45),rgba(20,10,5,0))}
+.globe-hint{font-size:.95rem}
+footer{font-size:1rem;margin-top:-6px}
+
 @media (prefers-reduced-motion:reduce){
   .door.hang,.door.today,.door.open,.card,.vinyl{animation:none}
   .bclip,.bg .layer,.view .layer{transition:none}
@@ -470,14 +481,14 @@ const GLOBE_DEFAULT = document.querySelector(".globe-img").getAttribute("src");
       w.style.marginTop = pad[1] ? (pad[1] / 956 * w.offsetWidth + 4) + "px" : "";
       const ex = (g.naturalHeight - pad[1]) / 956 - 566/478;
       w.style.marginBottom = ex > 0 ? (ex * w.offsetWidth) + "px" : "";
+      w.style.setProperty("--mb", w.style.marginBottom || "0px");
     };
     w.style.left = (window.globeShift && innerWidth > innerHeight && innerWidth > 820) ? window.globeShift : "";
     apply(k);
     // passt es nicht auf den Bildschirm, so lange etwas kleiner machen, bis es passt
     for(let i = 0; i < 6; i++){
       // Inhalt messen (nicht scrollHeight: auf dem iPhone ist 100vh größer als der sichtbare Bereich)
-      const last = document.querySelector(".wrap > footer") || w;
-      const over = last.getBoundingClientRect().bottom + scrollY + 12 - innerHeight;
+      const over = w.getBoundingClientRect().bottom + (parseFloat(w.style.marginBottom) || 0) + scrollY + 14 - innerHeight;
       if(over <= 1 || k <= .7) break;
       const gh = w.offsetHeight + (parseFloat(w.style.marginBottom) || 0) + (parseFloat(w.style.marginTop) || 0);
       k = Math.max(.7, k * (1 - (over + 2) / Math.max(gh, 1)));
