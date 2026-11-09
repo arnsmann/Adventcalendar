@@ -227,7 +227,7 @@ footer{font-family:var(--f-hand);font-size:1.1rem;color:#fff8f1;text-shadow:0 1p
 .card.has-pic .song-head .cover-art::after{display:none}
 
 /* Schneekugel (gemalt) */
-.globe-wrap{transition:margin-bottom .35s,left .6s ease;position:relative;width:calc(min(92vw,calc((100vh - 270px) * 478 / 625),600px) * var(--gk,1));min-width:260px;aspect-ratio:478/566;margin-top:4px}
+.globe-wrap{transition:margin-bottom .35s,left .6s ease;position:relative;width:calc(min(92vw,calc((100vh - 270px) * 478 / 625),600px) * var(--gk,1));min-width:150px;aspect-ratio:478/566;margin-top:4px}
 .globe-img{transition:opacity .35s;position:absolute;top:0;left:0;width:100%;height:auto;display:block;user-select:none;-webkit-user-select:none;pointer-events:none;
   filter:drop-shadow(0 24px 30px rgba(30,10,5,.4));transform-origin:50% 92%}
 /* echtes Treppenhaus im Glas */
@@ -365,7 +365,7 @@ body.peek .bg .layer{transition:opacity 1.6s ease,background-size .5s ease}
    clip:  optional ein YouTube Link, der stumm und in Schleife zum Song läuft (statt der Schallplatte)
    bild:  Foto für diesen Tag (siehe oben)
    bildpos: optional, welcher Teil des Bildes im Hintergrund zu sehen ist (z.B. "100% 50%" = rechter Rand, damit Personen links neben der Kugel stehen)
-   wetter: was sich in der Kugel bewegt: "schnee" (Standard), "regen", "magie", "elben", "gluehwuermchen" oder "pusteblume"
+   wetter: was sich in der Kugel bewegt: "schnee" (Standard), "regen", "magie", "elben", "gluehwuermchen", "pusteblume" oder "zauberschnee"
    fenster: optional, was die Fenster im Treppenhaus zeigen: [Größe, Ausschnitt], z.B. ["240%", "92% 42%"] für den Wald weiter hinten
    kugelversatz: optional, schiebt die Kugel am Computer nach rechts (z.B. "12vw"), damit Personen im Bild frei stehen
    kugelrand: nur bei breiten Kugeln, wie weit das Bild links und oben über die Kugel hinausragt (Pixel bei 956 px Grundbreite)
@@ -384,7 +384,7 @@ const TUERCHEN = {
   3:  { video: "", song: "t03-861fdead", titel: "Hobbit", bild: "bilder/b03-54943730.jpg", wetter: "elben", kugel: "bilder/kugel-elben-913df12a.webp", clip: "https://youtu.be/chxX9uucndY", text: "" },
   4:  { video: "", song: "t04-42593136", titel: "Creep", bild: "bilder/b04-e39107ba.jpg", wetter: "regen", kugel: "bilder/kugel-regen-b47fee09.webp", text: "" },
   5:  { video: "", song: "t05-ebefd28c", titel: "Memories", kugel: "bilder/kugel-wald-58817d5f.webp", kugelrand: [200,80], kugelversatz: "12vw", fenster: ["240%", "92% 42%"], bildpos: "100% 50%", bild: "bilder/b05-208fe068.jpg", wetter: "pusteblume", text: "" },
-  6:  { video: "", song: "t06-6a105033", titel: "Drei Nüsse für Aschenbrödel", bild: "bilder/b06-c5578fd1.jpg", kugelversatz: "-24vw", fenster: ["650%", "0% 42%"], text: "" },
+  6:  { video: "", song: "t06-6a105033", titel: "Drei Nüsse für Aschenbrödel", wetter: "zauberschnee", kugel: "bilder/kugel-aschenbroedel-a6e98989.webp", kugelrand: [0,230], bild: "bilder/b06-c5578fd1.jpg", kugelversatz: "-24vw", fenster: ["650%", "0% 42%"], text: "" },
   7:  { video: "", song: "t07-e9b8a12f", titel: "Spirit", bild: "bilder/b07-fc7e8a62.jpg", wetter: "pusteblume", kugel: "bilder/kugel-spirit-e2d0bdfd.webp", kugelrand: [60,0], kugelversatz: "-18vw", fenster: ["300%", "14% 64%"], clip: "https://youtu.be/q9ikblV9Cyg", text: "" },
   8:  { video: "", text: "" },
   9:  { video: "", text: "" },
@@ -465,15 +465,26 @@ const GLOBE_DEFAULT = document.querySelector(".globe-img").getAttribute("src");
     const totalH = base * g.naturalHeight / 956;
     const normH = base * 566 / 478 + 4;
     if(totalH > normH) k = Math.min(k, normH / totalH * 1.04);
-    w.style.setProperty("--gk", k);
+    const apply = kk => {
+      w.style.setProperty("--gk", kk);
+      w.style.marginTop = pad[1] ? (pad[1] / 956 * w.offsetWidth + 4) + "px" : "";
+      const ex = (g.naturalHeight - pad[1]) / 956 - 566/478;
+      w.style.marginBottom = ex > 0 ? (ex * w.offsetWidth) + "px" : "";
+    };
     w.style.left = (window.globeShift && innerWidth > innerHeight && innerWidth > 820) ? window.globeShift : "";
-    w.style.marginTop = pad[1] ? (pad[1] / 956 * w.offsetWidth + 4) + "px" : "";
-    const extra = (g.naturalHeight - pad[1]) / 956 - 566/478;
-    w.style.marginBottom = extra > 0 ? (extra * w.offsetWidth) + "px" : "";
+    apply(k);
+    // passt es nicht auf den Bildschirm, so lange etwas kleiner machen, bis es passt
+    for(let i = 0; i < 6; i++){
+      const over = document.documentElement.scrollHeight - innerHeight;
+      if(over <= 1 || k <= .45) break;
+      const gh = w.offsetHeight + (parseFloat(w.style.marginBottom) || 0) + (parseFloat(w.style.marginTop) || 0);
+      k = Math.max(.45, k * (1 - (over + 2) / Math.max(gh, 1)));
+      apply(k);
+    }
     try{ alignViews(); }catch(e){}
   }
   window.globeFit = fit;
-  g.addEventListener("load", fit); addEventListener("resize", fit); if(g.complete) fit(); })();
+  g.addEventListener("load", ()=>{ fit(); setTimeout(fit, 350); setTimeout(fit, 1200); }); addEventListener("resize", fit); if(g.complete) fit(); setTimeout(fit, 800); })();
 function setGlobe(url){
   let k = GLOBE_DEFAULT, mode = "schnee", pad = [0,0], shift = "";
   for(const d in TUERCHEN){ if(TUERCHEN[d].bild === url){ if(TUERCHEN[d].kugel) k = TUERCHEN[d].kugel; if(TUERCHEN[d].kugelrand) pad = TUERCHEN[d].kugelrand; if(TUERCHEN[d].kugelversatz) shift = TUERCHEN[d].kugelversatz; if(TUERCHEN[d].wetter) mode = TUERCHEN[d].wetter; break; } }
@@ -1019,6 +1030,7 @@ renderStatus(); refreshDoors(); setBg(homeBg());
     else if(m === "elben") drawElves(t);
     else if(m === "gluehwuermchen") drawFlies(t);
     else if(m === "pusteblume") drawSeeds(t);
+    else if(m === "zauberschnee"){ drawSnow(t); ctx.globalAlpha = 1; drawMagic(t); }
     else drawSnow(t);
     ctx.globalAlpha = 1;
     requestAnimationFrame(tick);
@@ -1044,7 +1056,7 @@ renderStatus(); refreshDoors(); setBg(homeBg());
   function startMotion(){
     if(motionOn) return; motionOn = true;
     addEventListener("devicemotion", onMotion);
-    motionBtn.hidden = true;
+    motionBtn.hidden = true; setTimeout(()=>window.globeFit && window.globeFit(), 0);
     document.getElementById("globeHint").textContent = "Tipp auf die Kugel, um hineinzuschauen · schüttel dein Handy für Schnee";
   }
   if(touch && "DeviceMotionEvent" in window){
@@ -1061,13 +1073,13 @@ renderStatus(); refreshDoors(); setBg(homeBg());
         addEventListener("devicemotion", probe);
         // Hat das iPhone die Erlaubnis vergessen (passiert in der Homebildschirm App bei jedem Start),
         // kommt kein Knopf mehr: beim ersten Tippen auf den Sockel wird still nachgefragt, einmal pro Start.
-        setTimeout(()=>{ if(!got){ removeEventListener("devicemotion", probe);
+        setTimeout(()=>{ if(!got){ removeEventListener("devicemotion", probe); setTimeout(()=>window.globeFit && window.globeFit(), 0);
           const sb = document.getElementById("shakeBtn");
           const ask = ()=>{ sb.removeEventListener("click", ask); DeviceMotionEvent.requestPermission().then(r=>{ if(r === "granted") startMotion(); }).catch(()=>{}); };
           sb.addEventListener("click", ask);
         } }, 1500);
       } else {
-        motionBtn.hidden = false;
+        motionBtn.hidden = false; setTimeout(()=>window.globeFit && window.globeFit(), 0);
       }
       motionBtn.addEventListener("click", ()=>{
         DeviceMotionEvent.requestPermission().then(r=>{
