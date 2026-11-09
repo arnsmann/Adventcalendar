@@ -401,7 +401,7 @@ const TUERCHEN = {
   4:  { video: "", song: "t04-42593136", titel: "Creep", bild: "bilder/b04-e39107ba.jpg", wetter: "regen", kugel: "bilder/kugel-regen-b47fee09.webp", text: "" },
   5:  { video: "", song: "t05-ebefd28c", titel: "Memories", kugel: "bilder/kugel-wald-58817d5f.webp", kugelrand: [200,80], kugelversatz: "17vw", fenster: ["240%", "92% 42%"], bildpos: "100% 50%", bild: "bilder/b05-208fe068.jpg", wetter: "pusteblume", text: "" },
   6:  { video: "", song: "t06-6a105033", titel: "Drei Nüsse für Aschenbrödel", clip: "https://youtu.be/zqamJZ3Jiy4", wetter: "zauberschnee", kugel: "bilder/kugel-aschenbroedel-d3dd5165.webp", kugelrand: [0,250], bild: "bilder/b06-c5578fd1.jpg", kugelversatz: "-24vw", fenster: ["650%", "0% 42%"], text: "" },
-  7:  { video: "", song: "t07-e9b8a12f", titel: "Spirit", bild: "bilder/b07-fc7e8a62.jpg", wetter: "pusteblume", kugel: "bilder/kugel-spirit-e2d0bdfd.webp", kugelrand: [60,0], kugelversatz: "-18vw", fenster: ["300%", "14% 64%"], clip: "https://youtu.be/q9ikblV9Cyg", text: "" },
+  7:  { video: "", song: "t07-e9b8a12f", titel: "Spirit", bild: "bilder/b07-fc7e8a62.jpg", wetter: "pusteblume", kugel: "bilder/kugel-spirit-9a287ea7.webp", kugelrand: [60,0], kugelversatz: "-18vw", fenster: ["300%", "14% 64%"], clip: "https://youtu.be/q9ikblV9Cyg", text: "" },
   8:  { video: "", text: "" },
   9:  { video: "", text: "" },
   10: { video: "", text: "" },
@@ -491,7 +491,7 @@ const GLOBE_DEFAULT = document.querySelector(".globe-img").getAttribute("src");
     };
     const apply = kk => {
       w.style.setProperty("--gk", kk);
-      w.style.marginTop = pad[1] ? (pad[1] / 956 * w.offsetWidth + 4) + "px" : "";
+      w.style.marginTop = ""; { const ft = document.querySelector(".wrap > footer"); if(ft) ft.style.marginBottom = pad[1] ? (pad[1] / 956 * w.offsetWidth + 4) + "px" : ""; }
       const ex = (g.naturalHeight - pad[1]) / 956 - 566/478;
       w.style.marginBottom = ex > 0 ? (ex * w.offsetWidth) + "px" : "";
       w.style.setProperty("--mb", w.style.marginBottom || "0px");
@@ -504,7 +504,7 @@ const GLOBE_DEFAULT = document.querySelector(".globe-img").getAttribute("src");
       // Inhalt messen (nicht scrollHeight: auf dem iPhone ist 100vh größer als der sichtbare Bereich)
       const over = w.getBoundingClientRect().bottom + (parseFloat(w.style.marginBottom) || 0) + scrollY + 14 - innerHeight;
       if(over <= 1 || k <= .7) break;
-      const gh = w.offsetHeight + (parseFloat(w.style.marginBottom) || 0) + (parseFloat(w.style.marginTop) || 0);
+      const gh = w.offsetHeight + (parseFloat(w.style.marginBottom) || 0) + (parseFloat((document.querySelector(".wrap > footer")||{style:{}}).style.marginBottom) || 0);
       k = Math.max(.7, k * (1 - (over + 2) / Math.max(gh, 1)));
       apply(k); placeInside();
     }
