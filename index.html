@@ -234,7 +234,7 @@ footer{font-family:var(--f-hand);font-size:1.1rem;color:#fff8f1;text-shadow:0 1p
 .globe{position:absolute;left:1.26%;top:1.24%;width:97.5%;aspect-ratio:1;border-radius:50%;z-index:1;overflow:hidden;transform-origin:50% 92%}
 .globe .scene{position:absolute;inset:0;width:100%;height:100%;aspect-ratio:auto;max-width:none;border-radius:50%;overflow:hidden;box-shadow:none;background:#2a1d18}
 .globe .stage{position:absolute;inset:auto;top:0;left:50%;height:100%;width:auto;aspect-ratio:1195/896;transform:translateX(-49.4%)}
-.globe::after{content:"";position:absolute;inset:0;border-radius:50%;pointer-events:none;z-index:9;
+.globe .scene::after{content:"";position:absolute;inset:1.3%;border-radius:50%;pointer-events:none;z-index:9;
   background:
     radial-gradient(ellipse 30% 18% at 30% 18%,rgba(255,255,255,.42),rgba(255,255,255,0) 70%),
     radial-gradient(ellipse 8% 4% at 72% 13%,rgba(255,255,255,.35),rgba(255,255,255,0) 80%),
@@ -265,7 +265,7 @@ footer{font-family:var(--f-hand);font-size:1.1rem;color:#fff8f1;text-shadow:0 1p
 .globe-wrap.zoomed .scene::-webkit-scrollbar{display:none}
 .globe-wrap.zoomed .stage{position:relative;inset:auto;left:auto;transform:none;margin:0 auto;height:100%;width:auto;aspect-ratio:1195/896}
 .globe-wrap.zoomed .globe-snow{display:none}
-.globe-wrap.zoomed .globe::after{display:none}
+.globe-wrap.zoomed .globe .scene::after{display:none}
 .globe-wrap.zoomed::before{content:"";position:fixed;inset:-50vh -50vw;background:rgba(15,8,6,.78);z-index:14}
 @media (prefers-reduced-motion:reduce){.globe-wrap.zoomed .globe,.globe-wrap.shaking .globe-img,.globe-wrap.shaking .globe-snow{animation:none}}
 
@@ -314,6 +314,11 @@ body.peek .bg .layer{transition:opacity 1.6s ease,background-size .5s ease}
   background:radial-gradient(closest-side,rgba(20,10,5,.45),rgba(20,10,5,0))}
 .globe-hint{font-size:.95rem}
 footer{font-size:1rem;margin-top:-6px}
+
+/* Treppenhaus liegt HINTER der Kugel und wird genau auf die Glasöffnung zugeschnitten */
+.globe-wrap:not(.zoomed) .globe{left:var(--gL,1.26%);top:var(--gT,1.24%);width:var(--gW,97.5%);height:var(--gH,auto);aspect-ratio:auto;border-radius:0;overflow:visible;
+  -webkit-mask:var(--gm,radial-gradient(circle,#000 70%,transparent 70.5%)) 0 0/100% 100% no-repeat;mask:var(--gm,radial-gradient(circle,#000 70%,transparent 70.5%)) 0 0/100% 100% no-repeat}
+.globe-wrap:not(.zoomed) .globe .scene{inset:auto;left:var(--sL,0);top:var(--sT,0);width:var(--sS,100%);height:var(--sS,100%);border-radius:0}
 
 @media (prefers-reduced-motion:reduce){
   .door.hang,.door.today,.door.open,.card,.vinyl{animation:none}
@@ -476,6 +481,14 @@ const GLOBE_DEFAULT = document.querySelector(".globe-img").getAttribute("src");
     const totalH = base * g.naturalHeight / 956;
     const normH = base * 566 / 478 + 4;
     if(totalH > normH) k = Math.min(k, normH / totalH * 1.04);
+    const placeInside = () => {
+      const u = w.offsetWidth / 956, pl = pad[0], pt = pad[1], R = 478;
+      w.style.setProperty("--gL", (-pl * u) + "px"); w.style.setProperty("--gT", (-pt * u) + "px");
+      w.style.setProperty("--gW", (g.naturalWidth * u) + "px"); w.style.setProperty("--gH", (g.naturalHeight * u) + "px");
+      w.style.setProperty("--sL", ((pl + 478 - R) * u) + "px"); w.style.setProperty("--sT", ((pt + 480 - R) * u) + "px");
+      w.style.setProperty("--sS", (2 * R * u) + "px");
+      w.style.setProperty("--gm", `url("${g.getAttribute("src").replace(/\.webp$/, "-m.webp")}")`);
+    };
     const apply = kk => {
       w.style.setProperty("--gk", kk);
       w.style.marginTop = pad[1] ? (pad[1] / 956 * w.offsetWidth + 4) + "px" : "";
@@ -485,6 +498,7 @@ const GLOBE_DEFAULT = document.querySelector(".globe-img").getAttribute("src");
     };
     w.style.left = (window.globeShift && innerWidth > innerHeight && innerWidth > 820) ? window.globeShift : "";
     apply(k);
+    placeInside();
     // passt es nicht auf den Bildschirm, so lange etwas kleiner machen, bis es passt
     for(let i = 0; i < 6; i++){
       // Inhalt messen (nicht scrollHeight: auf dem iPhone ist 100vh größer als der sichtbare Bereich)
@@ -492,7 +506,7 @@ const GLOBE_DEFAULT = document.querySelector(".globe-img").getAttribute("src");
       if(over <= 1 || k <= .7) break;
       const gh = w.offsetHeight + (parseFloat(w.style.marginBottom) || 0) + (parseFloat(w.style.marginTop) || 0);
       k = Math.max(.7, k * (1 - (over + 2) / Math.max(gh, 1)));
-      apply(k);
+      apply(k); placeInside();
     }
     try{ alignViews(); }catch(e){}
   }
