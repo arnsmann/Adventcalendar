@@ -475,10 +475,12 @@ const GLOBE_DEFAULT = document.querySelector(".globe-img").getAttribute("src");
     apply(k);
     // passt es nicht auf den Bildschirm, so lange etwas kleiner machen, bis es passt
     for(let i = 0; i < 6; i++){
-      const over = document.documentElement.scrollHeight - innerHeight;
-      if(over <= 1 || k <= .45) break;
+      // Inhalt messen (nicht scrollHeight: auf dem iPhone ist 100vh größer als der sichtbare Bereich)
+      const last = document.querySelector(".wrap > footer") || w;
+      const over = last.getBoundingClientRect().bottom + scrollY + 12 - innerHeight;
+      if(over <= 1 || k <= .7) break;
       const gh = w.offsetHeight + (parseFloat(w.style.marginBottom) || 0) + (parseFloat(w.style.marginTop) || 0);
-      k = Math.max(.45, k * (1 - (over + 2) / Math.max(gh, 1)));
+      k = Math.max(.7, k * (1 - (over + 2) / Math.max(gh, 1)));
       apply(k);
     }
     try{ alignViews(); }catch(e){}
