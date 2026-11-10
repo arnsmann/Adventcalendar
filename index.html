@@ -310,6 +310,7 @@ body.peek .bg .layer{transition:opacity 1.6s ease,background-size .5s ease}
 .wrap > .motion-btn,.wrap > .globe-hint,.wrap > footer{order:1}
 .wrap > .globe-wrap{order:2;margin-top:auto}
 .wrap > .globe-back{order:3}
+.globe-wrap.side:not(.zoomed)::after{display:none}
 .globe-wrap::after{content:"";position:absolute;left:8%;right:8%;bottom:calc(-1 * var(--mb, 0px) - 6px);height:7%;z-index:0;pointer-events:none;border-radius:50%;
   background:radial-gradient(closest-side,rgba(20,10,5,.45),rgba(20,10,5,0))}
 .globe-hint{font-size:.95rem}
@@ -384,6 +385,7 @@ footer{font-size:1rem;margin-top:-6px}
    wetter: was sich in der Kugel bewegt: "schnee" (Standard), "regen", "magie", "elben", "gluehwuermchen", "pusteblume" oder "zauberschnee"
    fenster: optional, was die Fenster im Treppenhaus zeigen: [Größe, Ausschnitt], z.B. ["240%", "92% 42%"] für den Wald weiter hinten
    kugelversatz: optional, schiebt die Kugel am Computer nach rechts (z.B. "12vw"), damit Personen im Bild frei stehen
+   kugelhoch: optional (true), am Computer darf eine hohe, zur Seite geschobene Kugel neben dem Titel bis nach oben reichen und wird dadurch größer
    kugelrand: nur bei breiten Kugeln, wie weit das Bild links und oben über die Kugel hinausragt (Pixel bei 956 px Grundbreite)
    kugel: optional eine eigene Schneekugel für diesen Tag (z.B. Harry Potter Sockel)
    titel: Name des Songs, wird in der Karte angezeigt
@@ -400,7 +402,7 @@ const TUERCHEN = {
   3:  { video: "", song: "t03-861fdead", titel: "Hobbit", bild: "bilder/b03-54943730.jpg", wetter: "elben", kugel: "bilder/kugel-elben-913df12a.webp", clip: "https://youtu.be/chxX9uucndY", text: "" },
   4:  { video: "", song: "t04-42593136", titel: "Creep", bild: "bilder/b04-e39107ba.jpg", wetter: "regen", kugel: "bilder/kugel-regen-b47fee09.webp", text: "" },
   5:  { video: "", song: "t05-ebefd28c", titel: "Memories", kugel: "bilder/kugel-wald-58817d5f.webp", kugelrand: [200,80], kugelversatz: "17vw", fenster: ["240%", "92% 42%"], bildpos: "100% 50%", bild: "bilder/b05-208fe068.jpg", wetter: "pusteblume", text: "" },
-  6:  { video: "", song: "t06-6a105033", titel: "Drei Nüsse für Aschenbrödel", clip: "https://youtu.be/zqamJZ3Jiy4", wetter: "zauberschnee", kugel: "bilder/kugel-aschenbroedel-d3dd5165.webp", kugelrand: [0,250], bild: "bilder/b06-c5578fd1.jpg", kugelversatz: "-24vw", fenster: ["650%", "0% 42%"], text: "" },
+  6:  { video: "", song: "t06-6a105033", titel: "Drei Nüsse für Aschenbrödel", clip: "https://youtu.be/zqamJZ3Jiy4", wetter: "zauberschnee", kugel: "bilder/kugel-perle-05acc6d6.webp", kugelrand: [137,165], bild: "bilder/b06-c5578fd1.jpg", kugelversatz: "-31vw", kugelhoch: true, fenster: ["650%", "0% 42%"], text: "" },
   7:  { video: "", song: "t07-e9b8a12f", titel: "Spirit", bild: "bilder/b07-fc7e8a62.jpg", wetter: "pusteblume", kugel: "bilder/kugel-spirit-9a287ea7.webp", kugelrand: [60,0], kugelversatz: "-18vw", fenster: ["300%", "14% 64%"], clip: "https://youtu.be/q9ikblV9Cyg", text: "" },
   8:  { video: "", text: "" },
   9:  { video: "", text: "" },
@@ -480,7 +482,9 @@ const GLOBE_DEFAULT = document.querySelector(".globe-img").getAttribute("src");
     // hohe Kugeln (z.B. mit Figur obendrauf) so verkleinern, dass alles auf den Bildschirm passt
     const totalH = base * g.naturalHeight / 956;
     const normH = base * 566 / 478 + 4;
-    if(totalH > normH) k = Math.min(k, normH / totalH * 1.04);
+    const side = !!(window.globeShift && window.globeHoch && innerWidth > innerHeight && innerWidth > 820);
+    if(side) k = Math.min(k, (innerHeight - 30) / totalH);
+    else if(totalH > normH) k = Math.min(k, normH / totalH * 1.04);
     const placeInside = () => {
       const u = w.offsetWidth / 956, pl = pad[0], pt = pad[1], R = 478;
       w.style.setProperty("--gL", (-pl * u) + "px"); w.style.setProperty("--gT", (-pt * u) + "px");
@@ -491,32 +495,38 @@ const GLOBE_DEFAULT = document.querySelector(".globe-img").getAttribute("src");
     };
     const apply = kk => {
       w.style.setProperty("--gk", kk);
-      w.style.marginTop = ""; { const ft = document.querySelector(".wrap > footer"); if(ft) ft.style.marginBottom = pad[1] ? (pad[1] / 956 * w.offsetWidth + 4) + "px" : ""; }
+      w.style.marginTop = ""; { const ft = document.querySelector(".wrap > footer"); if(ft){
+        if(side){ ft.style.marginBottom = ""; ft.style.marginBottom = (pad[1] / 956 * w.offsetWidth + 12 - ft.getBoundingClientRect().bottom - scrollY) + "px"; }
+        else ft.style.marginBottom = pad[1] ? (pad[1] / 956 * w.offsetWidth + 4) + "px" : ""; } }
       const ex = (g.naturalHeight - pad[1]) / 956 - 566/478;
       w.style.marginBottom = ex > 0 ? (ex * w.offsetWidth) + "px" : "";
       w.style.setProperty("--mb", w.style.marginBottom || "0px");
     };
     w.style.left = (window.globeShift && innerWidth > innerHeight && innerWidth > 820) ? window.globeShift : "";
+    // beim Messen keine Animation des Abstands, sonst stimmt die gemessene Unterkante nicht
+    w.style.top = ""; w.classList.toggle("side", side); w.style.transition = "left .6s ease"; clearTimeout(w._tr); w._tr = setTimeout(()=>{ w.style.transition = ""; }, 700);
     apply(k);
     placeInside();
     // passt es nicht auf den Bildschirm, so lange etwas kleiner machen, bis es passt
     for(let i = 0; i < 6; i++){
       // Inhalt messen (nicht scrollHeight: auf dem iPhone ist 100vh größer als der sichtbare Bereich)
-      const over = w.getBoundingClientRect().bottom + (parseFloat(w.style.marginBottom) || 0) + scrollY + 14 - innerHeight;
-      if(over <= 1 || k <= .7) break;
-      const gh = w.offsetHeight + (parseFloat(w.style.marginBottom) || 0) + (parseFloat((document.querySelector(".wrap > footer")||{style:{}}).style.marginBottom) || 0);
-      k = Math.max(.7, k * (1 - (over + 2) / Math.max(gh, 1)));
+      const over = w.getBoundingClientRect().bottom + (parseFloat(w.style.marginBottom) || 0) + scrollY + (side ? 34 : 14) - innerHeight;
+      if(over <= 1 || k <= (side ? .5 : .7)) break;
+      const gh = w.offsetHeight + (parseFloat(w.style.marginBottom) || 0) + Math.max(0, parseFloat((document.querySelector(".wrap > footer")||{style:{}}).style.marginBottom) || 0);
+      k = Math.max(side ? .5 : .7, k * (1 - (over + 2) / Math.max(gh, 1)));
       apply(k); placeInside();
     }
+    // hohe Kugel am Computer: Sockel bis an den unteren Bildschirmrand, wie auf einer Mauer stehend
+    if(side){ const gb = w.getBoundingClientRect().bottom + (parseFloat(w.style.marginBottom) || 0) + scrollY; w.style.top = Math.max(0, innerHeight - gb) + "px"; }
     try{ alignViews(); }catch(e){}
   }
   window.globeFit = fit;
   g.addEventListener("load", ()=>{ fit(); setTimeout(fit, 350); setTimeout(fit, 1200); }); addEventListener("resize", fit); if(g.complete) fit(); setTimeout(fit, 800); })();
 function setGlobe(url){
-  let k = GLOBE_DEFAULT, mode = "schnee", pad = [0,0], shift = "";
-  for(const d in TUERCHEN){ if(TUERCHEN[d].bild === url){ if(TUERCHEN[d].kugel) k = TUERCHEN[d].kugel; if(TUERCHEN[d].kugelrand) pad = TUERCHEN[d].kugelrand; if(TUERCHEN[d].kugelversatz) shift = TUERCHEN[d].kugelversatz; if(TUERCHEN[d].wetter) mode = TUERCHEN[d].wetter; break; } }
+  let k = GLOBE_DEFAULT, mode = "schnee", pad = [0,0], shift = "", hoch = false;
+  for(const d in TUERCHEN){ if(TUERCHEN[d].bild === url){ if(TUERCHEN[d].kugel) k = TUERCHEN[d].kugel; if(TUERCHEN[d].kugelrand) pad = TUERCHEN[d].kugelrand; if(TUERCHEN[d].kugelversatz) shift = TUERCHEN[d].kugelversatz; hoch = !!TUERCHEN[d].kugelhoch; if(TUERCHEN[d].wetter) mode = TUERCHEN[d].wetter; break; } }
   window.globeMode = mode;
-  window.globeShift = shift; try{ window.globeFit && window.globeFit(); }catch(e){}
+  window.globeShift = shift; window.globeHoch = hoch; try{ window.globeFit && window.globeFit(); }catch(e){}
   const g = document.querySelector(".globe-img");
   if(g.getAttribute("src") === k) return;
   const pre = new Image();
