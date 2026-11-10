@@ -310,6 +310,7 @@ body.peek .bg .layer{transition:opacity 1.6s ease,background-size .5s ease}
 .wrap > .motion-btn,.wrap > .globe-hint,.wrap > footer{order:1}
 .wrap > .globe-wrap{order:2;margin-top:auto}
 .wrap > .globe-back{order:3}
+.globe-wrap.anker:not(.zoomed) .globe,.globe-wrap.anker .globe-img,.globe-wrap.anker:not(.zoomed) .globe-snow{scale:1 var(--ey,1);transform-origin:50% 50%}
 .globe-wrap.side:not(.zoomed)::after,.globe-wrap.anker:not(.zoomed)::after{display:none}
 .globe-wrap::after{content:"";position:absolute;left:8%;right:8%;bottom:calc(-1 * var(--mb, 0px) - 6px);height:7%;z-index:0;pointer-events:none;border-radius:50%;
   background:radial-gradient(closest-side,rgba(20,10,5,.45),rgba(20,10,5,0))}
@@ -385,7 +386,7 @@ footer{font-size:1rem;margin-top:-6px}
    wetter: was sich in der Kugel bewegt: "schnee" (Standard), "regen", "magie", "elben", "gluehwuermchen", "pusteblume" oder "zauberschnee"
    fenster: optional, was die Fenster im Treppenhaus zeigen: [Größe, Ausschnitt], z.B. ["240%", "92% 42%"] für den Wald weiter hinten
    kugelversatz: optional, schiebt die Kugel am Computer nach rechts (z.B. "12vw"), damit Personen im Bild frei stehen
-   hochkant: optional, eigenes Hochformat Bild fürs Handy, in dem schon ein Sockel steht. kugel: [x, y, Radius] der Kugel im Bild (Pixel). Die Glaskugel wird dann genau dort auf den Sockel gesetzt
+   hochkant: optional, eigenes Hochformat Bild fürs Handy, in dem schon ein Sockel steht. kugel: [x, y, Radius breit, Radius hoch] der Kugel im Bild (Pixel). Die Glaskugel wird dann genau dort auf den Sockel gesetzt. kugelbild: optional anderes Glas (z.B. ohne Rand, wenn das Bild schon einen Rand hat)
    kugelhoch: optional (true), am Computer darf eine hohe, zur Seite geschobene Kugel neben dem Titel bis nach oben reichen und wird dadurch größer
    kugelrand: nur bei breiten Kugeln, wie weit das Bild links und oben über die Kugel hinausragt (Pixel bei 956 px Grundbreite)
    kugel: optional eine eigene Schneekugel für diesen Tag (z.B. Harry Potter Sockel)
@@ -398,13 +399,13 @@ const JAHR = 2026;
    und beim Öffnen eines älteren Türchens kommt sein Foto zurück. START_BILD ist der Hintergrund vor dem 1. Dezember. */
 const START_BILD = "bilder/start-87591f46.jpg";
 const TUERCHEN = {
-  1:  { video: "", song: "t01-3b94657d", titel: "Lily's Theme", bild: "bilder/b01-68e822e2.jpg", hochkant: { bild: "bilder/b01h-cf83aa90.jpg", kugel: [452.5, 855, 136] }, wetter: "magie", kugel: "bilder/kugel-hp-f9b0b214.webp", clip: "https://youtu.be/BWp-MmUmhbA", text: "" },
+  1:  { video: "", song: "t01-3b94657d", titel: "Lily's Theme", bild: "bilder/b01-68e822e2.jpg", hochkant: { bild: "bilder/b01h-cf83aa90.jpg", kugel: [452.5, 855, 124.5, 135] }, wetter: "magie", kugel: "bilder/kugel-hp-f9b0b214.webp", clip: "https://youtu.be/BWp-MmUmhbA", text: "" },
   2:  { video: "", song: "t02-3147c97f", titel: "Those Eyes", bild: "bilder/b02-24e36be5.jpg", wetter: "gluehwuermchen", kugel: "bilder/kugel-mond-4b3af2f3.webp", clip: "https://youtu.be/memUamSICTc", text: "" },
   3:  { video: "", song: "t03-861fdead", titel: "Hobbit", bild: "bilder/b03-54943730.jpg", wetter: "elben", kugel: "bilder/kugel-elben-913df12a.webp", clip: "https://youtu.be/chxX9uucndY", text: "" },
   4:  { video: "", song: "t04-42593136", titel: "Creep", bild: "bilder/b04-e39107ba.jpg", wetter: "regen", kugel: "bilder/kugel-regen-b47fee09.webp", text: "" },
   5:  { video: "", song: "t05-ebefd28c", titel: "Memories", kugel: "bilder/kugel-wald-58817d5f.webp", kugelrand: [200,80], kugelversatz: "17vw", fenster: ["240%", "92% 42%"], bildpos: "100% 50%", bild: "bilder/b05-208fe068.jpg", wetter: "pusteblume", text: "" },
   6:  { video: "", song: "t06-6a105033", titel: "Drei Nüsse für Aschenbrödel", clip: "https://youtu.be/zqamJZ3Jiy4", wetter: "zauberschnee", kugel: "bilder/kugel-perle-05acc6d6.webp", kugelrand: [137,165], bild: "bilder/b06-49e6aef9.jpg", kugelversatz: "-31vw", kugelhoch: true, fenster: ["650%", "0% 42%"], text: "" },
-  7:  { video: "", song: "t07-e9b8a12f", titel: "Spirit", bild: "bilder/b07-fc7e8a62.jpg", wetter: "pusteblume", kugel: "bilder/kugel-spirit-9a287ea7.webp", kugelrand: [60,0], kugelversatz: "-18vw", fenster: ["300%", "14% 64%"], clip: "https://youtu.be/q9ikblV9Cyg", text: "" },
+  7:  { video: "", song: "t07-e9b8a12f", titel: "Spirit", bild: "bilder/b07-fc7e8a62.jpg", hochkant: { bild: "bilder/b07h-5690e6b4.jpg", kugel: [447, 830.7, 148, 163], kugelbild: "bilder/kugel-glasoffen-dc50bba0.webp" }, wetter: "pusteblume", kugel: "bilder/kugel-spirit-9a287ea7.webp", kugelrand: [60,0], kugelversatz: "-18vw", fenster: ["300%", "14% 64%"], clip: "https://youtu.be/q9ikblV9Cyg", text: "" },
   8:  { video: "", text: "" },
   9:  { video: "", text: "" },
   10: { video: "", text: "" },
@@ -505,14 +506,14 @@ const GLOBE_DEFAULT = document.querySelector(".globe-img").getAttribute("src");
     };
     // Kugel sitzt auf einem Sockel, der schon im Hintergrundbild ist (Handy Hochformat)
     const A = window.globeAnker;
-    if(A && g.getAttribute("src") === GLAS_KUGEL){
+    if(A && g.getAttribute("src") === A.k){
       w._anker = true; w.classList.add("anker"); w.classList.remove("side");
-      w.style.left = ""; w.style.top = ""; w.style.transition = "none";
+      w.style.left = ""; w.style.top = ""; w.style.transition = "none"; w.style.setProperty("--ey", A.ry / A.r);
       apply(1);
       let tb = 0; document.querySelectorAll(".wrap > header, .wrap > .motion-btn, .wrap > .globe-hint, .wrap > footer").forEach(e=>{ const r = e.getBoundingClientRect(); if(r.height) tb = Math.max(tb, r.bottom); });
       const vw = innerWidth, vh = innerHeight;
       const S0 = Math.max(vw / A.IW, vh / A.IH);
-      const Smax = (vh - tb - 16) / (A.IH - (A.cy - A.r));
+      const Smax = (vh - tb - 16) / (A.IH - (A.cy - A.ry));
       const S = Math.max(S0, Math.min(Smax, S0 * 1.3));
       const iw = A.IW * S, ih = A.IH * S;
       const ox = Math.min(0, Math.max(vw - iw, vw / 2 - A.cx * S)), oy = vh - ih;
@@ -550,7 +551,7 @@ const GLOBE_DEFAULT = document.querySelector(".globe-img").getAttribute("src");
 function setGlobe(url){
   let k = GLOBE_DEFAULT, mode = "schnee", pad = [0,0], shift = "", hoch = false;
   for(const d in TUERCHEN){ if(TUERCHEN[d].bild === url){ if(TUERCHEN[d].kugel) k = TUERCHEN[d].kugel; if(TUERCHEN[d].kugelrand) pad = TUERCHEN[d].kugelrand; if(TUERCHEN[d].kugelversatz) shift = TUERCHEN[d].kugelversatz; hoch = !!TUERCHEN[d].kugelhoch; if(TUERCHEN[d].wetter) mode = TUERCHEN[d].wetter; break; } }
-  if(window.globeAnker){ k = GLAS_KUGEL; pad = [0,0]; shift = ""; hoch = false; }
+  if(window.globeAnker){ k = window.globeAnker.k; pad = [0,0]; shift = ""; hoch = false; }
   window.globeMode = mode;
   window.globeShift = shift; window.globeHoch = hoch; try{ window.globeFit && window.globeFit(); }catch(e){}
   const g = document.querySelector(".globe-img");
@@ -594,7 +595,7 @@ function setBg(url){
   img.onload = ()=>{
     if(bgCurrent !== url) return;
     window._shownBg = shown;
-    window.globeAnker = hk ? {IW: img.naturalWidth, IH: img.naturalHeight, cx: hk.kugel[0], cy: hk.kugel[1], r: hk.kugel[2]} : null;
+    window.globeAnker = hk ? {IW: img.naturalWidth, IH: img.naturalHeight, cx: hk.kugel[0], cy: hk.kugel[1], r: hk.kugel[2], ry: hk.kugel[3] || hk.kugel[2], k: hk.kugelbild || GLAS_KUGEL} : null;
     let pos = "";
     for(const d in TUERCHEN){ if(TUERCHEN[d].bild === url && TUERCHEN[d].bildpos){ pos = TUERCHEN[d].bildpos; break; } }
     bgSets.forEach((l,li)=>{ const next = l[1 - bgIdx], cur = l[bgIdx]; next.style.backgroundImage = `url("${shown}")`; if(li === 0) next.style.backgroundPosition = (pos && innerWidth > innerHeight) ? pos : ""; next.classList.add("on"); cur.classList.remove("on"); });
