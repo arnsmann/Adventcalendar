@@ -33,7 +33,7 @@ body{background:#2b211d;color:var(--ink);font-family:var(--f-body);font-size:16p
 .bg{position:fixed;inset:0;z-index:0;overflow:hidden;background:radial-gradient(120% 90% at 50% 0%,#5b4a42,#2b211d)}
 .bg .layer,.view .layer{position:absolute;inset:0;background-size:cover;background-position:center;opacity:0;transition:opacity 1.6s ease}
 .bg .layer.on,.view .layer.on{opacity:1}
-.bg::after{content:"";position:absolute;inset:0;background:rgba(20,12,8,.25)}
+.bg::after{content:"";position:absolute;inset:0;background:linear-gradient(to bottom,rgba(20,12,8,.3) 0,rgba(20,12,8,.22) 18%,rgba(20,12,8,.08) 32%,rgba(20,12,8,0) 45%)}
 
 .wrap{position:relative;z-index:2;min-height:100vh;display:flex;flex-direction:column;align-items:center;gap:14px;
   padding-left:max(12px,env(safe-area-inset-left,0px));padding-right:max(12px,env(safe-area-inset-right,0px));padding-block:16px 20px}
