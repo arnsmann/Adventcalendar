@@ -382,8 +382,9 @@ footer{font-size:1rem;margin-top:-6px}
    spotify: optional ein Spotify Link zum selben Song, z.B. https://open.spotify.com/track/...
    clip:  optional ein YouTube Link, der stumm und in Schleife zum Song läuft (statt der Schallplatte)
    bild:  Foto für diesen Tag (siehe oben)
+   bildposhoch: optional, dasselbe nur fürs Handy im Hochformat (z.B. "30% 50%", damit der Dom zu sehen ist)
    bildpos: optional, welcher Teil des Bildes im Hintergrund zu sehen ist (z.B. "100% 50%" = rechter Rand, damit Personen links neben der Kugel stehen)
-   wetter: was sich in der Kugel bewegt: "schnee" (Standard), "regen", "magie", "elben", "gluehwuermchen", "pusteblume" oder "zauberschnee"
+   wetter: was sich in der Kugel bewegt: "schnee" (Standard), "regen", "magie", "elben", "gluehwuermchen", "pusteblume", "zauberschnee" oder "stadtlichter"
    fenster: optional, was die Fenster im Treppenhaus zeigen: [Größe, Ausschnitt], z.B. ["240%", "92% 42%"] für den Wald weiter hinten
    kugelversatz: optional, schiebt die Kugel am Computer nach rechts (z.B. "12vw"), damit Personen im Bild frei stehen
    hochkant: optional, eigenes Hochformat Bild fürs Handy, in dem schon ein Sockel steht. kugel: [x, y, Radius breit, Radius hoch] der Kugel im Bild (Pixel). Die Glaskugel wird dann genau dort auf den Sockel gesetzt. kugelbild: optional anderes Glas (z.B. ohne Rand, wenn das Bild schon einen Rand hat)
@@ -406,7 +407,7 @@ const TUERCHEN = {
   5:  { video: "", song: "t05-ebefd28c", titel: "Memories", kugel: "bilder/kugel-wald-58817d5f.webp", kugelrand: [200,80], kugelversatz: "17vw", fenster: ["240%", "92% 42%"], bildpos: "100% 50%", bild: "bilder/b05-208fe068.jpg", wetter: "pusteblume", text: "" },
   6:  { video: "", song: "t06-6a105033", titel: "Drei Nüsse für Aschenbrödel", clip: "https://youtu.be/zqamJZ3Jiy4", wetter: "zauberschnee", kugel: "bilder/kugel-perle-05acc6d6.webp", kugelrand: [137,165], bild: "bilder/b06-49e6aef9.jpg", kugelversatz: "-31vw", kugelhoch: true, fenster: ["650%", "0% 42%"], text: "" },
   7:  { video: "", song: "t07-8fa6a0cd", titel: "Spirit", bild: "bilder/b07-fc7e8a62.jpg", hochkant: { bild: "bilder/b07h-5690e6b4.jpg", kugel: [447, 830.7, 148, 163], kugelbild: "bilder/kugel-glasoffen-dc50bba0.webp" }, wetter: "pusteblume", kugel: "bilder/kugel-spirit-9a287ea7.webp", kugelrand: [60,0], kugelversatz: "-18vw", fenster: ["300%", "14% 64%"], clip: "https://youtu.be/q9ikblV9Cyg", text: "" },
-  8:  { video: "", song: "t08-014d8a98", titel: "Tommi", clip: "https://youtu.be/znEIdOO6Ze0", text: "" },
+  8:  { video: "", song: "t08-014d8a98", titel: "Tommi", bild: "bilder/b08-eba3991c.jpg", wetter: "stadtlichter", bildposhoch: "30% 50%", clip: "https://youtu.be/znEIdOO6Ze0", text: "" },
   9:  { video: "", text: "" },
   10: { video: "", text: "" },
   11: { video: "", text: "" },
@@ -597,8 +598,8 @@ function setBg(url){
     window._shownBg = shown;
     window.globeAnker = hk ? {IW: img.naturalWidth, IH: img.naturalHeight, cx: hk.kugel[0], cy: hk.kugel[1], r: hk.kugel[2], ry: hk.kugel[3] || hk.kugel[2], k: hk.kugelbild || GLAS_KUGEL} : null;
     let pos = "";
-    for(const d in TUERCHEN){ if(TUERCHEN[d].bild === url && TUERCHEN[d].bildpos){ pos = TUERCHEN[d].bildpos; break; } }
-    bgSets.forEach((l,li)=>{ const next = l[1 - bgIdx], cur = l[bgIdx]; next.style.backgroundImage = `url("${shown}")`; if(li === 0) next.style.backgroundPosition = (pos && innerWidth > innerHeight) ? pos : ""; next.classList.add("on"); cur.classList.remove("on"); });
+    for(const d in TUERCHEN){ if(TUERCHEN[d].bild === url){ pos = (innerWidth > innerHeight ? TUERCHEN[d].bildpos : TUERCHEN[d].bildposhoch) || ""; break; } }
+    bgSets.forEach((l,li)=>{ const next = l[1 - bgIdx], cur = l[bgIdx]; next.style.backgroundImage = `url("${shown}")`; if(li === 0) next.style.backgroundPosition = pos ? pos : ""; next.classList.add("on"); cur.classList.remove("on"); });
     bgIdx = 1 - bgIdx;
     setTint(img); setTitleTone(img);
     setGlobe(url);
@@ -932,6 +933,26 @@ renderStatus(); refreshDoors(); setBg(homeBg());
   }
   // Pusteblumen Samen und Sonnenflecken
   const seeds = [], specks = [];
+  // Stadtlichter: warme, weiche Lichtpunkte wie Lichter einer Stadt am Abend, dazu leiser Schnee
+  const lights = [];
+  function newLight(){ const hues = [38, 30, 22, 340, 48]; return {x:.12+Math.random()*.76, y:.15+Math.random()*.8, r:1.6+Math.random()*3.4, vy:-(.00008+Math.random()*.00022), ph:Math.random()*6.28, hue:hues[Math.floor(Math.random()*hues.length)]}; }
+  for(let i=0;i<44;i++) lights.push(newLight());
+  function drawLights(t){
+    ctx.globalCompositeOperation = "lighter";
+    for(const l of lights){
+      if(l.vx){ l.x += l.vx; l.vx *= .985; }
+      l.y += l.vy + (l.vb || 0); if(l.vb) l.vb *= .985;
+      l.x += Math.sin(t/2600 + l.ph)*.00018;
+      if(l.y < -.03){ if(l.ex){ l.ex = 1; continue; } Object.assign(l, newLight(), {y:1.02}); }
+      if(!inside(l.x,l.y,.23)) continue;
+      const a = (.55 + .3*Math.sin(t/900 + l.ph*2)) * ex(l);
+      const X = l.x*W, Y = l.y*W, R = l.r*(W/460);
+      const g = ctx.createRadialGradient(X,Y,0,X,Y,R*4);
+      g.addColorStop(0, `hsla(${l.hue},100%,85%,${a})`); g.addColorStop(.3, `hsla(${l.hue},95%,70%,${a*.45})`); g.addColorStop(1, `hsla(${l.hue},90%,60%,0)`);
+      ctx.fillStyle = g; ctx.beginPath(); ctx.arc(X,Y,R*4,0,6.283); ctx.fill();
+    }
+    ctx.globalCompositeOperation = "source-over";
+  }
   function newSeed(){ return {x:Math.random(), y:.2+Math.random()*.8, s:4+Math.random()*4, vx:.0006+Math.random()*.0008, vy:-(.0002+Math.random()*.0005), rot:Math.random()*6.28, vr:(Math.random()-.5)*.01, ph:Math.random()*6.28}; }
   for(let i=0;i<16;i++) seeds.push(newSeed());
   for(let i=0;i<26;i++) specks.push({x:Math.random(), y:Math.random(), r:.8+Math.random()*1.6, ph:Math.random()*6.28, sp:.0002+Math.random()*.0003});
@@ -978,6 +999,10 @@ renderStatus(); refreshDoors(); setBg(homeBg());
     else if(m === "elben"){
       for(let i=0;i<70;i++){ const o = newMote(); const a = Math.random()*6.28, v = .003 + Math.random()*.008; o.vx = Math.cos(a)*v; o.vy = Math.sin(a)*v; o.life = 90; o.ex = until(); motes.push(o); }
       for(let i=0;i<22;i++){ const l = newLeaf(false); l.y = .55 + Math.random()*.35; l.vy = -(.005 + Math.random()*.01); l.vx = (Math.random()-.5)*.015; l.vr = (Math.random()-.5)*.3; l.ex = until(); leaves.push(l); }
+    }
+    else if(m === "stadtlichter"){
+      for(let i=0;i<40;i++){ const l = newLight(); l.x = .5 + (Math.random()-.5)*.4; l.y = .6 + Math.random()*.3; const a = Math.random()*6.28, v = .002 + Math.random()*.005; l.vx = Math.cos(a)*v; l.vb = Math.sin(a)*v - .002; l.ex = until(); lights.push(l); }
+      for(let i=0;i<110;i++) flakes.push({x:.2+Math.random()*.6, y:.6+Math.random()*.35, r:.6+Math.random()*2, vy:-(.004+Math.random()*.012), vx:(Math.random()-.5)*.02, o:Math.random()*6, ex: until()});
     }
     else { for(let i=0;i<220;i++) flakes.push({x:.2+Math.random()*.6, y:.6+Math.random()*.35, r:.6+Math.random()*2.3, vy:-(.004+Math.random()*.014), vx:(Math.random()-.5)*.022, o:Math.random()*6, ex: until()}); }
   }
@@ -1098,13 +1123,14 @@ renderStatus(); refreshDoors(); setBg(homeBg());
     NOW = t;
     ctx.clearRect(0,0,W,W);
     const m = window.globeMode || "schnee";
-    prune(flakes); prune(drops); prune(orbs); prune(motes); prune(leaves); prune(flies); prune(seeds); prune(specks);
+    prune(flakes); prune(lights); prune(drops); prune(orbs); prune(motes); prune(leaves); prune(flies); prune(seeds); prune(specks);
     if(m === "regen") drawRain();
     else if(m === "magie"){ drawMagic(t); ctx.globalAlpha = .5; }
     else if(m === "elben") drawElves(t);
     else if(m === "gluehwuermchen") drawFlies(t);
     else if(m === "pusteblume") drawSeeds(t);
     else if(m === "zauberschnee"){ drawSnow(t); ctx.globalAlpha = 1; drawMagic(t); }
+    else if(m === "stadtlichter"){ drawLights(t); ctx.globalAlpha = .75; drawSnow(t); }
     else drawSnow(t);
     ctx.globalAlpha = 1;
     requestAnimationFrame(tick);
