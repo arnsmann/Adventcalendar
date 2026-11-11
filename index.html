@@ -213,9 +213,16 @@ footer{font-family:var(--f-hand);font-size:1.1rem;color:#fff8f1;text-shadow:0 1p
 .card.theater .song-actions .big-btn{background:rgba(20,12,8,.55);border-color:rgba(255,248,241,.5);color:#fff8f1;-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px)}
 .card.theater.idle audio,.card.theater.idle .song-actions{opacity:0;pointer-events:none}
 .card.theater.idle{cursor:none}
+/* Hochkant Clip (Handyvideo): im Kärtchen füllt die Mitte des Videos das Feld, im Großbild bleibt es hochkant */
+.card.clip-hoch .clip iframe{inset:auto;left:0;top:50%;width:100%;height:auto;aspect-ratio:9/16;transform:translateY(-50%) scale(1.15)}
+.card.theater.clip-hoch .clip iframe{left:50%;width:auto;height:100cqh;aspect-ratio:9/16;transform:translate(-50%,-50%) scale(1.15)}
+.card.theater.clip-hoch .clip{background:#000}
+@media (orientation:portrait){
+  .card.theater.clip-hoch .clip iframe{width:max(100cqw,calc(100cqh * 9 / 16));height:max(100cqh,calc(100cqw * 16 / 9));aspect-ratio:auto}
+}
 /* Handy hochkant: alles um 90 Grad drehen, Handy einfach zur Seite drehen */
 @media (orientation:portrait) and (max-width:820px){
-  .card.theater{inset:auto;left:50%;top:50%;width:100dvh;height:100vw;transform:translate(-50%,-50%) rotate(90deg)}
+  .card.theater:not(.clip-hoch){inset:auto;left:50%;top:50%;width:100dvh;height:100vw;transform:translate(-50%,-50%) rotate(90deg)}
 }
 .song-bar{display:none}
 
@@ -383,6 +390,7 @@ footer{font-size:1rem;margin-top:-6px}
 /* ===== Hier die Inhalte eintragen =====
    video: ein YouTube Link (egal welches Format, z.B. https://youtu.be/abc123 oder https://www.youtube.com/watch?v=abc123)
    spotify: optional ein Spotify Link zum selben Song, z.B. https://open.spotify.com/track/...
+   cliphoch: optional (true), wenn der Clip ein Hochkant Video ist: im Großbild wird dann nicht gedreht
    clip:  optional ein YouTube Link, der stumm und in Schleife zum Song läuft (statt der Schallplatte)
    bild:  Foto für diesen Tag (siehe oben)
    bildposhoch: optional, dasselbe nur fürs Handy im Hochformat (z.B. "30% 50%", damit der Dom zu sehen ist)
@@ -411,7 +419,7 @@ const TUERCHEN = {
   5:  { video: "", song: "t05-ebefd28c", titel: "Memories", kugel: "bilder/kugel-wald-58817d5f.webp", kugelrand: [200,80], kugelversatz: "17vw", fenster: ["240%", "92% 42%"], bildpos: "100% 50%", bild: "bilder/b05-208fe068.jpg", wetter: "pusteblume", text: "" },
   6:  { video: "", song: "t06-6a105033", titel: "Drei Nüsse für Aschenbrödel", clip: "https://youtu.be/zqamJZ3Jiy4", wetter: "zauberschnee", kugel: "bilder/kugel-perle-05acc6d6.webp", kugelrand: [137,165], bild: "bilder/b06-49e6aef9.jpg", kugelversatz: "-31vw", kugelhoch: true, fenster: ["650%", "0% 42%"], text: "" },
   7:  { video: "", song: "t07-8fa6a0cd", titel: "Spirit", bild: "bilder/b07-fc7e8a62.jpg", hochkant: { bild: "bilder/b07h-5690e6b4.jpg", kugel: [447, 830.7, 148, 163], kugelbild: "bilder/kugel-glasoffen-dc50bba0.webp" }, wetter: "pusteblume", kugel: "bilder/kugel-spirit-9a287ea7.webp", kugelrand: [60,0], kugelversatz: "-18vw", fenster: ["300%", "14% 64%"], clip: "https://youtu.be/q9ikblV9Cyg", text: "" },
-  8:  { video: "", song: "t08-014d8a98", titel: "Tommi", bild: "bilder/b08-eba3991c.jpg", wetter: "sonnenstrahlen", bildposhoch: "30% 50%", hochkant: { bild: "bilder/b08h-7ac08417.jpg", kugel: [415.2, 976.4, 85.7, 93.2], kugelbild: "bilder/kugel-koeln-h-a84c112e.webp", zoom: 2.1 }, quer: { bild: "bilder/b08q-139f9993.jpg", kugel: [495.5, 258.9, 104.8, 114.1], kugelbild: "bilder/kugel-koeln-q-edad00bc.webp" }, clip: "https://youtu.be/znEIdOO6Ze0", text: "" },
+  8:  { video: "", song: "t08-014d8a98", titel: "Tommi", bild: "bilder/b08-eba3991c.jpg", wetter: "sonnenstrahlen", bildposhoch: "30% 50%", hochkant: { bild: "bilder/b08h-7ac08417.jpg", kugel: [415.2, 976.4, 85.7, 93.2], kugelbild: "bilder/kugel-koeln-h-a84c112e.webp", zoom: 2.1 }, quer: { bild: "bilder/b08q-139f9993.jpg", kugel: [495.5, 258.9, 104.8, 114.1], kugelbild: "bilder/kugel-koeln-q-edad00bc.webp" }, clip: "https://youtu.be/znEIdOO6Ze0", cliphoch: true, text: "" },
   9:  { video: "", text: "" },
   10: { video: "", text: "" },
   11: { video: "", text: "" },
@@ -688,6 +696,7 @@ function showCard(n){
   const cardEl = scrim.querySelector(".card");
   if(item.bild){ cardEl.classList.add("has-pic"); cardEl.style.setProperty("--pic", `url("${item.bild}")`); }
   else { cardEl.classList.remove("has-pic"); cardEl.style.removeProperty("--pic"); }
+  cardEl.classList.toggle("clip-hoch", !!item.cliphoch);
   document.getElementById("card-title").textContent = `Türchen ${n}`;
   const media = document.getElementById("card-media");
   const id = ytId(item.video);
