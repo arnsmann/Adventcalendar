@@ -858,8 +858,12 @@ renderStatus(); refreshDoors(); setBg(homeBg());
   }
   function measure(){ layers().forEach(l=>{ const m = (l.style.backgroundImage||"").match(/url\("?(.*?)"?\)/); if(!m) return; const i = new Image(); i.onload = ()=>{ l._w = i.naturalWidth; l._h = i.naturalHeight; }; i.src = m[1]; }); }
   function open(){
-    document.body.classList.add("peek"); close.hidden = false; measure(); layers().forEach(l=>{ l.style.backgroundSize = ""; });
-    const l = bg.querySelector(".layer.on"); const pos = l && l.style.backgroundPosition; px = 50;
+    document.body.classList.add("peek"); close.hidden = false;
+    const l = bg.querySelector(".layer.on");
+    // Hochformat Bild mit Sockel: beim Ansehen lieber das ganze Originalbild zeigen
+    if(l && bgCurrent && window._shownBg && window._shownBg !== bgCurrent){ l.style.backgroundImage = `url("${bgCurrent}")`; l.style.backgroundPosition = ""; }
+    measure(); layers().forEach(l=>{ l.style.backgroundSize = ""; });
+    const pos = l && l.style.backgroundPosition; px = 50;
     if(pos && /%/.test(pos)) px = parseFloat(pos);
     apply();
     if(innerWidth / innerHeight < 1.6){ hint.hidden = false; hint.style.animation = "none"; void hint.offsetWidth; hint.style.animation = ""; }
