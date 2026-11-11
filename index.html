@@ -387,7 +387,7 @@ footer{font-size:1rem;margin-top:-6px}
    bild:  Foto für diesen Tag (siehe oben)
    bildposhoch: optional, dasselbe nur fürs Handy im Hochformat (z.B. "30% 50%", damit der Dom zu sehen ist)
    bildpos: optional, welcher Teil des Bildes im Hintergrund zu sehen ist (z.B. "100% 50%" = rechter Rand, damit Personen links neben der Kugel stehen)
-   wetter: was sich in der Kugel bewegt: "schnee" (Standard), "regen", "magie", "elben", "gluehwuermchen", "pusteblume", "zauberschnee" oder "stadtlichter"
+   wetter: was sich in der Kugel bewegt: "schnee" (Standard), "regen", "magie", "elben", "gluehwuermchen", "pusteblume", "zauberschnee", "stadtlichter" oder "sonnenstrahlen"
    fenster: optional, was die Fenster im Treppenhaus zeigen: [Größe, Ausschnitt], z.B. ["240%", "92% 42%"] für den Wald weiter hinten
    kugelversatz: optional, schiebt die Kugel am Computer nach rechts (z.B. "12vw"), damit Personen im Bild frei stehen
    hochkant: optional, eigenes Hochformat Bild fürs Handy, in dem schon ein Sockel steht. kugel: [x, y, Radius breit, Radius hoch] der Kugel im Bild (Pixel). Die Glaskugel wird dann genau dort auf den Sockel gesetzt. kugelbild: optional anderes Glas (z.B. ohne Rand, wenn das Bild schon einen Rand hat). zoom: wie stark das Bild höchstens vergrößert wird, damit die Kugel größer wird (Standard 1.3)
@@ -411,7 +411,7 @@ const TUERCHEN = {
   5:  { video: "", song: "t05-ebefd28c", titel: "Memories", kugel: "bilder/kugel-wald-58817d5f.webp", kugelrand: [200,80], kugelversatz: "17vw", fenster: ["240%", "92% 42%"], bildpos: "100% 50%", bild: "bilder/b05-208fe068.jpg", wetter: "pusteblume", text: "" },
   6:  { video: "", song: "t06-6a105033", titel: "Drei Nüsse für Aschenbrödel", clip: "https://youtu.be/zqamJZ3Jiy4", wetter: "zauberschnee", kugel: "bilder/kugel-perle-05acc6d6.webp", kugelrand: [137,165], bild: "bilder/b06-49e6aef9.jpg", kugelversatz: "-31vw", kugelhoch: true, fenster: ["650%", "0% 42%"], text: "" },
   7:  { video: "", song: "t07-8fa6a0cd", titel: "Spirit", bild: "bilder/b07-fc7e8a62.jpg", hochkant: { bild: "bilder/b07h-5690e6b4.jpg", kugel: [447, 830.7, 148, 163], kugelbild: "bilder/kugel-glasoffen-dc50bba0.webp" }, wetter: "pusteblume", kugel: "bilder/kugel-spirit-9a287ea7.webp", kugelrand: [60,0], kugelversatz: "-18vw", fenster: ["300%", "14% 64%"], clip: "https://youtu.be/q9ikblV9Cyg", text: "" },
-  8:  { video: "", song: "t08-014d8a98", titel: "Tommi", bild: "bilder/b08-eba3991c.jpg", wetter: "stadtlichter", bildposhoch: "30% 50%", hochkant: { bild: "bilder/b08h-7ac08417.jpg", kugel: [415.2, 976.4, 85.7, 93.2], kugelbild: "bilder/kugel-koeln-h-a84c112e.webp", zoom: 2.1 }, quer: { bild: "bilder/b08q-139f9993.jpg", kugel: [495.5, 258.9, 104.8, 114.1], kugelbild: "bilder/kugel-koeln-q-edad00bc.webp" }, clip: "https://youtu.be/znEIdOO6Ze0", text: "" },
+  8:  { video: "", song: "t08-014d8a98", titel: "Tommi", bild: "bilder/b08-eba3991c.jpg", wetter: "sonnenstrahlen", bildposhoch: "30% 50%", hochkant: { bild: "bilder/b08h-7ac08417.jpg", kugel: [415.2, 976.4, 85.7, 93.2], kugelbild: "bilder/kugel-koeln-h-a84c112e.webp", zoom: 2.1 }, quer: { bild: "bilder/b08q-139f9993.jpg", kugel: [495.5, 258.9, 104.8, 114.1], kugelbild: "bilder/kugel-koeln-q-edad00bc.webp" }, clip: "https://youtu.be/znEIdOO6Ze0", text: "" },
   9:  { video: "", text: "" },
   10: { video: "", text: "" },
   11: { video: "", text: "" },
@@ -940,9 +940,39 @@ renderStatus(); refreshDoors(); setBg(homeBg());
   // Pusteblumen Samen und Sonnenflecken
   const seeds = [], specks = [];
   // Stadtlichter: warme, weiche Lichtpunkte wie Lichter einer Stadt am Abend, dazu leiser Schnee
+  // Sonnenstrahlen: weiche, warme Lichtbahnen von oben links, die langsam atmen, dazu goldener Staub im Licht
+  const dust = []; let flare = 0;
+  function newDust(){ return {x:Math.random(), y:Math.random(), r:1.6+Math.random()*2.6, vx:.00008+Math.random()*.0002, vy:-(.00005+Math.random()*.00018), ph:Math.random()*6.28}; }
+  for(let i=0;i<70;i++) dust.push(newDust());
+  const RAYS = [[.30,.11],[.47,.06],[.60,.14],[.78,.08],[.92,.12],[1.08,.07],[1.22,.10]];
+  function drawRays(t){
+    flare *= .985;
+    const ox = -.18*W, oy = -.22*W, L = 1.9*W;
+    ctx.save(); ctx.beginPath(); ctx.arc(W/2,W/2,W*.49,0,6.283); ctx.clip();
+    ctx.globalCompositeOperation = "lighter";
+    RAYS.forEach(([ang, wid], i)=>{
+      const a0 = ang + Math.sin(t/5200 + i*1.7)*.025, w = wid*(1 + .25*Math.sin(t/3100 + i*2.3));
+      const al = Math.min(.85, (.34 + .14*Math.sin(t/2300 + i*1.3)) * (1 + flare*.9));
+      const g = ctx.createRadialGradient(ox,oy,0,ox,oy,L);
+      g.addColorStop(0, `rgba(255,230,160,${al})`); g.addColorStop(.5, `rgba(255,205,120,${al*.7})`); g.addColorStop(1, "rgba(255,190,100,0)");
+      ctx.fillStyle = g; ctx.beginPath(); ctx.moveTo(ox,oy);
+      ctx.lineTo(ox + Math.cos(a0-w/2)*L, oy + Math.sin(a0-w/2)*L); ctx.lineTo(ox + Math.cos(a0+w/2)*L, oy + Math.sin(a0+w/2)*L); ctx.closePath(); ctx.fill();
+    });
+    for(const d of dust){
+      if(d.bx){ d.x += d.bx; d.y += d.by; d.bx *= .975; d.by *= .975; }
+      d.x += d.vx + Math.sin(t/2400 + d.ph)*.00025; d.y += d.vy + Math.cos(t/2900 + d.ph)*.0002;
+      if(d.x > 1.03 || d.y < -.03 || d.y > 1.03 || d.x < -.03){ if(d.ex){ d.ex = 1; continue; } Object.assign(d, newDust(), Math.random() < .5 ? {x:-.02} : {y:1.02}); }
+      const tw = .45 + .55*Math.max(0, Math.sin(t/800 + d.ph*3));
+      const a = tw * ex(d), X = d.x*W, Y = d.y*W, R = d.r*(W/460);
+      const g = ctx.createRadialGradient(X,Y,0,X,Y,R*3.2);
+      g.addColorStop(0, `rgba(255,246,210,${a})`); g.addColorStop(1, "rgba(255,225,160,0)");
+      ctx.fillStyle = g; ctx.beginPath(); ctx.arc(X,Y,R*3.2,0,6.283); ctx.fill();
+    }
+    ctx.restore(); ctx.globalCompositeOperation = "source-over";
+  }
   const lights = [];
-  function newLight(){ const hues = [38, 30, 22, 340, 48]; return {x:.12+Math.random()*.76, y:.15+Math.random()*.8, r:1.6+Math.random()*3.4, vy:-(.00008+Math.random()*.00022), ph:Math.random()*6.28, hue:hues[Math.floor(Math.random()*hues.length)]}; }
-  for(let i=0;i<44;i++) lights.push(newLight());
+  function newLight(){ const hues = [38, 30, 22, 340, 48]; return {x:.12+Math.random()*.76, y:.15+Math.random()*.8, r:2.6+Math.random()*4.2, vy:-(.00015+Math.random()*.0004), ph:Math.random()*6.28, hue:hues[Math.floor(Math.random()*hues.length)]}; }
+  for(let i=0;i<60;i++) lights.push(newLight());
   function drawLights(t){
     ctx.globalCompositeOperation = "lighter";
     for(const l of lights){
@@ -951,11 +981,12 @@ renderStatus(); refreshDoors(); setBg(homeBg());
       l.x += Math.sin(t/2600 + l.ph)*.00018;
       if(l.y < -.03){ if(l.ex){ l.ex = 1; continue; } Object.assign(l, newLight(), {y:1.02}); }
       if(!inside(l.x,l.y,.23)) continue;
-      const a = (.55 + .3*Math.sin(t/900 + l.ph*2)) * ex(l);
+      const a = Math.min(1, .8 + .25*Math.sin(t/900 + l.ph*2)) * ex(l);
       const X = l.x*W, Y = l.y*W, R = l.r*(W/460);
       const g = ctx.createRadialGradient(X,Y,0,X,Y,R*4);
       g.addColorStop(0, `hsla(${l.hue},100%,85%,${a})`); g.addColorStop(.3, `hsla(${l.hue},95%,70%,${a*.45})`); g.addColorStop(1, `hsla(${l.hue},90%,60%,0)`);
       ctx.fillStyle = g; ctx.beginPath(); ctx.arc(X,Y,R*4,0,6.283); ctx.fill();
+      ctx.fillStyle = `hsla(${l.hue},100%,94%,${a})`; ctx.beginPath(); ctx.arc(X,Y,R*.55,0,6.283); ctx.fill();
     }
     ctx.globalCompositeOperation = "source-over";
   }
@@ -1006,6 +1037,9 @@ renderStatus(); refreshDoors(); setBg(homeBg());
       for(let i=0;i<70;i++){ const o = newMote(); const a = Math.random()*6.28, v = .003 + Math.random()*.008; o.vx = Math.cos(a)*v; o.vy = Math.sin(a)*v; o.life = 90; o.ex = until(); motes.push(o); }
       for(let i=0;i<22;i++){ const l = newLeaf(false); l.y = .55 + Math.random()*.35; l.vy = -(.005 + Math.random()*.01); l.vx = (Math.random()-.5)*.015; l.vr = (Math.random()-.5)*.3; l.ex = until(); leaves.push(l); }
     }
+    else if(m === "sonnenstrahlen"){ flare = 1;
+      for(let i=0;i<70;i++){ const d = newDust(); d.x = .3 + Math.random()*.4; d.y = .55 + Math.random()*.35; const a = Math.random()*6.28, v = .003 + Math.random()*.007; d.bx = Math.cos(a)*v; d.by = Math.sin(a)*v - .003; d.ex = until(); dust.push(d); }
+    }
     else if(m === "stadtlichter"){
       for(let i=0;i<40;i++){ const l = newLight(); l.x = .5 + (Math.random()-.5)*.4; l.y = .6 + Math.random()*.3; const a = Math.random()*6.28, v = .002 + Math.random()*.005; l.vx = Math.cos(a)*v; l.vb = Math.sin(a)*v - .002; l.ex = until(); lights.push(l); }
       for(let i=0;i<110;i++) flakes.push({x:.2+Math.random()*.6, y:.6+Math.random()*.35, r:.6+Math.random()*2, vy:-(.004+Math.random()*.012), vx:(Math.random()-.5)*.02, o:Math.random()*6, ex: until()});
@@ -1022,7 +1056,7 @@ renderStatus(); refreshDoors(); setBg(homeBg());
     burst();
     wrap.classList.remove("shaking"); void wrap.offsetWidth; wrap.classList.add("shaking");
   }
-  function drawSnow(t){
+  function drawSnow(t, dim){
     ctx.fillStyle = "#fff";
     for(const f of flakes){
       f.vy += (.0009 + f.r*.0002 - f.vy) * .03;
@@ -1032,7 +1066,7 @@ renderStatus(); refreshDoors(); setBg(homeBg());
       if(f.y < -.05) f.y = 1.0;
       if(f.x < 0) f.x += 1; if(f.x > 1) f.x -= 1;
       if(!inside(f.x,f.y)) continue;
-      ctx.globalAlpha = (.55 + f.r*.15) * ex(f);
+      ctx.globalAlpha = (.55 + f.r*.15) * ex(f) * (dim || 1);
       ctx.beginPath(); ctx.arc(f.x*W, f.y*W, f.r, 0, 6.283); ctx.fill();
     }
   }
@@ -1129,14 +1163,15 @@ renderStatus(); refreshDoors(); setBg(homeBg());
     NOW = t;
     ctx.clearRect(0,0,W,W);
     const m = window.globeMode || "schnee";
-    prune(flakes); prune(lights); prune(drops); prune(orbs); prune(motes); prune(leaves); prune(flies); prune(seeds); prune(specks);
+    prune(flakes); prune(lights); prune(dust); prune(drops); prune(orbs); prune(motes); prune(leaves); prune(flies); prune(seeds); prune(specks);
     if(m === "regen") drawRain();
     else if(m === "magie"){ drawMagic(t); ctx.globalAlpha = .5; }
     else if(m === "elben") drawElves(t);
     else if(m === "gluehwuermchen") drawFlies(t);
     else if(m === "pusteblume") drawSeeds(t);
     else if(m === "zauberschnee"){ drawSnow(t); ctx.globalAlpha = 1; drawMagic(t); }
-    else if(m === "stadtlichter"){ drawLights(t); ctx.globalAlpha = .75; drawSnow(t); }
+    else if(m === "stadtlichter"){ drawSnow(t, .35); drawLights(t); }
+    else if(m === "sonnenstrahlen") drawRays(t);
     else drawSnow(t);
     ctx.globalAlpha = 1;
     requestAnimationFrame(tick);
