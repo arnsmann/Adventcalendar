@@ -320,6 +320,11 @@ body.peek .bg .layer{transition:opacity 1.6s ease,background-size .5s ease}
 .globe-wrap.anker:not(.zoomed) .globe,.globe-wrap.anker .globe-img,.globe-wrap.anker:not(.zoomed) .globe-snow{scale:1 var(--ey,1);transform-origin:50% 50%}
 /* Computer mit Kugel im Bild: Texte etwas höher, die letzte Zeile fällt weg, damit die Kugel frei steht */
 body.anker-quer .wrap > footer{visibility:hidden}
+/* Kugel so groß, dass die Texte am Computer links oben stehen (textlinks) */
+body.text-links .wrap > header, body.text-links .wrap > .globe-hint, body.text-links .wrap > .motion-btn, body.text-links .wrap > footer{align-self:flex-start;margin-left:2.2vw;max-width:22vw;text-align:left;transform:none;visibility:visible}
+body.text-links .wrap > header{padding-left:0}
+body.text-links header .status{justify-content:flex-start}
+body.text-links header h1{font-size:clamp(1.7rem,2.6vw,2.8rem)}
 body.anker-quer .wrap > header, body.anker-quer .wrap > .globe-hint, body.anker-quer .wrap > .motion-btn{transform:translateY(-14px)}
 .globe-wrap.side:not(.zoomed)::after,.globe-wrap.anker:not(.zoomed)::after{display:none}
 .globe-wrap::after{content:"";position:absolute;left:8%;right:8%;bottom:calc(-1 * var(--mb, 0px) - 6px);height:7%;z-index:0;pointer-events:none;border-radius:50%;
@@ -417,7 +422,7 @@ footer{font-size:1rem;margin-top:-6px}
    fenster: optional, was die Fenster im Treppenhaus zeigen: [Größe, Ausschnitt], z.B. ["240%", "92% 42%"] für den Wald weiter hinten
    kugelversatz: optional, schiebt die Kugel am Computer nach rechts (z.B. "12vw"), damit Personen im Bild frei stehen
    hochkant: optional, eigenes Hochformat Bild fürs Handy, in dem schon ein Sockel steht. kugel: [x, y, Radius breit, Radius hoch] der Kugel im Bild (Pixel). Die Glaskugel wird dann genau dort auf den Sockel gesetzt. kugelbild: optional anderes Glas (z.B. ohne Rand, wenn das Bild schon einen Rand hat). zoom: wie stark das Bild höchstens vergrößert wird, damit die Kugel größer wird (Standard 1.3)
-   quer: dasselbe wie hochkant, nur fürs Querformat (Computer)
+   quer: dasselbe wie hochkant, nur fürs Querformat (Computer). textlinks: true stellt die Texte links oben hin, wenn die Kugel sehr groß ist
    kugelhoch: optional (true), am Computer darf eine hohe, zur Seite geschobene Kugel neben dem Titel bis nach oben reichen und wird dadurch größer
    kugelrand: nur bei breiten Kugeln, wie weit das Bild links und oben über die Kugel hinausragt (Pixel bei 956 px Grundbreite)
    kugel: optional eine eigene Schneekugel für diesen Tag (z.B. Harry Potter Sockel)
@@ -436,8 +441,8 @@ const TUERCHEN = {
   4:  { video: "", song: "t04-42593136", titel: "Creep", bild: "bilder/b04-af7d115d.jpg", quer: { bild: "bilder/b04q-d36811ec.jpg", kugel: [1415.0, 1131.0, 115.0, 115.0], kugelbild: "bilder/kugel-regenstand-a214a286.webp" }, wetter: "regen", kugel: "bilder/kugel-regen-b47fee09.webp", text: "" },
   5:  { video: "", song: "t05-ebefd28c", titel: "Memories", kugel: "bilder/kugel-wald-58817d5f.webp", kugelrand: [200,80], kugelversatz: "17vw", fenster: ["240%", "92% 42%"], bildpos: "100% 50%", bild: "bilder/b05-208fe068.jpg", quer: { bild: "bilder/b05q-f967d529.jpg", kugel: [1304.2, 731.4, 127.0, 127.0], kugelbild: "bilder/kugel-wurzel-a0580b16.webp" }, wetter: "pusteblume", text: "" },
   6:  { video: "", song: "t06-6a105033", titel: "Drei Nüsse für Aschenbrödel", clip: "https://youtu.be/zqamJZ3Jiy4", wetter: "zauberschnee", kugel: "bilder/kugel-perle-05acc6d6.webp", kugelrand: [137,165], bild: "bilder/b06-95ed29b3.jpg", kugelversatz: "-31vw", kugelhoch: true, fenster: ["650%", "0% 42%"], text: "" },
-  7:  { video: "", song: "t07-8fa6a0cd", titel: "Spirit", bild: "bilder/b07-fc7e8a62.jpg", hochkant: { bild: "bilder/b07h-5690e6b4.jpg", kugel: [447, 830.7, 148, 163], kugelbild: "bilder/kugel-glasoffen-dc50bba0.webp" }, wetter: "pusteblume", kugel: "bilder/kugel-spirit-9a287ea7.webp", kugelrand: [60,0], kugelversatz: "-18vw", fenster: ["300%", "14% 64%"], clip: "https://youtu.be/q9ikblV9Cyg", text: "" },
-  8:  { video: "", song: "t08-014d8a98", titel: "Tommi", bild: "bilder/b08-eba3991c.jpg", wetter: "sonnenstrahlen", bildposhoch: "30% 50%", hochkant: { bild: "bilder/b08h-7ac08417.jpg", kugel: [415.2, 976.4, 85.7, 93.2], kugelbild: "bilder/kugel-koeln-h-a84c112e.webp", zoom: 2.1 }, quer: { bild: "bilder/b08q-139f9993.jpg", kugel: [495.5, 258.9, 104.8, 114.1], kugelbild: "bilder/kugel-koeln-q-edad00bc.webp" }, clip: "https://youtu.be/znEIdOO6Ze0", cliphoch: true, text: "" },
+  7:  { video: "", song: "t07-8fa6a0cd", titel: "Spirit", bild: "bilder/b07-fc7e8a62.jpg", hochkant: { bild: "bilder/b07h-5690e6b4.jpg", kugel: [447, 830.7, 148, 163], kugelbild: "bilder/kugel-glasoffen-dc50bba0.webp" }, quer: { bild: "bilder/b07q-646b2048.jpg", kugel: [1286.0, 496.5, 401.0, 404.5], kugelbild: "bilder/kugel-pferdesockel-62d92258.webp", textlinks: true }, wetter: "pusteblume", kugel: "bilder/kugel-spirit-9a287ea7.webp", kugelrand: [60,0], kugelversatz: "-18vw", fenster: ["300%", "14% 64%"], clip: "https://youtu.be/q9ikblV9Cyg", text: "" },
+  8:  { video: "", song: "t08-014d8a98", titel: "Tommi", bild: "bilder/b08-868a325d.jpg", wetter: "sonnenstrahlen", bildposhoch: "30% 50%", hochkant: { bild: "bilder/b08h-7ac08417.jpg", kugel: [415.2, 976.4, 85.7, 93.2], kugelbild: "bilder/kugel-koeln-h-a84c112e.webp", zoom: 2.1 }, quer: { bild: "bilder/b08q-139f9993.jpg", kugel: [495.5, 258.9, 104.8, 114.1], kugelbild: "bilder/kugel-koeln-q-edad00bc.webp" }, clip: "https://youtu.be/znEIdOO6Ze0", cliphoch: true, text: "" },
   9:  { video: "", text: "" },
   10: { video: "", text: "" },
   11: { video: "", text: "" },
@@ -540,6 +545,7 @@ const GLOBE_DEFAULT = document.querySelector(".globe-img").getAttribute("src");
     if(A && g.getAttribute("src") === A.k){
       w._anker = true; w.classList.add("anker"); w.classList.remove("side");
       document.body.classList.toggle("anker-quer", innerWidth > innerHeight);
+      document.body.classList.toggle("text-links", innerWidth > innerHeight && A.links);
       w.style.left = ""; w.style.top = ""; w.style.transition = "none"; w.style.setProperty("--ey", A.ry / A.r);
       apply(1);
       let tb = 0; document.querySelectorAll(".wrap > header, .wrap > .motion-btn, .wrap > .globe-hint, .wrap > footer").forEach(e=>{ const r = e.getBoundingClientRect(); if(r.height) tb = Math.max(tb, r.bottom); });
@@ -559,7 +565,7 @@ const GLOBE_DEFAULT = document.querySelector(".globe-img").getAttribute("src");
       try{ alignViews(); }catch(e){}
       return;
     }
-    document.body.classList.remove("anker-quer");
+    document.body.classList.remove("anker-quer"); document.body.classList.remove("text-links");
     if(w._anker){ w._anker = false; w.classList.remove("anker"); window.bgAnkerCss = null; document.querySelectorAll(".bg .layer").forEach(l=>{ l.style.backgroundSize = ""; }); }
     w.style.left = (window.globeShift && innerWidth > innerHeight && innerWidth > 820) ? window.globeShift : "";
     // beim Messen keine Animation des Abstands, sonst stimmt die gemessene Unterkante nicht
@@ -628,7 +634,7 @@ function setBg(url){
   img.onload = ()=>{
     if(bgCurrent !== url) return;
     window._shownBg = shown;
-    window.globeAnker = hk ? {IW: img.naturalWidth, IH: img.naturalHeight, cx: hk.kugel[0], cy: hk.kugel[1], r: hk.kugel[2], ry: hk.kugel[3] || hk.kugel[2], k: hk.kugelbild || GLAS_KUGEL, zoom: hk.zoom || (innerWidth > innerHeight ? 1 : 1.3)} : null;
+    window.globeAnker = hk ? {IW: img.naturalWidth, IH: img.naturalHeight, cx: hk.kugel[0], cy: hk.kugel[1], r: hk.kugel[2], ry: hk.kugel[3] || hk.kugel[2], k: hk.kugelbild || GLAS_KUGEL, zoom: hk.zoom || (innerWidth > innerHeight ? 1 : 1.3), links: !!hk.textlinks} : null;
     let pos = "";
     for(const d in TUERCHEN){ if(TUERCHEN[d].bild === url){ pos = (innerWidth > innerHeight ? TUERCHEN[d].bildpos : TUERCHEN[d].bildposhoch) || ""; break; } }
     bgSets.forEach((l,li)=>{ const next = l[1 - bgIdx], cur = l[bgIdx]; next.style.backgroundImage = `url("${shown}")`; if(li === 0) next.style.backgroundPosition = pos ? pos : ""; next.classList.add("on"); cur.classList.remove("on"); });
