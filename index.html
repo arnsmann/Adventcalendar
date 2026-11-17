@@ -337,6 +337,25 @@ footer{font-size:1rem;margin-top:-6px}
   .bclip,.bg .layer,.view .layer{transition:none}
 }
 
+
+/* Willkommen: erscheint nur beim allerersten Öffnen */
+.welcome{position:fixed;inset:0;z-index:60;display:grid;place-items:center;padding:18px;background:rgba(30,18,14,.62);-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px);opacity:0;transition:opacity .6s}
+.welcome.on{opacity:1}
+.welcome .letter{position:relative;background:var(--board);border-radius:26px;max-width:460px;width:100%;max-height:100%;overflow:auto;padding:26px 24px 22px;
+  box-shadow:0 30px 80px rgba(0,0,0,.45);transform:translateY(18px) rotate(-1deg);transition:transform .8s cubic-bezier(.3,1.3,.5,1)}
+.welcome.on .letter{transform:none}
+.welcome .letter::before{content:"";position:absolute;inset:8px;border:2px dashed var(--door-edge);border-radius:20px;pointer-events:none}
+.welcome .hi{font-family:"Dancing Script","Segoe Script",cursive;font-weight:700;font-size:2.3rem;color:var(--berry);margin:0 0 6px;line-height:1.1}
+.welcome .msg{font-family:var(--f-hand);font-size:1.38rem;line-height:1.38;margin:0;color:var(--ink)}
+.welcome .sig{font-family:"Dancing Script","Segoe Script",cursive;font-weight:700;font-size:1.7rem;text-align:right;margin:4px 6px 0 0;color:var(--ink)}
+.welcome .how{margin:18px 0 0;padding:14px 16px;border-radius:18px;background:var(--door-b);font-size:.97rem;line-height:1.5}
+.welcome .how b{font-family:var(--f-display);font-weight:600;font-size:1.05rem;display:block;margin-bottom:4px}
+.welcome .how ol{margin:6px 0 0;padding-left:22px}
+.welcome .how li{margin:2px 0}
+.welcome .how .k{display:inline-block;background:#fff;border-radius:8px;padding:0 7px;font-weight:600;box-shadow:0 1px 0 rgba(0,0,0,.12)}
+.welcome .tip{margin:10px 0 0;padding:10px 14px;border-radius:16px;background:var(--door-c);font-size:.95rem}
+@media (max-height:700px){.welcome .letter{padding:20px 18px 16px}.welcome .hi{font-size:1.9rem}.welcome .msg{font-size:1.2rem}.welcome .how{margin-top:12px}}
+.welcome .go{display:block;margin:18px auto 0;border:0;cursor:pointer;background:var(--berry);color:#fff;font-family:var(--f-display);font-weight:600;font-size:1.15rem;padding:12px 28px;border-radius:999px;box-shadow:0 6px 18px rgba(201,86,107,.4)}
 </style>
 </head>
 <body>
@@ -1296,6 +1315,55 @@ document.querySelector(".scene").addEventListener("scroll", alignViews, {passive
   if(b) setTimeout(()=>b.scrollIntoView({behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block:"center", inline:"center"}), 700); })();
 setInterval(()=>{ renderStatus(); refreshDoors(); if(!bgPicked) setBg(homeBg()); }, 60000);
 addEventListener("hashchange", ()=>location.reload());
+</script>
+<script>
+/* Willkommensbrief: nur beim allerersten Öffnen (oder mit #willkommen zum Testen) */
+(function(){
+  const force = location.hash === "#willkommen";
+  let seen = false; try{ seen = localStorage.getItem("advent-willkommen") === "ja"; }catch(e){}
+  if(!force && (seen || PREVIEW)) return;
+  const ua = navigator.userAgent;
+  const ios = /iPhone|iPad|iPod/.test(ua) || (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1);
+  const android = /Android/.test(ua);
+  const app = navigator.standalone || matchMedia("(display-mode: standalone)").matches;
+  const safari = ios && !/CriOS|FxiOS|EdgiOS|OPiOS|Instagram|FBAN|FBAV|Snapchat|Line\//.test(ua);
+  let how = "";
+  if(app){
+    how = `<div class="tip">Perfekt, die App ist schon auf deinem Handy ♡ Auf dem Mac sieht alles noch ein bisschen schöner aus.</div>`;
+  } else if(ios && !safari){
+    how = `<div class="how"><b>Damit es eine App auf deinem Handy wird</b>Öffne diesen Link am besten in <b style="display:inline;font-size:inherit">Safari</b>. Dort kannst du ihn dann ganz einfach auf deinen Home-Bildschirm legen.</div>`;
+  } else if(ios){
+    how = `<div class="how"><b>So wird es eine App auf deinem Handy</b><ol>
+      <li>Tippe unten auf <span class="k">···</span> oder auf das Teilen Symbol <span class="k">⬆︎</span></li>
+      <li>Wähle <span class="k">Zum Home-Bildschirm</span></li>
+      <li>Tippe auf <span class="k">Hinzufügen</span></li></ol>
+      Dann findest du den Kalender jeden Tag mit einem Tipp ♡</div>
+      <div class="tip">Am Mac sieht alles noch schöner aus, groß und mit gutem Ton.</div>`;
+  } else if(android){
+    how = `<div class="how"><b>So wird es eine App auf deinem Handy</b><ol>
+      <li>Tippe oben rechts auf <span class="k">⋮</span></li>
+      <li>Wähle <span class="k">Zum Startbildschirm hinzufügen</span> oder <span class="k">App installieren</span></li></ol></div>
+      <div class="tip">Am Mac sieht alles noch schöner aus, groß und mit gutem Ton.</div>`;
+  } else {
+    how = `<div class="tip">Am Mac ist es am allerschönsten, also Ton an ♡ Wenn du den Kalender auch als App auf dem Handy haben willst, öffne den Link dort in Safari und lege ihn über Teilen auf deinen Home-Bildschirm.</div>`;
+  }
+  const w = document.createElement("div");
+  w.className = "welcome"; w.setAttribute("role","dialog"); w.setAttribute("aria-modal","true"); w.setAttribute("aria-label","Willkommen");
+  w.innerHTML = `<div class="letter">
+    <p class="hi">Liebe Anna,</p>
+    <p class="msg">dieses Jahr bekommst du einen Adventskalender von mir, da Mama uns ja keinen mehr macht! Ab dem 1. Dezember darfst du jeden Tag eine Tüte öffnen. In jeder wartet ein Lied, das ich für dich gespielt habe.</p>
+    <p class="msg" style="margin-top:6px">Hab dich lieb ◡̈</p>
+    <p class="sig">Arne</p>
+    ${how}
+    <button class="go" type="button">Los geht's ♡</button></div>`;
+  document.body.appendChild(w);
+  requestAnimationFrame(()=>requestAnimationFrame(()=>w.classList.add("on")));
+  w.querySelector(".go").addEventListener("click", ()=>{
+    try{ localStorage.setItem("advent-willkommen","ja"); }catch(e){}
+    w.classList.remove("on"); setTimeout(()=>w.remove(), 600);
+    if(force) history.replaceState(null, "", location.pathname);
+  });
+})();
 </script>
 </body>
 </html>
