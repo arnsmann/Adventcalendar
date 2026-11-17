@@ -694,7 +694,7 @@ grid.addEventListener("click", e=>{
   const b = e.target.closest(".door"); if(!b) return;
   const n = +b.dataset.n;
   if(!isOpenable(n)){
-    b.classList.remove("shake"); void b.offsetWidth; b.classList.add("shake");
+    b.classList.remove("shake"); void b.offsetWidth; b.classList.add("shake"); clearTimeout(b._shk); b._shk = setTimeout(()=>{ b.classList.remove("shake"); b.blur(); }, 550);
     const d = daysUntil(n);
     toast(d === 1 ? `Türchen ${n} darfst du morgen öffnen ♡` : `Geduld! Noch ${d} Mal schlafen bis Türchen ${n}`);
     return;
