@@ -413,7 +413,7 @@ footer{font-size:1rem;margin-top:-6px}
    bild:  Foto für diesen Tag (siehe oben)
    bildposhoch: optional, dasselbe nur fürs Handy im Hochformat (z.B. "30% 50%", damit der Dom zu sehen ist)
    bildpos: optional, welcher Teil des Bildes im Hintergrund zu sehen ist (z.B. "100% 50%" = rechter Rand, damit Personen links neben der Kugel stehen)
-   wetter: was sich in der Kugel bewegt: "schnee" (Standard), "regen", "magie", "elben", "gluehwuermchen", "pusteblume", "zauberschnee", "stadtlichter" oder "sonnenstrahlen"
+   wetter: was sich in der Kugel bewegt: "schnee" (Standard), "regen", "magie", "elben", "gluehwuermchen", "pusteblume", "zauberschnee", "stadtlichter", "sonnenstrahlen" oder "blueten"
    fenster: optional, was die Fenster im Treppenhaus zeigen: [Größe, Ausschnitt], z.B. ["240%", "92% 42%"] für den Wald weiter hinten
    kugelversatz: optional, schiebt die Kugel am Computer nach rechts (z.B. "12vw"), damit Personen im Bild frei stehen
    hochkant: optional, eigenes Hochformat Bild fürs Handy, in dem schon ein Sockel steht. kugel: [x, y, Radius breit, Radius hoch] der Kugel im Bild (Pixel). Die Glaskugel wird dann genau dort auf den Sockel gesetzt. kugelbild: optional anderes Glas (z.B. ohne Rand, wenn das Bild schon einen Rand hat). zoom: wie stark das Bild höchstens vergrößert wird, damit die Kugel größer wird (Standard 1.3)
@@ -449,7 +449,7 @@ const TUERCHEN = {
   17: { video: "", text: "" },
   18: { video: "", text: "" },
   19: { video: "", text: "" },
-  20: { video: "", song: "t20-26f728be", titel: "Howl's Moving Castle", clip: "https://youtu.be/U23IXzW_JWE", text: "" },
+  20: { video: "", song: "t20-26f728be", titel: "Howl's Moving Castle", bild: "bilder/b20-b2e0e09f.jpg", bildposhoch: "60% 50%", wetter: "blueten", clip: "https://youtu.be/U23IXzW_JWE", text: "" },
   21: { video: "", text: "" },
   22: { video: "", text: "" },
   23: { video: "", text: "" },
@@ -997,6 +997,26 @@ renderStatus(); refreshDoors(); setBg(homeBg());
     }
     ctx.restore(); ctx.globalCompositeOperation = "source-over";
   }
+  // Blüten: kleine Blütenblätter aus der Blumenwiese, die der Wind durch die Kugel trägt
+  const petals = [];
+  const PCOL = [[255,196,214],[255,235,242],[255,226,140],[250,170,200],[255,250,250],[214,190,255]];
+  function newPetal(){ return {x:Math.random()*1.1-.1, y:Math.random(), s:4+Math.random()*4, vx:.0007+Math.random()*.0012, vy:.0003+Math.random()*.0007, rot:Math.random()*6.28, vr:(Math.random()-.5)*.06, ph:Math.random()*6.28, c:PCOL[Math.floor(Math.random()*PCOL.length)]}; }
+  for(let i=0;i<56;i++) petals.push(newPetal());
+  function drawPetals(t){
+    for(const q of petals){
+      if(q.bx){ q.x += q.bx; q.y += q.by; q.bx *= .975; q.by *= .975; }
+      q.x += q.vx + Math.sin(t/1300 + q.ph)*.0006; q.y += q.vy + Math.cos(t/1700 + q.ph)*.0005; q.rot += q.vr;
+      if(q.x > 1.05 || q.y > 1.05 || q.y < -.08){ if(q.ex){ q.ex = 1; continue; } Object.assign(q, newPetal(), {x:-.05, y:Math.random()*.8}); }
+      if(!inside(q.x,q.y,.235)) continue;
+      const X = q.x*W, Y = q.y*W, S = q.s*(W/460), flip = Math.abs(Math.sin(t/600 + q.ph*3));
+      ctx.save(); ctx.translate(X,Y); ctx.rotate(q.rot); ctx.scale(1, .35 + .65*flip);
+      ctx.globalAlpha = .9 * ex(q);
+      ctx.fillStyle = `rgb(${q.c[0]},${q.c[1]},${q.c[2]})`;
+      ctx.beginPath(); ctx.moveTo(0,-S); ctx.quadraticCurveTo(S*.95,-S*.15,0,S); ctx.quadraticCurveTo(-S*.95,-S*.15,0,-S); ctx.fill();
+      ctx.restore();
+    }
+    ctx.globalAlpha = 1;
+  }
   const lights = [];
   function newLight(){ const hues = [38, 30, 22, 340, 48]; return {x:.12+Math.random()*.76, y:.15+Math.random()*.8, r:2.6+Math.random()*4.2, vy:-(.00015+Math.random()*.0004), ph:Math.random()*6.28, hue:hues[Math.floor(Math.random()*hues.length)]}; }
   for(let i=0;i<60;i++) lights.push(newLight());
@@ -1063,6 +1083,9 @@ renderStatus(); refreshDoors(); setBg(homeBg());
     else if(m === "elben"){
       for(let i=0;i<70;i++){ const o = newMote(); const a = Math.random()*6.28, v = .003 + Math.random()*.008; o.vx = Math.cos(a)*v; o.vy = Math.sin(a)*v; o.life = 90; o.ex = until(); motes.push(o); }
       for(let i=0;i<22;i++){ const l = newLeaf(false); l.y = .55 + Math.random()*.35; l.vy = -(.005 + Math.random()*.01); l.vx = (Math.random()-.5)*.015; l.vr = (Math.random()-.5)*.3; l.ex = until(); leaves.push(l); }
+    }
+    else if(m === "blueten"){
+      for(let i=0;i<60;i++){ const q = newPetal(); q.x = .3 + Math.random()*.4; q.y = .6 + Math.random()*.3; const a = Math.random()*6.28, v = .004 + Math.random()*.008; q.bx = Math.cos(a)*v; q.by = Math.sin(a)*v - .004; q.vr *= 3; q.ex = until(); petals.push(q); }
     }
     else if(m === "sonnenstrahlen"){ flare = 1;
       for(let i=0;i<70;i++){ const d = newDust(); d.x = .3 + Math.random()*.4; d.y = .55 + Math.random()*.35; const a = Math.random()*6.28, v = .003 + Math.random()*.007; d.bx = Math.cos(a)*v; d.by = Math.sin(a)*v - .003; d.ex = until(); dust.push(d); }
@@ -1190,7 +1213,7 @@ renderStatus(); refreshDoors(); setBg(homeBg());
     NOW = t;
     ctx.clearRect(0,0,W,W);
     const m = window.globeMode || "schnee";
-    prune(flakes); prune(lights); prune(dust); prune(drops); prune(orbs); prune(motes); prune(leaves); prune(flies); prune(seeds); prune(specks);
+    prune(flakes); prune(lights); prune(dust); prune(petals); prune(drops); prune(orbs); prune(motes); prune(leaves); prune(flies); prune(seeds); prune(specks);
     if(m === "regen") drawRain();
     else if(m === "magie"){ drawMagic(t); ctx.globalAlpha = .5; }
     else if(m === "elben") drawElves(t);
@@ -1199,6 +1222,7 @@ renderStatus(); refreshDoors(); setBg(homeBg());
     else if(m === "zauberschnee"){ drawSnow(t); ctx.globalAlpha = 1; drawMagic(t); }
     else if(m === "stadtlichter"){ drawSnow(t, .35); drawLights(t); }
     else if(m === "sonnenstrahlen") drawRays(t);
+    else if(m === "blueten") drawPetals(t);
     else drawSnow(t);
     ctx.globalAlpha = 1;
     requestAnimationFrame(tick);
