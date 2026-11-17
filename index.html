@@ -1328,11 +1328,11 @@ addEventListener("hashchange", ()=>location.reload());
   const safari = ios && !/CriOS|FxiOS|EdgiOS|OPiOS|Instagram|FBAN|FBAV|Snapchat|Line\//.test(ua);
   // Grüner Kasten und gelber Kasten: im Bild steht die iPhone Safari Anleitung, für alle anderen Fälle wird neu beschriftet
   let gruen = null, gelb = null;
-  if(app){ gruen = `<b>Perfekt ♡</b>Die App ist schon auf deinem Handy. Ab dem 1. Dezember geht es los!`; }
+  if(app){ gruen = `<b>Perfekt ♡</b>Die App ist schon installiert. Ab dem 1. Dezember geht es los!`; if(!ios && !android) gelb = `Jeden Tag eine Tüte. Nicht schummeln! ♡`; }
   else if(ios && !safari){ gruen = `<b>Damit es eine App auf deinem Handy wird</b>Öffne diesen Link am besten in Safari. Dort kannst du ihn dann ganz einfach auf deinen Home-Bildschirm legen.`; }
   else if(ios){ /* passt genau zum Bild */ }
   else if(android){ gruen = `<b>So wird es eine App auf deinem Handy</b><ol><li>Tippe oben rechts auf <span class="k">⋮</span></li><li>Wähle <span class="k">Zum Startbildschirm hinzufügen</span> oder <span class="k">App installieren</span></li></ol>Dann ist der Kalender wie eine App auf deinem Handy ♡`; }
-  else { gruen = `<b>Am Mac ist es am allerschönsten ♡</b>Wenn du den Kalender auch als App auf dem Handy haben willst, öffne den Link dort in Safari und lege ihn über Teilen auf deinen Home-Bildschirm.`; gelb = `Jeden Tag eine Tüte. Nicht schummeln! ♡`; }
+  else { gruen = `<b>So wird es eine App auf deinem Mac</b><ol><li>Klicke oben in der Menüleiste auf <span class="k">Ablage</span></li><li>Wähle <span class="k">Zum Dock hinzufügen</span></li><li>Klicke auf <span class="k">Hinzufügen</span></li></ol>Dann hast du den Kalender als App im Dock ♡`; gelb = `Jeden Tag eine Tüte. Nicht schummeln! ♡`; }
   const w = document.createElement("div");
   w.className = "welcome"; w.setAttribute("role","dialog"); w.setAttribute("aria-modal","true"); w.setAttribute("aria-label","Willkommen");
   w.innerHTML = `<div class="brief">
