@@ -1337,15 +1337,15 @@ addEventListener("hashchange", ()=>location.reload());
       <li>Tippe unten auf <span class="k">···</span> oder auf das Teilen Symbol <span class="k">⬆︎</span></li>
       <li>Wähle <span class="k">Zum Home-Bildschirm</span></li>
       <li>Tippe auf <span class="k">Hinzufügen</span></li></ol>
-      Dann findest du den Kalender jeden Tag mit einem Tipp ♡</div>
-      <div class="tip">Am Mac sieht alles noch schöner aus, groß und mit gutem Ton.</div>`;
+      Dann ist der Kalender wie eine App auf deinem Handy ♡</div>
+      <div class="tip">Am Mac sieht alles noch schöner aus.</div>`;
   } else if(android){
     how = `<div class="how"><b>So wird es eine App auf deinem Handy</b><ol>
       <li>Tippe oben rechts auf <span class="k">⋮</span></li>
       <li>Wähle <span class="k">Zum Startbildschirm hinzufügen</span> oder <span class="k">App installieren</span></li></ol></div>
-      <div class="tip">Am Mac sieht alles noch schöner aus, groß und mit gutem Ton.</div>`;
+      <div class="tip">Am Mac sieht alles noch schöner aus.</div>`;
   } else {
-    how = `<div class="tip">Am Mac ist es am allerschönsten, also Ton an ♡ Wenn du den Kalender auch als App auf dem Handy haben willst, öffne den Link dort in Safari und lege ihn über Teilen auf deinen Home-Bildschirm.</div>`;
+    how = `<div class="tip">Am Mac ist es am allerschönsten ♡ Wenn du den Kalender auch als App auf dem Handy haben willst, öffne den Link dort in Safari und lege ihn über Teilen auf deinen Home-Bildschirm.</div>`;
   }
   const w = document.createElement("div");
   w.className = "welcome"; w.setAttribute("role","dialog"); w.setAttribute("aria-modal","true"); w.setAttribute("aria-label","Willkommen");
