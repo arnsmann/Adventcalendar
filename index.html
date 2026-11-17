@@ -338,24 +338,23 @@ footer{font-size:1rem;margin-top:-6px}
 }
 
 
-/* Willkommen: erscheint nur beim allerersten Öffnen */
-.welcome{position:fixed;inset:0;z-index:60;display:grid;place-items:center;padding:18px;background:rgba(30,18,14,.62);-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px);opacity:0;transition:opacity .6s}
+/* Willkommen: erscheint nur beim allerersten Öffnen. Der Brief ist Arnes Bild, nur die Kästen werden je nach Gerät neu beschriftet */
+.welcome{position:fixed;inset:0;z-index:60;display:grid;place-items:center;padding:12px;background:rgba(30,18,14,.62);-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px);opacity:0;transition:opacity .6s}
 .welcome.on{opacity:1}
-.welcome .letter{position:relative;background:var(--board);border-radius:26px;max-width:460px;width:100%;max-height:100%;overflow:auto;padding:26px 24px 22px;
-  box-shadow:0 30px 80px rgba(0,0,0,.45);transform:translateY(18px) rotate(-1deg);transition:transform .8s cubic-bezier(.3,1.3,.5,1)}
-.welcome.on .letter{transform:none}
-.welcome .letter::before{content:"";position:absolute;inset:8px;border:2px dashed var(--door-edge);border-radius:20px;pointer-events:none}
-.welcome .hi{font-family:"Dancing Script","Segoe Script",cursive;font-weight:700;font-size:2.3rem;color:var(--berry);margin:0 0 6px;line-height:1.1}
-.welcome .msg{font-family:var(--f-hand);font-size:1.38rem;line-height:1.38;margin:0;color:var(--ink)}
-.welcome .sig{font-family:"Dancing Script","Segoe Script",cursive;font-weight:700;font-size:1.7rem;text-align:right;margin:4px 6px 0 0;color:var(--ink)}
-.welcome .how{margin:18px 0 0;padding:14px 16px;border-radius:18px;background:var(--door-b);font-size:.97rem;line-height:1.5}
-.welcome .how b{font-family:var(--f-display);font-weight:600;font-size:1.05rem;display:block;margin-bottom:4px}
-.welcome .how ol{margin:6px 0 0;padding-left:22px}
-.welcome .how li{margin:2px 0}
-.welcome .how .k{display:inline-block;background:#fff;border-radius:8px;padding:0 7px;font-weight:600;box-shadow:0 1px 0 rgba(0,0,0,.12)}
-.welcome .tip{margin:10px 0 0;padding:10px 14px;border-radius:16px;background:var(--door-c);font-size:.95rem}
-@media (max-height:700px){.welcome .letter{padding:20px 18px 16px}.welcome .hi{font-size:1.9rem}.welcome .msg{font-size:1.2rem}.welcome .how{margin-top:12px}}
-.welcome .go{display:block;margin:18px auto 0;border:0;cursor:pointer;background:var(--berry);color:#fff;font-family:var(--f-display);font-weight:600;font-size:1.15rem;padding:12px 28px;border-radius:999px;box-shadow:0 6px 18px rgba(201,86,107,.4)}
+.welcome .brief{position:relative;container-type:inline-size;width:min(100%, calc((100dvh - 24px) * 798 / 1344), 560px);aspect-ratio:798/1344;
+  background:url("bilder/brief-f7ceeb24.webp") center/100% 100% no-repeat;border-radius:14px;box-shadow:0 30px 80px rgba(0,0,0,.5);
+  transform:translateY(18px) scale(.97);transition:transform .8s cubic-bezier(.3,1.3,.5,1)}
+.welcome.on .brief{transform:none}
+.welcome .feld{position:absolute;display:flex;flex-direction:column;justify-content:center;font-family:"Nunito",var(--f-body);color:#3d2a20}
+.welcome .gruen{left:11.4%;top:47.8%;width:77.8%;padding-right:6% !important;clip-path:polygon(0 0,100% 0,100% 27%,94% 27%,94% 54%,100% 54%,100% 100%,0 100%);height:27%;background:radial-gradient(ellipse 120% 120% at 50% 50%,#d9e0cb 70%,rgba(217,224,203,.0) 100%);font-size:3.5cqw;line-height:1.45;padding:0 2%}
+.welcome .gruen b{font-weight:700;font-size:3.8cqw;display:block;margin-bottom:1.2cqw}
+.welcome .gruen ol{margin:0;padding-left:5.5cqw}
+.welcome .gruen .k{display:inline-block;background:#fbf8f0;border-radius:1.4cqw;padding:0 1.2cqw;font-weight:700;box-shadow:0 1px 0 rgba(0,0,0,.12)}
+.welcome .gelb{left:11.5%;top:78.4%;width:77.4%;height:5.2%;background:#f8e3b0;font-size:3.5cqw;padding:0 1.5%}
+.welcome .go{position:absolute;left:29.6%;top:86.8%;width:40%;height:6.2%;border:0;border-radius:999px;background:transparent;cursor:pointer;transition:box-shadow .3s, transform .15s}
+.welcome .go:hover{box-shadow:0 0 0 3px rgba(255,255,255,.55),0 0 26px rgba(255,200,120,.6)}
+.welcome .go:active{transform:scale(.97)}
+.welcome .vh{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
 </style>
 </head>
 <body>
@@ -1327,35 +1326,20 @@ addEventListener("hashchange", ()=>location.reload());
   const android = /Android/.test(ua);
   const app = navigator.standalone || matchMedia("(display-mode: standalone)").matches;
   const safari = ios && !/CriOS|FxiOS|EdgiOS|OPiOS|Instagram|FBAN|FBAV|Snapchat|Line\//.test(ua);
-  let how = "";
-  if(app){
-    how = `<div class="tip">Perfekt, die App ist schon auf deinem Handy ♡ Auf dem Mac sieht alles noch ein bisschen schöner aus.</div>`;
-  } else if(ios && !safari){
-    how = `<div class="how"><b>Damit es eine App auf deinem Handy wird</b>Öffne diesen Link am besten in <b style="display:inline;font-size:inherit">Safari</b>. Dort kannst du ihn dann ganz einfach auf deinen Home-Bildschirm legen.</div>`;
-  } else if(ios){
-    how = `<div class="how"><b>So wird es eine App auf deinem Handy</b><ol>
-      <li>Tippe unten auf <span class="k">···</span> oder auf das Teilen Symbol <span class="k">⬆︎</span></li>
-      <li>Wähle <span class="k">Zum Home-Bildschirm</span></li>
-      <li>Tippe auf <span class="k">Hinzufügen</span></li></ol>
-      Dann ist der Kalender wie eine App auf deinem Handy ♡</div>
-      <div class="tip">Am Mac sieht alles noch schöner aus.</div>`;
-  } else if(android){
-    how = `<div class="how"><b>So wird es eine App auf deinem Handy</b><ol>
-      <li>Tippe oben rechts auf <span class="k">⋮</span></li>
-      <li>Wähle <span class="k">Zum Startbildschirm hinzufügen</span> oder <span class="k">App installieren</span></li></ol></div>
-      <div class="tip">Am Mac sieht alles noch schöner aus.</div>`;
-  } else {
-    how = `<div class="tip">Am Mac ist es am allerschönsten ♡ Wenn du den Kalender auch als App auf dem Handy haben willst, öffne den Link dort in Safari und lege ihn über Teilen auf deinen Home-Bildschirm.</div>`;
-  }
+  // Grüner Kasten und gelber Kasten: im Bild steht die iPhone Safari Anleitung, für alle anderen Fälle wird neu beschriftet
+  let gruen = null, gelb = null;
+  if(app){ gruen = `<b>Perfekt ♡</b>Die App ist schon auf deinem Handy. Ab dem 1. Dezember geht es los!`; }
+  else if(ios && !safari){ gruen = `<b>Damit es eine App auf deinem Handy wird</b>Öffne diesen Link am besten in Safari. Dort kannst du ihn dann ganz einfach auf deinen Home-Bildschirm legen.`; }
+  else if(ios){ /* passt genau zum Bild */ }
+  else if(android){ gruen = `<b>So wird es eine App auf deinem Handy</b><ol><li>Tippe oben rechts auf <span class="k">⋮</span></li><li>Wähle <span class="k">Zum Startbildschirm hinzufügen</span> oder <span class="k">App installieren</span></li></ol>Dann ist der Kalender wie eine App auf deinem Handy ♡`; }
+  else { gruen = `<b>Am Mac ist es am allerschönsten ♡</b>Wenn du den Kalender auch als App auf dem Handy haben willst, öffne den Link dort in Safari und lege ihn über Teilen auf deinen Home-Bildschirm.`; gelb = `Jeden Tag eine Tüte. Nicht schummeln! ♡`; }
   const w = document.createElement("div");
   w.className = "welcome"; w.setAttribute("role","dialog"); w.setAttribute("aria-modal","true"); w.setAttribute("aria-label","Willkommen");
-  w.innerHTML = `<div class="letter">
-    <p class="hi">Liebe Anna,</p>
-    <p class="msg">dieses Jahr bekommst du einen Adventskalender von mir, da Mama uns ja keinen mehr macht! Ab dem 1. Dezember darfst du jeden Tag eine Tüte öffnen.</p>
-    <p class="msg" style="margin-top:6px">Hab dich lieb ◡̈</p>
-    <p class="sig">Arne</p>
-    ${how}
-    <button class="go" type="button">Los geht's ♡</button></div>`;
+  w.innerHTML = `<div class="brief">
+    <p class="vh">Liebe Anna, dieses Jahr bekommst du einen Adventskalender von mir, da Mama uns ja keinen mehr macht! Ab dem 1. Dezember darfst du jeden Tag eine Tüte öffnen. Hab dich lieb. Arne</p>
+    ${gruen ? `<div class="feld gruen">${gruen}</div>` : ""}
+    ${gelb ? `<div class="feld gelb">${gelb}</div>` : ""}
+    <button class="go" type="button" aria-label="Los geht's"></button></div>`;
   document.body.appendChild(w);
   requestAnimationFrame(()=>requestAnimationFrame(()=>w.classList.add("on")));
   w.querySelector(".go").addEventListener("click", ()=>{
