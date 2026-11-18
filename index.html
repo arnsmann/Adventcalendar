@@ -1521,8 +1521,8 @@ renderStatus(); refreshDoors(); setBg(homeBg());
     requestAnimationFrame(()=>{
       const sc = globe.querySelector(".scene"), st = sc.querySelector(".stage");
       if(sc.scrollWidth > sc.clientWidth + 4) sc.scrollLeft = st.clientWidth * .494 - sc.clientWidth / 2;
-      // am breiten Bildschirm oben mehr abschneiden als unten, damit die Tüten ganz drauf sind
-      if(sc.scrollHeight > sc.clientHeight + 4) sc.scrollTop = (sc.scrollHeight - sc.clientHeight) * .65;
+      // am breiten Bildschirm nur oben abschneiden, unten bleibt der Raum ganz
+      if(sc.scrollHeight > sc.clientHeight + 4) sc.scrollTop = sc.scrollHeight - sc.clientHeight;
       try{ alignViews(); }catch(e){}
     });
     setTimeout(()=>{ try{ alignViews(); }catch(e){} }, 600);
