@@ -284,7 +284,11 @@ body.peek .ueb-btn,body.zoomed-on .ueb-btn{opacity:0;pointer-events:none}
 @keyframes dive{from{transform:scale(.55);opacity:0;border-radius:50%}}
 .globe-wrap.zoomed .scene{position:absolute;inset:0;width:100%;height:100%;aspect-ratio:auto;max-width:none;box-shadow:none;border-radius:0;overflow:auto;scrollbar-width:none;-webkit-overflow-scrolling:touch}
 .globe-wrap.zoomed .scene::-webkit-scrollbar{display:none}
-.globe-wrap.zoomed .stage{position:relative;inset:auto;left:auto;transform:none;margin:0 auto;height:max(100%,calc(100vw * 896 / 1195));width:auto;aspect-ratio:1195/896}
+/* höchstens so weit hineinzoomen, dass alle Tüten von 1 bis 24 drauf passen. Bleibt seitlich Platz, füllt ihn der Raum weich verschwommen weiter. */
+.globe-wrap.zoomed .stage{position:relative;inset:auto;left:auto;transform:none;margin:0 auto;height:max(100%,min(calc(100vw * 896 / 1195),calc(100% * 1.12)));width:auto;aspect-ratio:1195/896}
+.flur-rand{display:none}
+.globe-wrap.zoomed .flur-rand{display:block;position:absolute;inset:-6%;width:112%;height:112%;object-fit:cover;filter:blur(28px) brightness(.85);pointer-events:none;z-index:0}
+.globe-wrap.zoomed .scene{z-index:1;background:none}
 .globe-wrap.zoomed .globe-snow{display:none}
 .globe-wrap.zoomed .globe .scene::after{display:none}
 .globe-wrap.zoomed::before{content:"";position:fixed;inset:-50vh -50vw;background:rgba(15,8,6,.78);z-index:14}
@@ -400,9 +404,10 @@ footer{font-size:1rem;margin-top:-6px}
   <div class="globe-wrap" id="globeWrap">
     <img class="globe-img" src="bilder/kugel-066a6a11.webp" alt="Schneekugel mit unserem Treppenhaus" draggable="false">
     <div class="globe" id="globe">
+    <img class="flur-rand" src="bilder/flur-f0751392.webp" alt="" aria-hidden="true" draggable="false">
     <main class="scene"><div class="stage">
     <div class="view" aria-hidden="true" style="left:0;top:0;width:100%;height:100%"><div class="layer"></div><div class="layer"></div></div>
-    <img class="flur" src="bilder/flur-372fec30.webp" alt="Unser Treppenhaus mit 24 Tüten" draggable="false">
+    <img class="flur" src="bilder/flur-f0751392.webp" alt="Unser Treppenhaus mit 24 Tüten" draggable="false">
     <div id="grid"></div>
   </div></main>
     </div>
@@ -690,7 +695,7 @@ function renderStatus(){
   }
 }
 
-const HOT = {1:[465,407,490,440],5:[472,442,502,490],6:[512,435,537,485],10:[522,482,551,530],9:[465,497,492,542],11:[597,500,625,550],16:[632,530,662,580],8:[469,550,504,602],13:[547,562,577,610],14:[592,565,619,615],12:[667,590,697,642],15:[700,580,729,627],7:[522,595,560,650],18:[617,617,647,667],2:[502,637,540,700],17:[580,637,615,692],21:[437,650,474,712],19:[674,652,705,710],20:[712,657,742,707],3:[642,685,677,737],22:[517,705,552,772],24:[707,725,740,780],4:[650,747,682,812],23:[595,760,627,845]};
+const HOT = {1:[528,187,566,248],2:[575,169,613,228],3:[623,140,662,201],4:[671,114,709,175],5:[721,93,759,155],6:[767,64,805,125],7:[446,233,487,301],8:[497,274,538,338],9:[547,303,586,371],10:[600,338,641,408],11:[649,379,689,446],12:[694,408,741,478],13:[478,397,522,467],14:[531,432,575,502],15:[581,467,624,537],16:[632,502,674,572],17:[736,572,779,645],18:[788,601,831,671],19:[726,677,764,753],20:[764,689,802,764],21:[683,543,726,613],22:[813,729,852,799],23:[849,753,887,823],24:[887,759,928,829]};
 /* Tüten im gemalten Treppenhaus: unsichtbare Klickflächen über den gezeichneten Tüten */
 const grid = document.getElementById("grid");
 const IW = 1195, IH = 896;
@@ -1336,8 +1341,13 @@ renderStatus(); refreshDoors(); setBg(homeBg());
       vec4 tex(sampler2D t,vec4 r,vec2 p){vec2 u=(p-r.xy)/r.zw;if(u.x<0.||u.y<0.||u.x>1.||u.y>1.)return vec4(0.);return texture2D(t,u);}
       vec3 screen(vec2 p){
         vec3 bg=tex(tBg,rBg,p).rgb;
-        if(modeZ>.5){ vec3 c=mix(bg,vec3(.06,.03,.02),.78);
-          vec2 u=(p-rHall.xy)/rHall.zw; if(u.x>=0.&&u.y>=0.&&u.x<=1.&&u.y<=1.){ vec4 h=texture2D(tHall,u); c=mix(bg,h.rgb,h.a); } return c; }
+        if(modeZ>.5){
+          vec2 u=(p-rHall.xy)/rHall.zw;
+          if(u.x>=0.&&u.y>=0.&&u.x<=1.&&u.y<=1.){ vec4 h=texture2D(tHall,u); return mix(bg,h.rgb,h.a); }
+          // Rand: der Raum weich verschwommen weiter, wie im Bild daneben
+          float s=max(res.x/rHall.z,res.y/rHall.w)*1.12; vec2 uc=(p-res*.5)/(rHall.zw*s)+.5; vec3 c=vec3(0.);
+          for(int i=-2;i<=2;i++) for(int j=-2;j<=2;j++) c+=texture2D(tHall,clamp(uc+vec2(float(i),float(j))*.012,0.,1.)).rgb;
+          return c/25.*.85; }
         vec3 c=bg;
         vec2 e=(p-(rBall.xy+rBall.zw*.5))/(rBall.zw*.5);
         if(dot(e,e)<1.){ vec4 h=tex(tHall,rHall,p); c=mix(bg,h.rgb,h.a); }
@@ -1520,9 +1530,14 @@ renderStatus(); refreshDoors(); setBg(homeBg());
     wrap.classList.add("zoomed"); document.body.classList.add("zoomed-on"); back.hidden = false;
     requestAnimationFrame(()=>{
       const sc = globe.querySelector(".scene"), st = sc.querySelector(".stage");
-      if(sc.scrollWidth > sc.clientWidth + 4) sc.scrollLeft = st.clientWidth * .494 - sc.clientWidth / 2;
-      // am breiten Bildschirm nur oben abschneiden, unten bleibt der Raum ganz
-      if(sc.scrollHeight > sc.clientHeight + 4) sc.scrollTop = sc.scrollHeight - sc.clientHeight;
+      // Ausschnitt so legen, dass die Tüten möglichst alle zu sehen sind (sie gehen fast vom oberen bis zum unteren Rand)
+      if(sc.scrollWidth > sc.clientWidth + 4) sc.scrollLeft = st.clientWidth * .575 - sc.clientWidth / 2;
+      if(sc.scrollHeight > sc.clientHeight + 4) sc.scrollTop = st.clientHeight * .5 - sc.clientHeight / 2;
+      // im Dezember: die Tüte von heute kommt auf jeden Fall ins Bild
+      const heute = !PREVIEW && todayNum() && grid.querySelector(`.door[data-n="${todayNum()}"]`);
+      if(heute){ const r = heute.getBoundingClientRect(), m = 24;
+        if(r.top < m) sc.scrollTop += r.top - m; else if(r.bottom > innerHeight - m) sc.scrollTop += r.bottom - innerHeight + m;
+        if(r.left < m) sc.scrollLeft += r.left - m; else if(r.right > innerWidth - m) sc.scrollLeft += r.right - innerWidth + m; }
       try{ alignViews(); }catch(e){}
     });
     setTimeout(()=>{ try{ alignViews(); }catch(e){} }, 600);
