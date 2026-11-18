@@ -278,16 +278,13 @@ body.peek .ueb-btn,body.zoomed-on .ueb-btn{opacity:0;pointer-events:none}
 .ueb-menu button:hover{background:rgba(201,86,107,.1)}
 .ueb-menu button[aria-checked="true"]{background:var(--door-a);font-weight:700}
 /* hineingezoomt */
-.globe-wrap.zoomed .globe{display:block;position:fixed;z-index:15;overflow:hidden;border-radius:18px;aspect-ratio:auto;width:auto;
-  inset:calc(66px + env(safe-area-inset-top,0px)) max(10px,env(safe-area-inset-right,0px)) max(10px,env(safe-area-inset-bottom,0px)) max(10px,env(safe-area-inset-left,0px));
+/* Der Raum füllt den ganzen Bildschirm, als würde man drin stehen. Was übersteht, kann man verschieben. */
+.globe-wrap.zoomed .globe{display:block;position:fixed;z-index:15;overflow:hidden;border-radius:0;aspect-ratio:auto;width:auto;inset:0;
   animation:dive .55s cubic-bezier(.2,.9,.3,1)}
-@media (min-aspect-ratio:1/1){
-  .globe-wrap.zoomed .globe{left:0;right:0;margin:0 auto;width:min(calc(100vw - 20px),calc((100vh - 80px) * 1195 / 896));bottom:auto;aspect-ratio:1195/896}
-}
 @keyframes dive{from{transform:scale(.55);opacity:0;border-radius:50%}}
-.globe-wrap.zoomed .scene{position:absolute;inset:0;width:100%;height:100%;aspect-ratio:auto;max-width:none;box-shadow:none;border-radius:18px;overflow-x:auto;overflow-y:hidden;scrollbar-width:none;-webkit-overflow-scrolling:touch}
+.globe-wrap.zoomed .scene{position:absolute;inset:0;width:100%;height:100%;aspect-ratio:auto;max-width:none;box-shadow:none;border-radius:0;overflow:auto;scrollbar-width:none;-webkit-overflow-scrolling:touch}
 .globe-wrap.zoomed .scene::-webkit-scrollbar{display:none}
-.globe-wrap.zoomed .stage{position:relative;inset:auto;left:auto;transform:none;margin:0 auto;height:100%;width:auto;aspect-ratio:1195/896}
+.globe-wrap.zoomed .stage{position:relative;inset:auto;left:auto;transform:none;margin:0 auto;height:max(100%,calc(100vw * 896 / 1195));width:auto;aspect-ratio:1195/896}
 .globe-wrap.zoomed .globe-snow{display:none}
 .globe-wrap.zoomed .globe .scene::after{display:none}
 .globe-wrap.zoomed::before{content:"";position:fixed;inset:-50vh -50vw;background:rgba(15,8,6,.78);z-index:14}
@@ -386,6 +383,7 @@ footer{font-size:1rem;margin-top:-6px}
 <div class="bg" aria-hidden="true"><div class="layer"></div><div class="layer"></div></div>
 <button type="button" class="ueb-btn" id="uebBtn" aria-haspopup="true" aria-expanded="false" aria-label="Übergang aussuchen">✨<span>Übergang</span></button>
 <div class="ueb-menu" id="uebMenu" role="menu" hidden><b>Wie geht es in die Kugel?</b>
+  <button type="button" role="menuitemradio" data-u="schnee">❄️ Schneegestöber</button>
   <button type="button" role="menuitemradio" data-u="wirbel">🌀 Wirbel</button>
   <button type="button" role="menuitemradio" data-u="stern">💫 Sternensprung</button>
   <button type="button" role="menuitemradio" data-u="welle">🌊 Welle</button>
@@ -1322,7 +1320,7 @@ renderStatus(); refreshDoors(); setBg(homeBg());
   // es wird schwarz, dann ein weißer Blitz und der Flur dreht sich aus der Mitte heraus. Zurück läuft es rückwärts.
   const LINSE = /linse/.test(location.search + location.hash);
   // Übergang zum Aussuchen, wird im Browser gespeichert
-  const UEB_FX = {wirbel:0, stern:1, welle:2};
+  const UEB_FX = {wirbel:0, stern:1, welle:2, schnee:3};
   function uebergang(){ let v = "wirbel"; try{ v = localStorage.getItem("advent-uebergang") || "wirbel"; }catch(e){} return v; }
   let tauchen = false;
   const WL = (function(){
@@ -1336,7 +1334,7 @@ renderStatus(); refreshDoors(); setBg(homeBg());
       uniform vec2 res;uniform float dpr;
       uniform sampler2D tBg,tHall,tFrame;
       uniform vec4 rBg,rHall,rFrame,rBall;   // Rechtecke in CSS Pixeln: x,y,w,h
-      uniform vec2 cen;uniform float rad;uniform float a;uniform float b;uniform float modeZ;uniform float hasFrame;uniform float fx;
+      uniform vec2 cen;uniform float rad;uniform float a;uniform float b;uniform float modeZ;uniform float hasFrame;uniform float fx;uniform float tm;
       vec4 tex(sampler2D t,vec4 r,vec2 p){vec2 u=(p-r.xy)/r.zw;if(u.x<0.||u.y<0.||u.x>1.||u.y>1.)return vec4(0.);return texture2D(t,u);}
       vec3 screen(vec2 p){
         vec3 bg=tex(tBg,rBg,p).rgb;
@@ -1348,11 +1346,46 @@ renderStatus(); refreshDoors(); setBg(homeBg());
         if(hasFrame>.5){ vec4 f=tex(tFrame,rFrame,p); c=mix(c,f.rgb,f.a); }
         return c;}
       vec2 rot(vec2 d,float t){float s=sin(t),c=cos(t);return vec2(c*d.x-s*d.y,s*d.x+c*d.y);}
+      vec4 h4(vec2 c){ vec4 q=fract(vec4(c.xyxy)*vec4(.1031,.103,.0973,.1099)); q+=dot(q,q.wzxy+33.33); return fract((q.xxyz+q.yzzw)*q.zywx); }
+      // Schneeflocken in mehreren Ebenen, vorne groß und weich, hinten klein. Ein paar leuchten golden wie Lichterketten.
+      vec3 flocken(vec2 p,float amt,vec3 c){
+        vec2 q=p/res.y;
+        for(int i=0;i<6;i++){
+          float L=float(i), sc=3.+L*2.6, sp=.35+.5/(1.+L*.6);
+          vec2 uv=q*sc+vec2(tm*(.25+.05*L)+L*7.3, -tm*sp*sc*.35);
+          uv.x+=sin(uv.y*.6+L*1.7+tm*.8)*.35;
+          vec2 id=floor(uv), f=fract(uv); vec4 h=h4(id+L*31.);
+          if(h.z<amt*(.55+L*.08)){
+            float sz=mix(.07,.2,h.w)*(1.2-L*.12);
+            float d=length(f-(.2+h.xy*.6));
+            float m=smoothstep(sz,sz*.25,d)*(.65+.35*h.w);
+            vec3 fc=h.x>.9 ? vec3(1.,.82,.45) : vec3(1.,1.,1.);
+            c=mix(c,fc,m*.9);
+            if(h.x>.9) c+=vec3(1.,.75,.35)*exp(-d*d/(sz*sz)*.6)*.25*amt;
+          }
+        }
+        return c; }
       void main(){
         vec2 p=vec2(v.x,1.-v.y)*res;
         vec2 d=p-cen; float r=length(d)/rad;
         vec3 col;
-        if(b<=0.){
+        vec3 weiss=vec3(1.,.97,.92);
+        if(fx>2.5){
+          // Schneegestöber: es schneit immer dichter, bis alles weiß ist, dann lichtet es sich und man steht im Raum
+          if(b<=0.){
+            float k=a*a; float z=mix(1.,.3,k);
+            vec3 acc=vec3(0.); for(int i=0;i<6;i++){ acc+=screen(cen+d*z*(1.-float(i)*.012*a)); } col=acc/6.;
+            col=mix(col,weiss,smoothstep(.1,1.,a)*.35);
+            col=flocken(p,smoothstep(0.,.75,a)*1.3,col);
+            col=mix(col,weiss,smoothstep(.62,1.,a));
+          } else {
+            float e=1.-pow(1.-b,3.); float z=mix(.82,1.,e);
+            col=screen(cen+d*z);
+            col=mix(col,weiss,(1.-smoothstep(.15,.8,b))*.35);
+            col=flocken(p,(1.-smoothstep(.15,1.,b))*1.3,col);
+            col=mix(weiss,col,smoothstep(0.,.45,b));
+          }
+        } else if(b<=0.){
           // Hineinfallen: Spirale, Sog, Lichtstreifen, Lichtring, dann schwarz
           float k=a*a;
           // fx 0 Wirbel, 1 Sternensprung, 2 Welle
@@ -1436,7 +1469,7 @@ renderStatus(); refreshDoors(); setBg(homeBg());
       gl.uniform1f(U("rad"), zoomed ? Math.min(innerWidth, innerHeight) * .5 : sc[2] / 2);
       return true;
     }
-    function zeichne(av, bv){ gl.uniform1f(U("fx"), UEB_FX[uebergang()] || 0); gl.uniform1f(U("a"), av); gl.uniform1f(U("b"), bv); gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4); }
+    function zeichne(av, bv){ gl.uniform1f(U("fx"), UEB_FX[uebergang()] || 0); gl.uniform1f(U("tm"), performance.now() / 1000 % 1000); gl.uniform1f(U("a"), av); gl.uniform1f(U("b"), bv); gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4); }
     function lauf(ms, f){ return new Promise(res=>{ const t0 = performance.now(); const st = t=>{ const k = Math.min(1, (t - t0) / ms); f(k); if(k < 1) requestAnimationFrame(st); else res(); }; requestAnimationFrame(st); }); }
     const zwei = () => new Promise(r=>requestAnimationFrame(()=>requestAnimationFrame(r)));
     // Bilder schon vorher laden, damit es beim Tippen sofort losgeht
@@ -1488,6 +1521,8 @@ renderStatus(); refreshDoors(); setBg(homeBg());
     requestAnimationFrame(()=>{
       const sc = globe.querySelector(".scene"), st = sc.querySelector(".stage");
       if(sc.scrollWidth > sc.clientWidth + 4) sc.scrollLeft = st.clientWidth * .494 - sc.clientWidth / 2;
+      // am breiten Bildschirm oben mehr abschneiden als unten, damit die Tüten ganz drauf sind
+      if(sc.scrollHeight > sc.clientHeight + 4) sc.scrollTop = (sc.scrollHeight - sc.clientHeight) * .65;
       try{ alignViews(); }catch(e){}
     });
     setTimeout(()=>{ try{ alignViews(); }catch(e){} }, 600);
