@@ -1338,12 +1338,9 @@ renderStatus(); refreshDoors(); setBg(homeBg());
           vec3 acc=vec3(0.);
           for(int i=0;i<12;i++){ float f=1.-float(i)*.018*a; acc+=screen(cen+rot(d,sw*(1.+float(i)*.02))*z*f); }
           col=acc/12.;
-          float ring=mix(1.06,.12,k);
-          // schwarzes Loch in der Mitte, darum ein heller Lichtring
-          col*=mix(1.,smoothstep(ring*.55,ring*.97,r),smoothstep(.12,.55,a));
-          float g=exp(-pow((r-ring)/(.05+.16*(1.-a)),2.))*smoothstep(.03,.3,a)*(1.-smoothstep(.8,1.,a));
-          col+=vec3(1.,.74,.42)*g*1.5;
-          col*=1.-smoothstep(.62,1.,a);
+          // die Mitte leuchtet immer heller, am Ende wird alles zu warmem weißen Licht
+          col+=vec3(1.,.9,.75)*exp(-r*r*2.5)*smoothstep(.2,.8,a)*.8;
+          col=mix(col,vec3(1.,.97,.9),smoothstep(.6,1.,a));
         } else {
           // Herauskommen wie aus dem weißen Loch: Blitz, dann dreht sich der Flur aus der Mitte heraus
           float e=1.-pow(1.-b,3.);
@@ -1352,8 +1349,7 @@ renderStatus(); refreshDoors(); setBg(homeBg());
           vec3 acc=vec3(0.);
           for(int i=0;i<10;i++){ float f=1.+float(i)*.03*(1.-b); acc+=screen(cen+rot(d,sw)*z*f); }
           col=acc/10.;
-          col*=smoothstep(0.,.3,b);
-          col+=vec3(1.,.97,.9)*(1.-smoothstep(0.,.32,b))*smoothstep(-.01,.06,b)*1.2;
+          col=mix(vec3(1.,.97,.9),col,smoothstep(.0,.4,b));
         }
         gl_FragColor=vec4(col,1.);
       }`;
