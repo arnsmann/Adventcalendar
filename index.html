@@ -1321,7 +1321,7 @@ renderStatus(); refreshDoors(); setBg(homeBg());
   const LINSE = /linse/.test(location.search + location.hash);
   // Übergang zum Aussuchen, wird im Browser gespeichert
   const UEB_FX = {wirbel:0, stern:1, welle:2, schnee:3};
-  function uebergang(){ let v = "wirbel"; try{ v = localStorage.getItem("advent-uebergang") || "wirbel"; }catch(e){} return v; }
+  function uebergang(){ let v = "schnee"; try{ v = localStorage.getItem("advent-uebergang") || "schnee"; }catch(e){} return v; }
   let tauchen = false;
   const WL = (function(){
     if(!LINSE) return null;
