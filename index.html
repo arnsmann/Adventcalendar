@@ -260,7 +260,7 @@ footer{font-family:var(--f-hand);font-size:1.1rem;color:#fff8f1;text-shadow:0 1p
 @keyframes wobble{20%{transform:rotate(-3deg)}45%{transform:rotate(2.5deg)}70%{transform:rotate(-1.2deg)}}
 .globe-back{position:fixed;top:calc(14px + env(safe-area-inset-top,0px));left:calc(14px + env(safe-area-inset-left,0px));z-index:16;border:0;
   background:var(--board);color:var(--ink);font-family:var(--f-display);font-weight:500;font-size:1rem;padding:10px 16px;border-radius:999px;box-shadow:var(--shadow);cursor:pointer}
-/* Test: Wurmloch beim Hineintauchen (nur mit ?linse im Link) */
+/* Übergänge beim Hineintauchen (WebGL). Ohne WebGL gibt es automatisch den schlichten Zoom. */
 #wurmloch{position:fixed;inset:0;width:100vw;height:100vh;z-index:40;pointer-events:none;opacity:0;visibility:hidden;transition:opacity .3s,visibility 0s .3s}
 #wurmloch.on{opacity:1;visibility:visible;transition:opacity .2s}
 html.linse:not(.ueb-schlicht) .globe-wrap.zoomed .globe{animation:none}
@@ -1316,16 +1316,14 @@ renderStatus(); refreshDoors(); setBg(homeBg());
   const back = document.getElementById("globeBack"), hint = document.getElementById("globeHint");
   const isSmall = () => matchMedia("(max-width:820px), (max-aspect-ratio:1/1)").matches;
   if(!motionOn) hint.textContent = isSmall() ? "Tipp auf die Kugel, um hineinzuschauen" : "Klick auf die Kugel, um hineinzuschauen · auf den Sockel, um sie zu schütteln";
-  // Test: Wurmloch wie in Outer Wilds. Beim Hineintauchen wird alles spiralförmig in die Kugel gezogen,
-  // es wird schwarz, dann ein weißer Blitz und der Flur dreht sich aus der Mitte heraus. Zurück läuft es rückwärts.
-  const LINSE = /linse/.test(location.search + location.hash);
+  // Übergänge in die Kugel und zurück, für alle aktiv. Mit ?ohnelinse im Link kann man sie zum Testen abschalten.
+  const LINSE = !/ohnelinse/.test(location.search + location.hash);
   // Übergang zum Aussuchen, wird im Browser gespeichert
   const UEB_FX = {wirbel:0, stern:1, welle:2, schnee:3};
   function uebergang(){ let v = "schnee"; try{ v = localStorage.getItem("advent-uebergang") || "schnee"; }catch(e){} return v; }
   let tauchen = false;
   const WL = (function(){
     if(!LINSE) return null;
-    document.documentElement.classList.add("linse");
     const cv = document.getElementById("wurmloch");
     const gl = cv.getContext("webgl", {premultipliedAlpha:false, alpha:false});
     if(!gl) return null;
@@ -1478,6 +1476,8 @@ renderStatus(); refreshDoors(); setBg(homeBg());
       [m && m[1], flur && flur.src, gi && gi.src].forEach(u=>{ if(u) bild(u).then(im=>{ if(im) klein(im, 2048); }); }); }
     setInterval(vorladen, 2500); setTimeout(vorladen, 800);
     window.__wl = {vorbereiten, zeichne, cv};
+    // erst wenn WebGL wirklich läuft: Knopf zeigen und den alten Zoom abschalten
+    document.documentElement.classList.add("linse");
     return {
       async rein(){
         if(!(await vorbereiten(false))) return false;
