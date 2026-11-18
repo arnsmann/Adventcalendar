@@ -263,7 +263,20 @@ footer{font-family:var(--f-hand);font-size:1.1rem;color:#fff8f1;text-shadow:0 1p
 /* Test: Wurmloch beim Hineintauchen (nur mit ?linse im Link) */
 #wurmloch{position:fixed;inset:0;width:100vw;height:100vh;z-index:40;pointer-events:none;opacity:0;visibility:hidden;transition:opacity .3s,visibility 0s .3s}
 #wurmloch.on{opacity:1;visibility:visible;transition:opacity .2s}
-html.linse .globe-wrap.zoomed .globe{animation:none}
+html.linse:not(.ueb-schlicht) .globe-wrap.zoomed .globe{animation:none}
+.ueb-btn{position:fixed;z-index:12;left:calc(12px + env(safe-area-inset-left,0px));bottom:calc(12px + env(safe-area-inset-bottom,0px));
+  display:none;align-items:center;gap:6px;border:0;border-radius:999px;padding:8px 13px;cursor:pointer;
+  background:rgba(20,12,8,.5);color:#fff8f1;font-family:var(--f-display);font-size:.9rem;-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px)}
+html.linse .ueb-btn{display:flex}
+body.peek .ueb-btn,body.zoomed-on .ueb-btn{opacity:0;pointer-events:none}
+@media (max-width:520px){.ueb-btn span{display:none}.ueb-btn{padding:9px 11px}}
+.ueb-menu{position:fixed;z-index:13;left:calc(12px + env(safe-area-inset-left,0px));bottom:calc(58px + env(safe-area-inset-bottom,0px));
+  background:rgba(255,248,241,.96);border-radius:18px;padding:8px;box-shadow:var(--shadow);display:flex;flex-direction:column;gap:2px;min-width:210px}
+.ueb-menu[hidden]{display:none}
+.ueb-menu b{font-family:var(--f-display);font-weight:600;font-size:.95rem;padding:6px 10px 4px;color:var(--ink)}
+.ueb-menu button{border:0;background:none;text-align:left;padding:9px 10px;border-radius:12px;font-family:var(--f-body);font-size:.95rem;color:var(--ink);cursor:pointer;display:flex;gap:8px;align-items:center}
+.ueb-menu button:hover{background:rgba(201,86,107,.1)}
+.ueb-menu button[aria-checked="true"]{background:var(--door-a);font-weight:700}
 /* hineingezoomt */
 .globe-wrap.zoomed .globe{display:block;position:fixed;z-index:15;overflow:hidden;border-radius:18px;aspect-ratio:auto;width:auto;
   inset:calc(66px + env(safe-area-inset-top,0px)) max(10px,env(safe-area-inset-right,0px)) max(10px,env(safe-area-inset-bottom,0px)) max(10px,env(safe-area-inset-left,0px));
@@ -371,6 +384,12 @@ footer{font-size:1rem;margin-top:-6px}
 
 
 <div class="bg" aria-hidden="true"><div class="layer"></div><div class="layer"></div></div>
+<button type="button" class="ueb-btn" id="uebBtn" aria-haspopup="true" aria-expanded="false" aria-label="Übergang aussuchen">✨<span>Übergang</span></button>
+<div class="ueb-menu" id="uebMenu" role="menu" hidden><b>Wie geht es in die Kugel?</b>
+  <button type="button" role="menuitemradio" data-u="wirbel">🌀 Wirbel</button>
+  <button type="button" role="menuitemradio" data-u="stern">💫 Sternensprung</button>
+  <button type="button" role="menuitemradio" data-u="welle">🌊 Welle</button>
+  <button type="button" role="menuitemradio" data-u="schlicht">🔍 Schlicht</button></div>
 <button type="button" class="peek-btn" id="peekBtn" aria-label="Ganzes Bild ansehen"><svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path d="M3 7V4h3M21 7V4h-3M3 17v3h3M21 17v3h-3" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><path d="M5 16l4-5 3 3 3-4 4 6z" fill="currentColor"/></svg><span>Bild ansehen</span></button>
 <button type="button" class="peek-close" id="peekClose" hidden>✕ zurück</button>
 <div class="peek-hint" id="peekHint" hidden>← wischen →</div>
@@ -1302,6 +1321,9 @@ renderStatus(); refreshDoors(); setBg(homeBg());
   // Test: Wurmloch wie in Outer Wilds. Beim Hineintauchen wird alles spiralförmig in die Kugel gezogen,
   // es wird schwarz, dann ein weißer Blitz und der Flur dreht sich aus der Mitte heraus. Zurück läuft es rückwärts.
   const LINSE = /linse/.test(location.search + location.hash);
+  // Übergang zum Aussuchen, wird im Browser gespeichert
+  const UEB_FX = {wirbel:0, stern:1, welle:2};
+  function uebergang(){ let v = "wirbel"; try{ v = localStorage.getItem("advent-uebergang") || "wirbel"; }catch(e){} return v; }
   let tauchen = false;
   const WL = (function(){
     if(!LINSE) return null;
@@ -1314,7 +1336,7 @@ renderStatus(); refreshDoors(); setBg(homeBg());
       uniform vec2 res;uniform float dpr;
       uniform sampler2D tBg,tHall,tFrame;
       uniform vec4 rBg,rHall,rFrame,rBall;   // Rechtecke in CSS Pixeln: x,y,w,h
-      uniform vec2 cen;uniform float rad;uniform float a;uniform float b;uniform float modeZ;uniform float hasFrame;
+      uniform vec2 cen;uniform float rad;uniform float a;uniform float b;uniform float modeZ;uniform float hasFrame;uniform float fx;
       vec4 tex(sampler2D t,vec4 r,vec2 p){vec2 u=(p-r.xy)/r.zw;if(u.x<0.||u.y<0.||u.x>1.||u.y>1.)return vec4(0.);return texture2D(t,u);}
       vec3 screen(vec2 p){
         vec3 bg=tex(tBg,rBg,p).rgb;
@@ -1333,10 +1355,14 @@ renderStatus(); refreshDoors(); setBg(homeBg());
         if(b<=0.){
           // Hineinfallen: Spirale, Sog, Lichtstreifen, Lichtring, dann schwarz
           float k=a*a;
-          float sw=k*7./(r*.7+.22);
+          // fx 0 Wirbel, 1 Sternensprung, 2 Welle
+          float sw=fx<.5 ? k*7./(r*.7+.22) : 0.;
           float z=mix(1.,.015,k*(2.-k));
+          float sp=fx>.5&&fx<1.5 ? .05 : .018;
+          vec2 dd=d;
+          if(fx>1.5){ dd*=1.+sin(r*16.-a*18.)*.07*sin(a*3.1416)/(1.+r*.6); }
           vec3 acc=vec3(0.);
-          for(int i=0;i<12;i++){ float f=1.-float(i)*.018*a; acc+=screen(cen+rot(d,sw*(1.+float(i)*.02))*z*f); }
+          for(int i=0;i<12;i++){ float f=1.-float(i)*sp*a; acc+=screen(cen+rot(dd,sw*(1.+float(i)*.02))*z*f); }
           col=acc/12.;
           // die Mitte leuchtet immer heller, am Ende wird alles zu warmem weißen Licht
           col+=vec3(1.,.9,.75)*exp(-r*r*2.5)*smoothstep(.2,.8,a)*.8;
@@ -1344,10 +1370,13 @@ renderStatus(); refreshDoors(); setBg(homeBg());
         } else {
           // Herauskommen wie aus dem weißen Loch: Blitz, dann dreht sich der Flur aus der Mitte heraus
           float e=1.-pow(1.-b,3.);
-          float sw=-(1.-e)*(1.-e)*6./(r*.7+.25);
+          float sw=fx<.5 ? -(1.-e)*(1.-e)*6./(r*.7+.25) : 0.;
           float z=mix(.04,1.,e);
+          float sp=fx>.5&&fx<1.5 ? .07 : .03;
+          vec2 dd=d;
+          if(fx>1.5){ dd*=1.+sin(r*14.-b*16.)*.06*(1.-e); }
           vec3 acc=vec3(0.);
-          for(int i=0;i<10;i++){ float f=1.+float(i)*.03*(1.-b); acc+=screen(cen+rot(d,sw)*z*f); }
+          for(int i=0;i<10;i++){ float f=1.+float(i)*sp*(1.-b); acc+=screen(cen+rot(dd,sw)*z*f); }
           col=acc/10.;
           col=mix(vec3(1.,.97,.9),col,smoothstep(.0,.4,b));
         }
@@ -1407,7 +1436,7 @@ renderStatus(); refreshDoors(); setBg(homeBg());
       gl.uniform1f(U("rad"), zoomed ? Math.min(innerWidth, innerHeight) * .5 : sc[2] / 2);
       return true;
     }
-    function zeichne(av, bv){ gl.uniform1f(U("a"), av); gl.uniform1f(U("b"), bv); gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4); }
+    function zeichne(av, bv){ gl.uniform1f(U("fx"), UEB_FX[uebergang()] || 0); gl.uniform1f(U("a"), av); gl.uniform1f(U("b"), bv); gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4); }
     function lauf(ms, f){ return new Promise(res=>{ const t0 = performance.now(); const st = t=>{ const k = Math.min(1, (t - t0) / ms); f(k); if(k < 1) requestAnimationFrame(st); else res(); }; requestAnimationFrame(st); }); }
     const zwei = () => new Promise(r=>requestAnimationFrame(()=>requestAnimationFrame(r)));
     // Bilder schon vorher laden, damit es beim Tippen sofort losgeht
@@ -1436,8 +1465,18 @@ renderStatus(); refreshDoors(); setBg(homeBg());
       }
     };
   })();
+  (function(){
+    const bt = document.getElementById("uebBtn"), mn = document.getElementById("uebMenu");
+    const mark = () => mn.querySelectorAll("[data-u]").forEach(x=>x.setAttribute("aria-checked", x.dataset.u === uebergang()));
+    bt.addEventListener("click", e=>{ e.stopPropagation(); mn.hidden = !mn.hidden; bt.setAttribute("aria-expanded", !mn.hidden); mark(); });
+    mn.addEventListener("click", e=>{ const x = e.target.closest("[data-u]"); if(!x) return; e.stopPropagation();
+      try{ localStorage.setItem("advent-uebergang", x.dataset.u); }catch(er){} mark();
+      setTimeout(()=>{ mn.hidden = true; bt.setAttribute("aria-expanded", false); enter(); }, 250); });
+    document.addEventListener("click", e=>{ if(!mn.hidden && !mn.contains(e.target) && e.target !== bt){ mn.hidden = true; bt.setAttribute("aria-expanded", false); } });
+  })();
   function enter(){
-    if(WL && !tauchen && !wrap.classList.contains("zoomed")){
+    document.documentElement.classList.toggle("ueb-schlicht", uebergang() === "schlicht");
+    if(WL && uebergang() !== "schlicht" && !tauchen && !wrap.classList.contains("zoomed")){
       tauchen = true;
       WL.rein().then(ok=>{ tauchen = false; if(!ok) enterNow(); });
       return;
@@ -1458,7 +1497,7 @@ renderStatus(); refreshDoors(); setBg(homeBg());
     requestAnimationFrame(()=>{ try{ alignViews(); }catch(e){} size(); });
   }
   function leave(){
-    if(WL && !tauchen){ tauchen = true; WL.raus(leaveNow).then(()=>{ tauchen = false; }); return; }
+    if(WL && uebergang() !== "schlicht" && !tauchen){ tauchen = true; WL.raus(leaveNow).then(()=>{ tauchen = false; }); return; }
     if(!tauchen) leaveNow();
   }
   window.globeEnter = enter;
