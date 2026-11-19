@@ -287,6 +287,10 @@ body.peek .ueb-btn,body.zoomed-on .ueb-btn{opacity:0;pointer-events:none}
 /* höchstens so weit hineinzoomen, dass alle Tüten von 1 bis 24 drauf passen. Bleibt seitlich Platz, füllt ihn der Raum weich verschwommen weiter. */
 .globe-wrap.zoomed .stage{position:relative;inset:auto;left:auto;transform:none;margin:0 auto;height:max(100%,min(calc(100vw * 896 / 1195),calc(100% * 1.12)));width:auto;aspect-ratio:1195/896}
 .flur-rand{display:none}
+/* Hochkant: höheres Treppenhausbild. In der kleinen Kugel sieht man den unteren Teil mit den Tüten, drinnen den ganzen Raum. */
+html.raum-hoch .globe .stage{aspect-ratio:1923/2576;height:auto;width:106%;left:-3%;top:-42%;transform:none}
+html.raum-hoch .globe-wrap.zoomed .stage{aspect-ratio:1923/2576;top:auto;left:auto;width:auto;height:max(100%,calc(100vw * 2576 / 1923))}
+html.raum-hoch .door::before{content:"";position:absolute;inset:-14% -22%}
 .globe-wrap.zoomed .flur-rand{display:block;position:absolute;inset:-6%;width:112%;height:112%;object-fit:cover;filter:blur(28px) brightness(.85);pointer-events:none;z-index:0}
 .globe-wrap.zoomed .scene{z-index:1;background:none}
 .globe-wrap.zoomed .globe-snow{display:none}
@@ -696,16 +700,31 @@ function renderStatus(){
 }
 
 const HOT = {1:[528,187,566,248],2:[575,169,613,228],3:[623,140,662,201],4:[671,114,709,175],5:[721,93,759,155],6:[767,64,805,125],7:[446,233,487,301],8:[497,274,538,338],9:[547,303,586,371],10:[600,338,641,408],11:[649,379,689,446],12:[694,408,741,478],13:[478,397,522,467],14:[531,432,575,502],15:[581,467,624,537],16:[632,502,674,572],17:[736,572,779,645],18:[788,601,831,671],19:[726,677,764,753],20:[764,689,802,764],21:[683,543,726,613],22:[813,729,852,799],23:[849,753,887,823],24:[887,759,928,829]};
-/* Tüten im gemalten Treppenhaus: unsichtbare Klickflächen über den gezeichneten Tüten */
+const HOT_H = {1:[846,1340,908,1443],2:[924,1301,988,1410],3:[1002,1256,1066,1365],4:[1079,1217,1144,1320],5:[1157,1170,1221,1275],6:[1234,1127,1297,1224],7:[717,1423,786,1539],8:[799,1494,866,1604],9:[878,1546,949,1662],10:[963,1610,1033,1726],11:[1043,1674,1110,1790],12:[1121,1732,1191,1848],13:[770,1713,840,1829],14:[853,1777,925,1893],15:[935,1835,1005,1951],16:[1018,1906,1085,2016],17:[1185,2022,1256,2138],18:[1269,2067,1340,2183],19:[1170,2202,1230,2318],20:[1230,2228,1292,2344],21:[1099,1964,1170,2074],22:[1311,2299,1372,2409],23:[1368,2331,1430,2441],24:[1430,2351,1494,2460]};
+/* Tüten im gemalten Treppenhaus: unsichtbare Klickflächen über den gezeichneten Tüten.
+   Hochkant (iPhone, iPad im Hochformat) gibt es ein eigenes, höheres Bild mit eigenen Tütenplätzen. */
 const grid = document.getElementById("grid");
-const IW = 1195, IH = 896;
-Object.entries(HOT).forEach(([n,[x0,y0,x1,y1]])=>{
+const RAUM = { quer: {bild: document.querySelector(".flur").getAttribute("src"), hot: HOT, w: 1195, h: 896},
+               hoch: {bild: "bilder/flurh-90447897.webp", hot: HOT_H, w: 1923, h: 2576} };
+Object.keys(HOT).forEach(n=>{
   const b = document.createElement("button");
   b.className = "door";
   b.dataset.n = n;
-  b.style.cssText = `left:${x0/IW*100}%;top:${y0/IH*100}%;width:${(x1-x0)/IW*100}%;height:${(y1-y0)/IH*100}%`;
   grid.appendChild(b);
 });
+let raumArt = "";
+function setzeRaum(){
+  const art = matchMedia("(max-aspect-ratio: 4/5)").matches ? "hoch" : "quer";
+  if(art === raumArt) return; raumArt = art;
+  const R = RAUM[art];
+  document.documentElement.classList.toggle("raum-hoch", art === "hoch");
+  document.querySelectorAll(".flur,.flur-rand").forEach(i=>{ if(i.getAttribute("src") !== R.bild) i.src = R.bild; });
+  grid.querySelectorAll(".door").forEach(b=>{ const [x0,y0,x1,y1] = R.hot[b.dataset.n];
+    b.style.cssText = `left:${x0/R.w*100}%;top:${y0/R.h*100}%;width:${(x1-x0)/R.w*100}%;height:${(y1-y0)/R.h*100}%`; });
+  if(typeof alignViews === "function") alignViews();
+}
+setzeRaum();
+addEventListener("resize", setzeRaum);
 function refreshDoors(){
   const today = todayNum();
   grid.querySelectorAll(".door").forEach(b=>{
@@ -1566,6 +1585,7 @@ function alignViews(){
     const st = (v.closest(".stage") || document.body).getBoundingClientRect();
     // kleiner Ausschnitt der Welt: das Bild liegt verkleinert hinter den Fenstern (rechte obere Hälfte des Treppenhauses)
     let W = st.width * .8, H = st.height * .62, L = st.left + st.width * .2, T = st.top - st.height * .03;
+    if(document.documentElement.classList.contains("raum-hoch")){ W = st.width; H = st.height; L = st.left; T = st.top; }
     // In der Schneekugel: durch die Fenster sieht man genau die Welt, die hinter der Kugel liegt
     const wrapEl = document.getElementById("globeWrap");
     const zoomedIn = !wrapEl || wrapEl.classList.contains("zoomed");
