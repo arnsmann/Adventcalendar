@@ -399,6 +399,8 @@ footer{font-size:1rem;margin-top:-6px}
 .welcome .gruen li{margin:.2cqw 0}
 .welcome .gruen .k{font-weight:400;color:#8e2a2a;white-space:nowrap}
 .welcome .gelb{left:24%;top:79.4%;width:52%;height:4.8%;font-size:2.55cqw;line-height:1.15;text-align:center;align-items:center;padding:0 1%}
+.welcome .gelb.eine{top:78.2%}
+.welcome .gelb.handy{top:79%}
 .welcome .go{position:absolute;left:29.6%;top:87.3%;width:40.6%;height:5.9%;border:0;border-radius:999px;background:transparent;cursor:pointer;transition:box-shadow .3s, transform .15s}
 .welcome .go:hover{box-shadow:0 0 0 3px rgba(255,255,255,.55),0 0 26px rgba(255,200,120,.6)}
 .welcome .go:active{transform:scale(.97)}
@@ -1718,9 +1720,11 @@ addEventListener("hashchange", ()=>location.reload());
   w.innerHTML = `<div class="brief">
     <p class="vh">Liebe Anna, dieses Jahr bekommst du einen Adventskalender von mir, da Mama uns ja keinen mehr macht! Ab dem 1. Dezember darfst du jeden Tag eine Tüte öffnen. Hab dich lieb. Arne</p>
     ${gruen ? `<div class="feld gruen">${gruen}</div>` : ""}
-    ${gelb ? `<div class="feld gelb">${gelb}</div>` : ""}
+    ${gelb ? `<div class="feld gelb${ios && !ipad && !app ? " handy" : ""}">${gelb}</div>` : ""}
     <button class="go" type="button" aria-label="Los geht's"></button></div>`;
   document.body.appendChild(w);
+  // einzeiliger Text im Band sitzt etwas höher, zweizeiliger etwas tiefer
+  { const g = w.querySelector(".gelb"); if(g){ const lh = parseFloat(getComputedStyle(g).lineHeight) || 16; const r = document.createRange(); r.selectNodeContents(g); if(r.getClientRects().length <= 1 || r.getBoundingClientRect().height < lh * 1.5) g.classList.add("eine"); } }
   requestAnimationFrame(()=>requestAnimationFrame(()=>w.classList.add("on")));
   w.querySelector(".go").addEventListener("click", ()=>{
     try{ localStorage.setItem("advent-willkommen","ja"); }catch(e){}
