@@ -16,6 +16,8 @@
 <style>
 @font-face{font-family:"ArneFueller";src:url("schrift/fueller.woff2") format("woff2");font-display:swap}
 @font-face{font-family:"Arne";src:url("schrift/arne.woff2") format("woff2");font-display:swap}
+/* Kugelschreiberschrift ist sehr fein: mit einem Umriss in Schriftfarbe etwas kräftiger machen */
+.eyebrow,footer,.card .date,.note,.globe-hint,.welcome .feld{-webkit-text-stroke:var(--hand-dick,.03em) currentColor;paint-order:stroke fill}
 </style>
 <script>
 /* Schrift zum Ausprobieren: ?schrift=1 bis 7, 9 = die alte von vorher, 0 = Standard (Arnes Handschrift). Die Wahl merkt sich der Browser. */
