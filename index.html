@@ -96,6 +96,10 @@ h1{font-family:var(--f-display);font-weight:600;font-size:clamp(1.6rem,4.6vw,2.3
 .nacht{position:absolute;inset:0;z-index:3;pointer-events:none;background:#232a52;mix-blend-mode:multiply;opacity:0;transition:opacity .9s ease;
   -webkit-mask:var(--raum-maske) 0 0/100% 100% no-repeat;mask:var(--raum-maske) 0 0/100% 100% no-repeat}
 .licht-aus .nacht{opacity:.82}
+/* die gemalten Lämpchen gehen wirklich aus: dort wird es grau statt gelb */
+.lichter{position:absolute;inset:0;z-index:3;pointer-events:none;background:#3b3631;opacity:0;transition:opacity .5s ease;
+  -webkit-mask:var(--licht-maske) 0 0/100% 100% no-repeat;mask:var(--licht-maske) 0 0/100% 100% no-repeat}
+.licht-aus .lichter{opacity:.92}
 .spots{position:absolute;inset:0;z-index:5;pointer-events:none}
 .globe-wrap.zoomed .spots .spot,.globe-wrap.zoomed .spots .maus{pointer-events:auto}
 .spot{position:absolute;border:0;background:none;padding:0;cursor:pointer;-webkit-tap-highlight-color:transparent;border-radius:30%}
@@ -481,6 +485,7 @@ footer{font-size:1rem;margin-top:-6px}
     <div class="view fen" data-f="oben" aria-hidden="true"><div class="layer"></div><div class="layer"></div></div>
     <div class="view fen" data-f="spiegel" aria-hidden="true"><div class="layer"></div><div class="layer"></div></div>
     <img class="flur" src="bilder/flurb-c34e9230.webp" alt="Unser Treppenhaus mit 24 Tüten" draggable="false">
+    <div class="lichter" aria-hidden="true"></div>
     <div class="nacht" aria-hidden="true"></div>
     <div id="grid"></div>
     <div class="spots">
@@ -786,10 +791,10 @@ const SPOTS = {
   quer: {schalter: [1735, 670, 1815, 770], laterne: [1600, 190, 1700, 340], baum: [690, 330, 1010, 800], maus: [1250, 980, 1842, 1140]},
   hoch: {schalter: [1420, 1750, 1500, 1860], laterne: [1280, 1230, 1370, 1370], baum: [360, 1420, 650, 1880], maus: [420, 2230, 905, 2470]}
 };
-const RAUM = { quer: {fenster: {links: [0, 140, 410, 862], mitte: [1460, 410, 1666, 710], tuer: [2222, 325, 2352, 785]}, bild: "bilder/flurb-c34e9230.webp", hot: HOT, w: 2576, h: 1438, mitte: .555},
+const RAUM = { quer: {lichter: "bilder/flurb-licht-7c37f5a9.webp", fenster: {links: [0, 140, 410, 862], mitte: [1460, 410, 1666, 710], tuer: [2222, 325, 2352, 785]}, bild: "bilder/flurb-c34e9230.webp", hot: HOT, w: 2576, h: 1438, mitte: .555},
                // fenster: wo die Fenster im Raumbild liegen (in Pixeln), damit jedes pro Tür einen eigenen Ausschnitt zeigen kann
                // Pro Tür: aus: {links, mitte, tuer} fürs breite Bild, aushoch: {oben, links, mitte, spiegel} fürs Handy, jeweils [x0,y0,x1,y1] im Hintergrundbild
-  hoch: {fenster: {oben: [0, 0, 206, 299], links: [0, 1288, 59, 1932], mitte: [1150, 1468, 1342, 1800], spiegel: [1794, 1475, 1896, 1848]}, bild: "bilder/flurh-33938279.webp", hot: HOT_H, w: 1923, h: 2576, mitte: .42} };
+  hoch: {lichter: "bilder/flurh-licht-392a252d.webp", fenster: {oben: [0, 0, 206, 299], links: [0, 1288, 59, 1932], mitte: [1150, 1468, 1342, 1800], spiegel: [1794, 1475, 1896, 1848]}, bild: "bilder/flurh-33938279.webp", hot: HOT_H, w: 1923, h: 2576, mitte: .42} };
 Object.keys(HOT).forEach(n=>{
   const b = document.createElement("button");
   b.className = "door";
@@ -808,6 +813,7 @@ function setzeRaum(){
     m.style.cssText = `left:${x0/R.w*100}%;top:${y0/R.h*100}%;width:${(x1-x0)/R.w*100}%;height:${(y1-y0)/R.h*100}%`; });
   document.querySelectorAll(".flur,.flur-rand").forEach(i=>{ if(i.getAttribute("src") !== R.bild) i.src = R.bild; });
   document.documentElement.style.setProperty("--raum-maske", `url("${R.bild}")`);
+  document.documentElement.style.setProperty("--licht-maske", `url("${R.lichter}")`);
   document.querySelectorAll(".spots [data-s]").forEach(e=>{ const [x0,y0,x1,y1] = SPOTS[art][e.dataset.s];
     e.style.left = x0/R.w*100 + "%"; e.style.top = y0/R.h*100 + "%"; e.style.width = (x1-x0)/R.w*100 + "%"; e.style.height = (y1-y0)/R.h*100 + "%"; });
   grid.querySelectorAll(".door").forEach(b=>{ const [x0,y0,x1,y1] = R.hot[b.dataset.n];
