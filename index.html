@@ -411,6 +411,7 @@ footer{font-size:1rem;margin-top:-6px}
     <img class="flur-rand" src="bilder/flurb-a98684bf.webp" alt="" aria-hidden="true" draggable="false">
     <main class="scene"><div class="stage">
     <div class="view" aria-hidden="true" style="left:0;top:0;width:100%;height:100%"><div class="layer"></div><div class="layer"></div></div>
+    <div class="view mitte" aria-hidden="true"><div class="layer"></div><div class="layer"></div></div>
     <img class="flur" src="bilder/flurb-a98684bf.webp" alt="Unser Treppenhaus mit 24 Tüten" draggable="false">
     <div id="grid"></div>
   </div></main>
@@ -467,7 +468,7 @@ const JAHR = 2026;
    und beim Öffnen eines älteren Türchens kommt sein Foto zurück. START_BILD ist der Hintergrund vor dem 1. Dezember. */
 const START_BILD = "bilder/start-e7869cbb.jpg";
 const TUERCHEN = {
-  1:  { video: "", song: "t01-3b94657d", titel: "Lily's Theme", bild: "bilder/b01-b0a27244.jpg", hochkant: { bild: "bilder/b01h-affe8960.jpg", kugel: [905, 1710, 249, 270] }, quer: { bild: "bilder/b01q-505e3ecc.jpg", kugel: [1302.0, 524.9, 350.7, 362.9], kugelbild: "bilder/kugel-hpsockel-4873e147.webp", textlinks: true }, wetter: "magie", kugel: "bilder/kugel-hp-f9b0b214.webp", clip: "https://youtu.be/BWp-MmUmhbA", text: "" },
+  1:  { video: "", song: "t01-3b94657d", titel: "Lily's Theme", bild: "bilder/b01-b0a27244.jpg", mitte: [1620, 160, 2120, 890], hochkant: { bild: "bilder/b01h-affe8960.jpg", kugel: [905, 1710, 249, 270] }, quer: { bild: "bilder/b01q-505e3ecc.jpg", kugel: [1302.0, 524.9, 350.7, 362.9], kugelbild: "bilder/kugel-hpsockel-4873e147.webp", textlinks: true }, wetter: "magie", kugel: "bilder/kugel-hp-f9b0b214.webp", clip: "https://youtu.be/BWp-MmUmhbA", text: "" },
   2:  { video: "", song: "t02-3147c97f", titel: "Those Eyes", bild: "bilder/b02-014cea09.jpg", hochkant: { bild: "bilder/b02h-8f8b8be3.jpg", kugel: [737.0, 2327.0, 102.0, 102.0], kugelbild: "bilder/kugel-rankenh-cab23102.webp", zoom: 2.0 }, quer: { bild: "bilder/b02q-1e74c29b.jpg", kugel: [1307.5, 1130.0, 123.5, 122.5], kugelbild: "bilder/kugel-ranken-14c15e81.webp" }, wetter: "gluehwuermchen", kugel: "bilder/kugel-mond-4b3af2f3.webp", clip: "https://youtu.be/memUamSICTc", text: "" },
   3:  { video: "", song: "t03-861fdead", titel: "Hobbit", bild: "bilder/b03-68ad1bf5.jpg", hochkant: { bild: "bilder/b03h-196a7ec4.jpg", kugel: [537.5, 2355.0, 68.0, 68.0], kugelbild: "bilder/kugel-bruchtalh-328f019b.webp", zoom: 2.3 }, quer: { bild: "bilder/b03q-99e6b039.jpg", kugel: [979.5, 1259.0, 114.5, 114.5], kugelbild: "bilder/kugel-bruchtal-080b08c7.webp" }, wetter: "elben", kugel: "bilder/kugel-elben-913df12a.webp", clip: "https://youtu.be/chxX9uucndY", text: "" },
   4:  { video: "", song: "t04-42593136", titel: "Creep", bild: "bilder/b04-af7d115d.jpg", hochkant: { bild: "bilder/b04h-f0ce736a.jpg", kugel: [793.5, 2380.0, 68.0, 75.0], kugelbild: "bilder/kugel-regenh-e734dc06.webp", zoom: 2.3 }, quer: { bild: "bilder/b04q-d36811ec.jpg", kugel: [1415.0, 1131.0, 115.0, 115.0], kugelbild: "bilder/kugel-regenstand-a214a286.webp" }, wetter: "regen", kugel: "bilder/kugel-regen-b47fee09.webp", text: "" },
@@ -665,7 +666,7 @@ function setBg(url){
   const img = new Image();
   img.onload = ()=>{
     if(bgCurrent !== url) return;
-    window._shownBg = shown;
+    window._shownBg = shown; window._shownWH = [img.naturalWidth, img.naturalHeight];
     window.globeAnker = hk ? {IW: img.naturalWidth, IH: img.naturalHeight, cx: hk.kugel[0], cy: hk.kugel[1], r: hk.kugel[2], ry: hk.kugel[3] || hk.kugel[2], k: hk.kugelbild || GLAS_KUGEL, zoom: hk.zoom || (innerWidth > innerHeight ? 1 : 1.3), links: !!hk.textlinks} : null;
     let pos = "";
     for(const d in TUERCHEN){ if(TUERCHEN[d].bild === url){ pos = (innerWidth > innerHeight ? TUERCHEN[d].bildpos : TUERCHEN[d].bildposhoch) || ""; break; } }
@@ -704,8 +705,9 @@ const HOT_H = {1:[846,1340,908,1443],2:[924,1301,988,1410],3:[1002,1256,1066,136
 /* Tüten im gemalten Treppenhaus: unsichtbare Klickflächen über den gezeichneten Tüten.
    Hochkant (iPhone, iPad im Hochformat) gibt es ein eigenes, höheres Bild mit eigenen Tütenplätzen. */
 const grid = document.getElementById("grid");
-const RAUM = { quer: {bild: "bilder/flurb-a98684bf.webp", hot: HOT, w: 2576, h: 1438, mitte: .555},
-               hoch: {bild: "bilder/flurh-0ad6d8dc.webp", hot: HOT_H, w: 1923, h: 2576, mitte: .575} };
+const RAUM = { quer: {fenster: [1460, 410, 1666, 710], bild: "bilder/flurb-a98684bf.webp", hot: HOT, w: 2576, h: 1438, mitte: .555},
+               // mitte: wo das mittlere Fenster im Bild liegt (in Pixeln), damit es einen eigenen Ausschnitt zeigen kann
+  hoch: {fenster: [1150, 1468, 1342, 1800], bild: "bilder/flurh-0ad6d8dc.webp", hot: HOT_H, w: 1923, h: 2576, mitte: .575} };
 Object.keys(HOT).forEach(n=>{
   const b = document.createElement("button");
   b.className = "door";
@@ -720,6 +722,8 @@ function setzeRaum(){
   document.documentElement.classList.toggle("raum-hoch", art === "hoch");
   document.documentElement.style.setProperty("--ra", R.w + "/" + R.h);
   document.documentElement.style.setProperty("--rx", -R.mitte * 100 + "%");
+  { const [x0,y0,x1,y1] = R.fenster || [0,0,0,0], m = document.querySelector(".view.mitte");
+    m.style.cssText = `left:${x0/R.w*100}%;top:${y0/R.h*100}%;width:${(x1-x0)/R.w*100}%;height:${(y1-y0)/R.h*100}%`; }
   document.querySelectorAll(".flur,.flur-rand").forEach(i=>{ if(i.getAttribute("src") !== R.bild) i.src = R.bild; });
   grid.querySelectorAll(".door").forEach(b=>{ const [x0,y0,x1,y1] = R.hot[b.dataset.n];
     b.style.cssText = `left:${x0/R.w*100}%;top:${y0/R.h*100}%;width:${(x1-x0)/R.w*100}%;height:${(y1-y0)/R.h*100}%`; });
@@ -1596,6 +1600,20 @@ function alignViews(){
     let fz = null;
     for(const d in TUERCHEN){ if(TUERCHEN[d].bild && TUERCHEN[d].bild === bgCurrent && TUERCHEN[d].fenster){ fz = TUERCHEN[d].fenster; break; } }
     const ank = (!zoomedIn && wrapEl && wrapEl._anker) ? window.bgAnkerCss : null;
+    // Eigener Ausschnitt fürs mittlere Fenster (nur drinnen): mitte = [x0,y0,x1,y1] im Bild, mittehoch fürs Handy
+    if(v.classList.contains("mitte")){
+      let cut = null;
+      for(const d in TUERCHEN){ const t = TUERCHEN[d]; if(t.bild && t.bild === bgCurrent){ cut = (raumArt === "hoch" ? t.mittehoch : t.mitte) || null; break; } }
+      const wh = window._shownWH;
+      if(zoomedIn && cut && wh){
+        const [x0,y0,x1,y1] = cut, sc = Math.max(r.width / (x1 - x0), r.height / (y1 - y0));
+        const ox = (r.width - (x1 - x0) * sc) / 2, oy = (r.height - (y1 - y0) * sc) / 2;
+        v.style.visibility = "";
+        v.querySelectorAll(".layer").forEach(l=>{ l.style.inset = "auto"; l.style.left = "0px"; l.style.top = "0px"; l.style.width = r.width + "px"; l.style.height = r.height + "px";
+          l.style.backgroundSize = `${wh[0] * sc}px ${wh[1] * sc}px`; l.style.backgroundPosition = `${-x0 * sc + ox}px ${-y0 * sc + oy}px`; });
+      } else v.style.visibility = "hidden";
+      return;
+    }
     v.querySelectorAll(".layer").forEach(l=>{ l.style.backgroundSize = (zoomedIn && fz) ? fz[0] : (ank ? ank[0] : ""); l.style.backgroundPosition = (zoomedIn && fz) ? fz[1] : (ank ? ank[1] : ""); l.style.inset = "auto"; l.style.left = (L - r.left) + "px"; l.style.top = (T - r.top) + "px"; l.style.width = W + "px"; l.style.height = H + "px"; });
   });
 }
