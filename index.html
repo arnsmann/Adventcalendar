@@ -411,7 +411,11 @@ footer{font-size:1rem;margin-top:-6px}
     <img class="flur-rand" src="bilder/flurb-eda42985.webp" alt="" aria-hidden="true" draggable="false">
     <main class="scene"><div class="stage">
     <div class="view" aria-hidden="true" style="left:0;top:0;width:100%;height:100%"><div class="layer"></div><div class="layer"></div></div>
-    <div class="view mitte" aria-hidden="true"><div class="layer"></div><div class="layer"></div></div>
+    <div class="view fen" data-f="links" aria-hidden="true"><div class="layer"></div><div class="layer"></div></div>
+    <div class="view fen" data-f="mitte" aria-hidden="true"><div class="layer"></div><div class="layer"></div></div>
+    <div class="view fen" data-f="tuer" aria-hidden="true"><div class="layer"></div><div class="layer"></div></div>
+    <div class="view fen" data-f="oben" aria-hidden="true"><div class="layer"></div><div class="layer"></div></div>
+    <div class="view fen" data-f="spiegel" aria-hidden="true"><div class="layer"></div><div class="layer"></div></div>
     <img class="flur" src="bilder/flurb-eda42985.webp" alt="Unser Treppenhaus mit 24 Tüten" draggable="false">
     <div id="grid"></div>
   </div></main>
@@ -468,12 +472,12 @@ const JAHR = 2026;
    und beim Öffnen eines älteren Türchens kommt sein Foto zurück. START_BILD ist der Hintergrund vor dem 1. Dezember. */
 const START_BILD = "bilder/start-e7869cbb.jpg";
 const TUERCHEN = {
-  1:  { video: "", song: "t01-3b94657d", titel: "Lily's Theme", bild: "bilder/b01-b0a27244.jpg", mitte: [1620, 160, 2120, 890], hochkant: { bild: "bilder/b01h-affe8960.jpg", kugel: [905, 1710, 249, 270] }, quer: { bild: "bilder/b01q-505e3ecc.jpg", kugel: [1302.0, 524.9, 350.7, 362.9], kugelbild: "bilder/kugel-hpsockel-4873e147.webp", textlinks: true }, wetter: "magie", kugel: "bilder/kugel-hp-f9b0b214.webp", clip: "https://youtu.be/BWp-MmUmhbA", text: "" },
+  1:  { video: "", song: "t01-3b94657d", titel: "Lily's Theme", bild: "bilder/b01-b0a27244.jpg", aus: {mitte: [1620, 160, 2120, 890]}, hochkant: { bild: "bilder/b01h-affe8960.jpg", kugel: [905, 1710, 249, 270] }, quer: { bild: "bilder/b01q-505e3ecc.jpg", kugel: [1302.0, 524.9, 350.7, 362.9], kugelbild: "bilder/kugel-hpsockel-4873e147.webp", textlinks: true }, wetter: "magie", kugel: "bilder/kugel-hp-f9b0b214.webp", clip: "https://youtu.be/BWp-MmUmhbA", text: "" },
   2:  { video: "", song: "t02-3147c97f", titel: "Those Eyes", bild: "bilder/b02-014cea09.jpg", hochkant: { bild: "bilder/b02h-8f8b8be3.jpg", kugel: [737.0, 2327.0, 102.0, 102.0], kugelbild: "bilder/kugel-rankenh-cab23102.webp", zoom: 2.0 }, quer: { bild: "bilder/b02q-1e74c29b.jpg", kugel: [1307.5, 1130.0, 123.5, 122.5], kugelbild: "bilder/kugel-ranken-14c15e81.webp" }, wetter: "gluehwuermchen", kugel: "bilder/kugel-mond-4b3af2f3.webp", clip: "https://youtu.be/memUamSICTc", text: "" },
   3:  { video: "", song: "t03-861fdead", titel: "Hobbit", bild: "bilder/b03-68ad1bf5.jpg", hochkant: { bild: "bilder/b03h-196a7ec4.jpg", kugel: [537.5, 2355.0, 68.0, 68.0], kugelbild: "bilder/kugel-bruchtalh-328f019b.webp", zoom: 2.3 }, quer: { bild: "bilder/b03q-99e6b039.jpg", kugel: [979.5, 1259.0, 114.5, 114.5], kugelbild: "bilder/kugel-bruchtal-080b08c7.webp" }, wetter: "elben", kugel: "bilder/kugel-elben-913df12a.webp", clip: "https://youtu.be/chxX9uucndY", text: "" },
   4:  { video: "", song: "t04-42593136", titel: "Creep", bild: "bilder/b04-af7d115d.jpg", hochkant: { bild: "bilder/b04h-f0ce736a.jpg", kugel: [793.5, 2380.0, 68.0, 75.0], kugelbild: "bilder/kugel-regenh-e734dc06.webp", zoom: 2.3 }, quer: { bild: "bilder/b04q-d36811ec.jpg", kugel: [1415.0, 1131.0, 115.0, 115.0], kugelbild: "bilder/kugel-regenstand-a214a286.webp" }, wetter: "regen", kugel: "bilder/kugel-regen-b47fee09.webp", text: "" },
-  5:  { video: "", song: "t05-ebefd28c", titel: "Memories", mitte: [1800, 40, 2420, 940], kugel: "bilder/kugel-wald-58817d5f.webp", kugelrand: [200,80], kugelversatz: "17vw", bildpos: "100% 50%", bild: "bilder/b05-6134d4dd.jpg", hochkant: { bild: "bilder/b05h-d60dd0dc.jpg", kugel: [726.0, 2297.0, 135.0, 135.0], kugelbild: "bilder/kugel-wurzelh-84cc5492.webp", zoom: 1.7 }, quer: { bild: "bilder/b05q-f967d529.jpg", kugel: [1304.2, 731.4, 127.0, 127.0], kugelbild: "bilder/kugel-wurzel-a0580b16.webp" }, wetter: "pusteblume", text: "" },
-  6:  { video: "", song: "t06-6a105033", titel: "Drei Nüsse für Aschenbrödel", clip: "https://youtu.be/zqamJZ3Jiy4", wetter: "zauberschnee", kugel: "bilder/kugel-perle-05acc6d6.webp", kugelrand: [137,165], bild: "bilder/b06-95ed29b3.jpg", kugelversatz: "-31vw", kugelhoch: true, text: "" },
+  5:  { video: "", song: "t05-ebefd28c", titel: "Memories", aus: {mitte: [1800, 40, 2420, 940]}, kugel: "bilder/kugel-wald-58817d5f.webp", kugelrand: [200,80], kugelversatz: "17vw", bildpos: "100% 50%", bild: "bilder/b05-6134d4dd.jpg", hochkant: { bild: "bilder/b05h-d60dd0dc.jpg", kugel: [726.0, 2297.0, 135.0, 135.0], kugelbild: "bilder/kugel-wurzelh-84cc5492.webp", zoom: 1.7 }, quer: { bild: "bilder/b05q-f967d529.jpg", kugel: [1304.2, 731.4, 127.0, 127.0], kugelbild: "bilder/kugel-wurzel-a0580b16.webp" }, wetter: "pusteblume", text: "" },
+  6:  { video: "", song: "t06-6a105033", titel: "Drei Nüsse für Aschenbrödel", aus: {links: [0, 380, 115, 630], mitte: [440, 365, 555, 532], tuer: [20, 340, 95, 600]}, clip: "https://youtu.be/zqamJZ3Jiy4", wetter: "zauberschnee", kugel: "bilder/kugel-perle-05acc6d6.webp", kugelrand: [137,165], bild: "bilder/b06-95ed29b3.jpg", kugelversatz: "-31vw", kugelhoch: true, text: "" },
   7:  { video: "", song: "t07-8fa6a0cd", titel: "Spirit", bild: "bilder/b07-d11fcc98.jpg", hochkant: { bild: "bilder/b07h-fc35be74.jpg", kugel: [958.5, 1780.0, 321.5, 343.0], kugelbild: "bilder/kugel-pferdesockelh-31c66257.webp", zoom: 1 }, quer: { bild: "bilder/b07q-646b2048.jpg", kugel: [1286.0, 496.5, 401.0, 404.5], kugelbild: "bilder/kugel-pferdesockel-62d92258.webp", textlinks: true }, wetter: "pusteblume", kugel: "bilder/kugel-spirit-9a287ea7.webp", kugelrand: [60,0], kugelversatz: "-18vw", clip: "https://youtu.be/q9ikblV9Cyg", text: "" },
   8:  { video: "", song: "t08-014d8a98", titel: "Tommi", bild: "bilder/b08-868a325d.jpg", wetter: "sonnenstrahlen", bildposhoch: "30% 50%", hochkant: { bild: "bilder/b08h-e700b001.jpg", kugel: [830.4, 1952.8, 171.4, 186.4], kugelbild: "bilder/kugel-koeln-h-a84c112e.webp", zoom: 2.1 }, quer: { bild: "bilder/b08q-1adf5fce.jpg", kugel: [1315.9, 687.6, 278.3, 303.0], kugelbild: "bilder/kugel-koeln-q-edad00bc.webp" }, clip: "https://youtu.be/znEIdOO6Ze0", cliphoch: true, text: "" },
   9:  { video: "", text: "" },
@@ -705,9 +709,10 @@ const HOT_H = {1:[846,1340,908,1443],2:[924,1301,988,1410],3:[1002,1256,1066,136
 /* Tüten im gemalten Treppenhaus: unsichtbare Klickflächen über den gezeichneten Tüten.
    Hochkant (iPhone, iPad im Hochformat) gibt es ein eigenes, höheres Bild mit eigenen Tütenplätzen. */
 const grid = document.getElementById("grid");
-const RAUM = { quer: {fenster: [1460, 410, 1666, 710], bild: "bilder/flurb-eda42985.webp", hot: HOT, w: 2576, h: 1438, mitte: .555},
-               // mitte: wo das mittlere Fenster im Bild liegt (in Pixeln), damit es einen eigenen Ausschnitt zeigen kann
-  hoch: {fenster: [1150, 1468, 1342, 1800], bild: "bilder/flurh-0ad6d8dc.webp", hot: HOT_H, w: 1923, h: 2576, mitte: .575} };
+const RAUM = { quer: {fenster: {links: [0, 140, 410, 862], mitte: [1460, 410, 1666, 710], tuer: [2222, 325, 2352, 785]}, bild: "bilder/flurb-eda42985.webp", hot: HOT, w: 2576, h: 1438, mitte: .555},
+               // fenster: wo die Fenster im Raumbild liegen (in Pixeln), damit jedes pro Tür einen eigenen Ausschnitt zeigen kann
+               // Pro Tür: aus: {links, mitte, tuer} fürs breite Bild, aushoch: {oben, links, mitte, spiegel} fürs Handy, jeweils [x0,y0,x1,y1] im Hintergrundbild
+  hoch: {fenster: {oben: [0, 0, 206, 299], links: [0, 1288, 59, 1932], mitte: [1150, 1468, 1342, 1800], spiegel: [1794, 1475, 1896, 1848]}, bild: "bilder/flurh-0ad6d8dc.webp", hot: HOT_H, w: 1923, h: 2576, mitte: .575} };
 Object.keys(HOT).forEach(n=>{
   const b = document.createElement("button");
   b.className = "door";
@@ -722,8 +727,8 @@ function setzeRaum(){
   document.documentElement.classList.toggle("raum-hoch", art === "hoch");
   document.documentElement.style.setProperty("--ra", R.w + "/" + R.h);
   document.documentElement.style.setProperty("--rx", -R.mitte * 100 + "%");
-  { const [x0,y0,x1,y1] = R.fenster || [0,0,0,0], m = document.querySelector(".view.mitte");
-    m.style.cssText = `left:${x0/R.w*100}%;top:${y0/R.h*100}%;width:${(x1-x0)/R.w*100}%;height:${(y1-y0)/R.h*100}%`; }
+  document.querySelectorAll(".view.fen").forEach(m=>{ const [x0,y0,x1,y1] = R.fenster[m.dataset.f] || [0,0,0,0];
+    m.style.cssText = `left:${x0/R.w*100}%;top:${y0/R.h*100}%;width:${(x1-x0)/R.w*100}%;height:${(y1-y0)/R.h*100}%`; });
   document.querySelectorAll(".flur,.flur-rand").forEach(i=>{ if(i.getAttribute("src") !== R.bild) i.src = R.bild; });
   grid.querySelectorAll(".door").forEach(b=>{ const [x0,y0,x1,y1] = R.hot[b.dataset.n];
     b.style.cssText = `left:${x0/R.w*100}%;top:${y0/R.h*100}%;width:${(x1-x0)/R.w*100}%;height:${(y1-y0)/R.h*100}%`; });
@@ -1600,10 +1605,10 @@ function alignViews(){
     let fz = null;
     for(const d in TUERCHEN){ if(TUERCHEN[d].bild && TUERCHEN[d].bild === bgCurrent && TUERCHEN[d].fenster){ fz = TUERCHEN[d].fenster; break; } }
     const ank = (!zoomedIn && wrapEl && wrapEl._anker) ? window.bgAnkerCss : null;
-    // Eigener Ausschnitt fürs mittlere Fenster (nur drinnen): mitte = [x0,y0,x1,y1] im Bild, mittehoch fürs Handy
-    if(v.classList.contains("mitte")){
+    // Eigener Ausschnitt pro Fenster (nur drinnen)
+    if(v.classList.contains("fen")){
       let cut = null;
-      for(const d in TUERCHEN){ const t = TUERCHEN[d]; if(t.bild && t.bild === bgCurrent){ cut = (raumArt === "hoch" ? t.mittehoch : t.mitte) || null; break; } }
+      for(const d in TUERCHEN){ const t = TUERCHEN[d]; if(t.bild && t.bild === bgCurrent){ const a = (raumArt === "hoch" ? t.aushoch : t.aus) || {}; cut = a[v.dataset.f] || null; break; } }
       const wh = window._shownWH;
       if(zoomedIn && cut && wh){
         const [x0,y0,x1,y1] = cut, sc = Math.max(r.width / (x1 - x0), r.height / (y1 - y0));
