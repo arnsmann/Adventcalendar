@@ -12,9 +12,13 @@
 <meta name="theme-color" content="#2b211d">
 <title>Adventskalender für dich</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@500;700&family=Fredoka:wght@400;500;600&family=Gochi+Hand&family=Nunito:wght@400;600;700&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Caveat:wght@500;700&family=Dancing+Script:wght@500;700&family=Fredoka:wght@400;500;600&family=Gochi+Hand&family=Nunito:wght@400;600;700&display=swap">
+<style>
+@font-face{font-family:"ArneFueller";src:url("schrift/fueller.woff2") format("woff2");font-display:swap}
+@font-face{font-family:"Arne";src:url("schrift/arne.woff2") format("woff2");font-display:swap}
+</style>
 <script>
-/* Schrift zum Ausprobieren: ?schrift=1 bis 5 im Link (0 = die bisherige). Die Wahl merkt sich der Browser. */
+/* Schrift zum Ausprobieren: ?schrift=1 bis 7, 9 = die alte von vorher, 0 = Standard (Arnes Handschrift). Die Wahl merkt sich der Browser. */
 (function(){
   const S = {
     1: ["Fraunces:wght@500;700&family=Lora:wght@400;600;700&family=Caveat:wght@500;700", '"Fraunces",serif', '"Lora",serif', '"Caveat",cursive'],
@@ -24,6 +28,8 @@
     5: ["Amatic+SC:wght@400;700&family=Patrick+Hand&family=Caveat:wght@500;700", '"Amatic SC",cursive', '"Patrick Hand",cursive', '"Caveat",cursive'],
     // 6: Arnes eigene Handschrift. Fehlende Zeichen (Ziffern, Klammern, Bindestrich, Herz) kommen aus Gochi Hand.
     6: ["Gochi+Hand&family=Nunito:wght@400;600;700", '"Arne","Gochi Hand",cursive', '"Nunito",sans-serif', '"Arne","Gochi Hand",cursive'],
+    // 9: die alte Schrift von vorher
+    9: ["Dancing+Script:wght@500;700", '"Fredoka","Nunito",system-ui,sans-serif', '"Nunito",system-ui,sans-serif', '"Gochi Hand","Comic Sans MS",cursive', '"Dancing Script","Segoe Script",cursive'],
     // 7: Arnes Füllerschrift
     7: ["Caveat:wght@500;700&family=Nunito:wght@400;600;700", '"ArneFueller","Caveat",cursive', '"Nunito",sans-serif', '"ArneFueller","Caveat",cursive']
   };
@@ -33,7 +39,7 @@
   if(n == 6){ const st = document.createElement("style"); st.textContent = '@font-face{font-family:"Arne";src:url("schrift/arne.woff2") format("woff2");font-display:swap}'; document.head.appendChild(st); }
   if(n == 7){ const st = document.createElement("style"); st.textContent = '@font-face{font-family:"ArneFueller";src:url("schrift/fueller.woff2") format("woff2");font-display:swap}'; document.head.appendChild(st); }
   const l = document.createElement("link"); l.rel = "stylesheet"; l.href = "https://fonts.googleapis.com/css2?family=" + f[0] + "&display=swap"; document.head.appendChild(l);
-  const r = document.documentElement.style; r.setProperty("--f-display", f[1]); r.setProperty("--f-body", f[2]); r.setProperty("--f-hand", f[3]); r.setProperty("--f-titel", f[1]);
+  const r = document.documentElement.style; r.setProperty("--f-display", f[1]); r.setProperty("--f-body", f[2]); r.setProperty("--f-hand", f[3]); r.setProperty("--f-titel", f[4] || f[1]);
 })();
 </script>
 <style>
@@ -42,8 +48,10 @@
   --ink:#4a3128; --soft:#8a6a5d; --board:#fff8f1; --berry:#c9566b; --pine:#3f6f57; --honey:#d9a441;
   --door-a:#f0c9c0; --door-b:#cfe0d2; --door-c:#f5ddb0; --door-d:#e7d3ea; --door-edge:rgba(90,58,49,.18); --inside:#3b2a24;
   --shadow:0 18px 50px rgba(20,10,5,.35);
-  --f-display:"Fredoka","Nunito",system-ui,sans-serif;
-  --f-hand:"Gochi Hand","Comic Sans MS",cursive;
+  /* Arnes Handschrift: Überschriften mit Füller, kleine Texte mit Kugelschreiber. Fehlende Zeichen kommen aus Caveat bzw. Gochi Hand. */
+  --f-display:"ArneFueller","Caveat","Gochi Hand",cursive;
+  --f-titel:"ArneFueller","Caveat","Gochi Hand",cursive;
+  --f-hand:"Arne","Gochi Hand","Comic Sans MS",cursive;
   --f-body:"Nunito",system-ui,sans-serif;
 }
 *{box-sizing:border-box}
