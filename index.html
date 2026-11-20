@@ -92,6 +92,25 @@ h1{font-family:var(--f-display);font-weight:600;font-size:clamp(1.6rem,4.6vw,2.3
 .glow{mix-blend-mode:screen;z-index:7}
 .grain{mix-blend-mode:overlay;z-index:8}
 #grid{z-index:4}
+/* Licht aus: der Raum wird dunkel, die Fenster (durchsichtig im Bild) bleiben hell */
+.nacht{position:absolute;inset:0;z-index:3;pointer-events:none;background:#232a52;mix-blend-mode:multiply;opacity:0;transition:opacity .9s ease;
+  -webkit-mask:var(--raum-maske) 0 0/100% 100% no-repeat;mask:var(--raum-maske) 0 0/100% 100% no-repeat}
+.licht-aus .nacht{opacity:.82}
+.spots{position:absolute;inset:0;z-index:5;pointer-events:none}
+.globe-wrap.zoomed .spots .spot,.globe-wrap.zoomed .spots .maus{pointer-events:auto}
+.spot{position:absolute;border:0;background:none;padding:0;cursor:pointer;-webkit-tap-highlight-color:transparent;border-radius:30%}
+.spot:focus-visible{outline:2px solid #ffe2a8}
+.mausloch{position:absolute;overflow:hidden;pointer-events:none}
+.maus{position:absolute;right:0;bottom:0;height:56%;aspect-ratio:120/70;border:0;background:none;padding:0;cursor:pointer;transform:translateX(105%);transition:transform .7s cubic-bezier(.4,1.4,.6,1);-webkit-tap-highlight-color:transparent}
+.maus svg{width:100%;height:100%;display:block;overflow:visible}
+.maus.guckt{transform:translateX(38%)}
+.maus.wackelt svg{animation:mauswackeln .5s ease 2}
+@keyframes mauswackeln{50%{transform:rotate(-6deg) translateY(-4%)}}
+.maus.rennt{transition:transform 1.3s cubic-bezier(.5,0,.9,.6),opacity .4s 1s;transform:translateX(-520%);opacity:0}
+.maus .piep{position:absolute;left:-10%;bottom:105%;font-family:var(--f-hand);font-size:max(13px,90%);color:#3a2418;background:#fff8f1;border-radius:999px;padding:.1em .55em;white-space:nowrap;opacity:0;transform:translateY(20%) scale(.8);transition:opacity .2s,transform .2s;box-shadow:0 2px 6px rgba(0,0,0,.3);pointer-events:none}
+.maus.sagt .piep{opacity:1;transform:none}
+html.raum-hoch .maus{height:60%}
+.licht-aus .maus svg{filter:brightness(.5) saturate(.7);transition:filter .9s}
 
 /* gemaltes Treppenhaus */
 .flur{position:absolute;inset:0;width:100%;height:100%;display:block;z-index:2;pointer-events:none;user-select:none;-webkit-user-select:none}
@@ -462,7 +481,14 @@ footer{font-size:1rem;margin-top:-6px}
     <div class="view fen" data-f="oben" aria-hidden="true"><div class="layer"></div><div class="layer"></div></div>
     <div class="view fen" data-f="spiegel" aria-hidden="true"><div class="layer"></div><div class="layer"></div></div>
     <img class="flur" src="bilder/flurb-c34e9230.webp" alt="Unser Treppenhaus mit 24 Tüten" draggable="false">
+    <div class="nacht" aria-hidden="true"></div>
     <div id="grid"></div>
+    <div class="spots">
+      <button type="button" class="spot licht" data-s="schalter" aria-label="Licht an oder aus"></button>
+      <button type="button" class="spot licht" data-s="laterne" aria-label="Licht an oder aus"></button>
+      <button type="button" class="spot licht" data-s="baum" aria-label="Licht an oder aus"></button>
+      <div class="mausloch" data-s="maus"><button type="button" class="maus" aria-label="Maus"><svg viewBox="0 0 120 70" aria-hidden="true"><path d="M108 52 C122 46 120 30 110 32" fill="none" stroke="#8a7a72" stroke-width="3" stroke-linecap="round"/><ellipse cx="72" cy="48" rx="38" ry="20" fill="#9c8f88"/><ellipse cx="64" cy="54" rx="26" ry="10" fill="#b3a79f"/><path d="M38 40 C26 40 14 46 10 52 C16 58 30 60 40 56 Z" fill="#9c8f88"/><circle cx="44" cy="26" r="13" fill="#9c8f88"/><circle cx="44" cy="26" r="8" fill="#e7b3b0"/><circle cx="24" cy="44" r="2.6" fill="#2a1d18"/><circle cx="24.8" cy="43.2" r=".8" fill="#fff"/><circle cx="10" cy="52" r="3" fill="#d98c8f"/><path d="M12 50 L0 46 M12 53 L0 54 M12 55 L2 60" stroke="#6f625c" stroke-width="1" stroke-linecap="round"/><ellipse cx="50" cy="66" rx="6" ry="3" fill="#8a7a72"/><ellipse cx="90" cy="66" rx="6" ry="3" fill="#8a7a72"/></svg><span class="piep">Piep!</span></button></div>
+    </div>
   </div></main>
     </div>
     <canvas class="globe-snow" id="globeSnow" aria-hidden="true"></canvas>
@@ -755,6 +781,11 @@ const HOT_H = {1:[1002,1256,1066,1365],2:[1157,1170,1221,1275],3:[846,1340,908,1
 /* Tüten im gemalten Treppenhaus: unsichtbare Klickflächen über den gezeichneten Tüten.
    Hochkant (iPhone, iPad im Hochformat) gibt es ein eigenes, höheres Bild mit eigenen Tütenplätzen. */
 const grid = document.getElementById("grid");
+// Klickbare Stellen im Raum [x0,y0,x1,y1] in Bildpixeln
+const SPOTS = {
+  quer: {schalter: [1735, 670, 1815, 770], laterne: [1600, 190, 1700, 340], baum: [690, 330, 1010, 800], maus: [1250, 980, 1842, 1140]},
+  hoch: {schalter: [1420, 1750, 1500, 1860], laterne: [1280, 1230, 1370, 1370], baum: [360, 1420, 650, 1880], maus: [420, 2230, 905, 2470]}
+};
 const RAUM = { quer: {fenster: {links: [0, 140, 410, 862], mitte: [1460, 410, 1666, 710], tuer: [2222, 325, 2352, 785]}, bild: "bilder/flurb-c34e9230.webp", hot: HOT, w: 2576, h: 1438, mitte: .555},
                // fenster: wo die Fenster im Raumbild liegen (in Pixeln), damit jedes pro Tür einen eigenen Ausschnitt zeigen kann
                // Pro Tür: aus: {links, mitte, tuer} fürs breite Bild, aushoch: {oben, links, mitte, spiegel} fürs Handy, jeweils [x0,y0,x1,y1] im Hintergrundbild
@@ -776,12 +807,42 @@ function setzeRaum(){
   document.querySelectorAll(".view.fen").forEach(m=>{ const [x0,y0,x1,y1] = R.fenster[m.dataset.f] || [0,0,0,0];
     m.style.cssText = `left:${x0/R.w*100}%;top:${y0/R.h*100}%;width:${(x1-x0)/R.w*100}%;height:${(y1-y0)/R.h*100}%`; });
   document.querySelectorAll(".flur,.flur-rand").forEach(i=>{ if(i.getAttribute("src") !== R.bild) i.src = R.bild; });
+  document.documentElement.style.setProperty("--raum-maske", `url("${R.bild}")`);
+  document.querySelectorAll(".spots [data-s]").forEach(e=>{ const [x0,y0,x1,y1] = SPOTS[art][e.dataset.s];
+    e.style.left = x0/R.w*100 + "%"; e.style.top = y0/R.h*100 + "%"; e.style.width = (x1-x0)/R.w*100 + "%"; e.style.height = (y1-y0)/R.h*100 + "%"; });
   grid.querySelectorAll(".door").forEach(b=>{ const [x0,y0,x1,y1] = R.hot[b.dataset.n];
     b.style.cssText = `left:${x0/R.w*100}%;top:${y0/R.h*100}%;width:${(x1-x0)/R.w*100}%;height:${(y1-y0)/R.h*100}%`; });
   if(typeof alignViews === "function") alignViews();
 }
 setzeRaum();
 addEventListener("resize", setzeRaum);
+
+/* Licht an und aus: Lichtschalter, Laterne oder Weihnachtsbaum antippen */
+document.querySelectorAll(".spot.licht").forEach(b=>b.addEventListener("click", ()=>{
+  document.getElementById("globe").classList.toggle("licht-aus");
+}));
+
+/* Die kleine Maus: guckt ab und zu hervor, beim Antippen sagt sie Piep und rennt weg */
+(function(){
+  const m = document.querySelector(".maus"), wrap = document.getElementById("globeWrap");
+  let t = null, weg = false;
+  const drin = () => wrap && wrap.classList.contains("zoomed");
+  function plan(ms){ clearTimeout(t); t = setTimeout(gucken, ms); }
+  function gucken(){
+    if(!drin() || weg){ plan(4000); return; }
+    m.classList.remove("rennt"); m.style.opacity = "";
+    m.classList.add("guckt"); setTimeout(()=>m.classList.add("wackelt"), 700); setTimeout(()=>m.classList.remove("wackelt"), 1800);
+    setTimeout(()=>{ if(!weg){ m.classList.remove("guckt"); plan(12000 + Math.random() * 14000); } }, 4500);
+  }
+  m.addEventListener("click", e=>{
+    e.stopPropagation(); if(weg) return; weg = true;
+    m.classList.add("guckt", "sagt");
+    setTimeout(()=>{ m.classList.remove("sagt"); m.classList.add("rennt"); }, 900);
+    setTimeout(()=>{ m.classList.add("ohne"); m.classList.remove("rennt", "guckt"); m.style.transition = "none"; m.style.opacity = "";
+      requestAnimationFrame(()=>{ m.style.transition = ""; m.classList.remove("ohne"); weg = false; plan(25000 + Math.random() * 15000); }); }, 2600);
+  });
+  plan(7000);
+})();
 function refreshDoors(){
   const today = todayNum();
   grid.querySelectorAll(".door").forEach(b=>{
@@ -1645,6 +1706,7 @@ renderStatus(); refreshDoors(); setBg(homeBg());
     requestAnimationFrame(()=>{ try{ size(); alignViews(); }catch(e){} requestAnimationFrame(()=>requestAnimationFrame(()=>wrap.classList.remove("sofort"))); });
   }
   function leave(){
+    document.getElementById("globe").classList.remove("licht-aus"); // beim Rausgehen Licht wieder an
     if(WL && uebergang() !== "schlicht" && !tauchen){ tauchen = true; WL.raus(leaveNow).then(()=>{ tauchen = false; }); return; }
     if(!tauchen) leaveNow();
   }
