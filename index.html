@@ -13,6 +13,23 @@
 <title>Adventskalender für dich</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@500;700&family=Fredoka:wght@400;500;600&family=Gochi+Hand&family=Nunito:wght@400;600;700&display=swap">
+<script>
+/* Schrift zum Ausprobieren: ?schrift=1 bis 5 im Link (0 = die bisherige). Die Wahl merkt sich der Browser. */
+(function(){
+  const S = {
+    1: ["Fraunces:wght@500;700&family=Lora:wght@400;600;700&family=Caveat:wght@500;700", '"Fraunces",serif', '"Lora",serif', '"Caveat",cursive'],
+    2: ["Playfair+Display:wght@500;700&family=Lora:wght@400;600;700&family=Dancing+Script:wght@500;700", '"Playfair Display",serif', '"Lora",serif', '"Dancing Script",cursive'],
+    3: ["Mountains+of+Christmas:wght@400;700&family=Nunito:wght@400;600;700&family=Gochi+Hand", '"Mountains of Christmas",cursive', '"Nunito",sans-serif', '"Gochi Hand",cursive'],
+    4: ["Cinzel+Decorative:wght@400;700&family=Cormorant+Garamond:wght@500;600;700&family=Great+Vibes", '"Cinzel Decorative",serif', '"Cormorant Garamond",serif', '"Great Vibes",cursive'],
+    5: ["Amatic+SC:wght@400;700&family=Patrick+Hand&family=Caveat:wght@500;700", '"Amatic SC",cursive', '"Patrick Hand",cursive', '"Caveat",cursive']
+  };
+  let n = (location.search.match(/schrift=(\d)/) || [])[1];
+  try{ if(n !== undefined) localStorage.setItem("advent-schrift", n); else n = localStorage.getItem("advent-schrift"); }catch(e){}
+  const f = S[n]; if(!f) return;
+  const l = document.createElement("link"); l.rel = "stylesheet"; l.href = "https://fonts.googleapis.com/css2?family=" + f[0] + "&display=swap"; document.head.appendChild(l);
+  const r = document.documentElement.style; r.setProperty("--f-display", f[1]); r.setProperty("--f-body", f[2]); r.setProperty("--f-hand", f[3]); r.setProperty("--f-titel", f[1]);
+})();
+</script>
 <style>
 /* Layout: Foto des Tages als Vollbild Hintergrund. Mittig eine nahe Ansicht der Treppe zu Hause (ein Bildschirm), die Tüten hängen am Edelstahlgeländer. */
 :root{
@@ -303,7 +320,7 @@ html.raum-hoch .door::before{content:"";position:absolute;inset:-14% -22%}
 :root{--t-ink:#4a2413;--t-glow:rgba(255,236,205,.9);--t-glow2:rgba(255,214,160,.55);--t-accent:#7a2e1c}
 html.dark-top{--t-ink:#fff4e2;--t-glow:rgba(25,12,6,.85);--t-glow2:rgba(255,190,120,.35);--t-accent:#ffd98a}
 header{background:none;box-shadow:none;border-radius:0;padding:4px 10px 0}
-header .eyebrow,header h1,header .status{font-family:"Dancing Script","Segoe Script",cursive;color:var(--t-ink);transition:color .8s}
+header .eyebrow,header h1,header .status{font-family:var(--f-titel,"Dancing Script","Segoe Script",cursive);color:var(--t-ink);transition:color .8s}
 header .eyebrow{font-size:clamp(1.15rem,2.4vw,1.45rem);font-weight:500;
   text-shadow:0 0 6px var(--t-glow),0 0 14px var(--t-glow),0 0 26px var(--t-glow2)}
 header h1{font-weight:700;font-size:clamp(2.3rem,5.6vw,3.4rem);line-height:1.02;letter-spacing:.005em;
