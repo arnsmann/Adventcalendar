@@ -503,6 +503,7 @@ footer{font-size:1rem;margin-top:-6px}
    kugelrand: nur bei breiten Kugeln, wie weit das Bild links und oben über die Kugel hinausragt (Pixel bei 956 px Grundbreite)
    kugel: optional eine eigene Schneekugel für diesen Tag (z.B. Harry Potter Sockel)
    titel: Name des Songs, wird in der Karte angezeigt
+   notiz: kleiner Satz hinter "gespielt von Arne ♡" unter dem Songtitel (ohne Notiz steht dort der Standardsatz)
    song:  Name der MP3 im Ordner songs, ohne .mp3 (z.B. "t01-k7f3" für songs/t01-k7f3.mp3)
    text:  eine kleine Nachricht für den Tag (darf leer bleiben)
    Beispiel: 1: { video: "https://youtu.be/abc123", song: "t01-k7f3", text: "Hab einen schönen Tag!" }, */
@@ -838,7 +839,7 @@ function showCard(n){
     }
     if(song){
       html += `<div class="song">
-        <div class="song-head"><span class="ico cover-art" aria-hidden="true"></span><span><b>${item.titel ? esc(item.titel) : "Der Song von heute"}</b><small>gespielt von Arne ♡ zum Korrigieren und Vorbereiten am Schreibtisch</small></span></div>
+        <div class="song-head"><span class="ico cover-art" aria-hidden="true"></span><span><b>${item.titel ? esc(item.titel) : "Der Song von heute"}</b><small>gespielt von Arne ♡ ${item.notiz ? esc(item.notiz) : "zum Korrigieren und Vorbereiten am Schreibtisch"}</small></span></div>
         ${clipId ? `<div class="video clip"><div class="yt" data-clip="${clipId}"></div><div class="vinyl-wrap cover" aria-hidden="true"><div class="vinyl"><div class="label"><span>${n}</span></div></div></div></div>` : ""}
         ${!id && !clipId ? `<div class="vinyl-wrap"><div class="vinyl" aria-hidden="true"><div class="label"><span>${n}</span></div></div></div>` : ""}
         <audio controls preload="none" src="songs/${song}.mp3"></audio>
