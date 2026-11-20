@@ -279,6 +279,7 @@ body.peek .ueb-btn,body.zoomed-on .ueb-btn{opacity:0;pointer-events:none}
 .ueb-menu button[aria-checked="true"]{background:var(--door-a);font-weight:700}
 /* hineingezoomt */
 /* Der Raum füllt den ganzen Bildschirm, als würde man drin stehen. Was übersteht, kann man verschieben. */
+.globe-wrap.sofort,.globe-wrap.sofort *{transition:none!important;animation:none!important}
 .globe-wrap.zoomed .globe{display:block;position:fixed;z-index:15;overflow:hidden;border-radius:0;aspect-ratio:auto;width:auto;inset:0;
   animation:dive .55s cubic-bezier(.2,.9,.3,1)}
 @keyframes dive{from{transform:scale(.55);opacity:0;border-radius:50%}}
@@ -408,7 +409,7 @@ footer{font-size:1rem;margin-top:-6px}
   <div class="globe-wrap" id="globeWrap">
     <img class="globe-img" src="bilder/kugel-066a6a11.webp" alt="Schneekugel mit unserem Treppenhaus" draggable="false">
     <div class="globe" id="globe">
-    <img class="flur-rand" src="bilder/flurb-eda42985.webp" alt="" aria-hidden="true" draggable="false">
+    <img class="flur-rand" src="bilder/flurb-c34e9230.webp" alt="" aria-hidden="true" draggable="false">
     <main class="scene"><div class="stage">
     <div class="view" aria-hidden="true" style="left:0;top:0;width:100%;height:100%"><div class="layer"></div><div class="layer"></div></div>
     <div class="view fen" data-f="links" aria-hidden="true"><div class="layer"></div><div class="layer"></div></div>
@@ -416,7 +417,7 @@ footer{font-size:1rem;margin-top:-6px}
     <div class="view fen" data-f="tuer" aria-hidden="true"><div class="layer"></div><div class="layer"></div></div>
     <div class="view fen" data-f="oben" aria-hidden="true"><div class="layer"></div><div class="layer"></div></div>
     <div class="view fen" data-f="spiegel" aria-hidden="true"><div class="layer"></div><div class="layer"></div></div>
-    <img class="flur" src="bilder/flurb-eda42985.webp" alt="Unser Treppenhaus mit 24 Tüten" draggable="false">
+    <img class="flur" src="bilder/flurb-c34e9230.webp" alt="Unser Treppenhaus mit 24 Tüten" draggable="false">
     <div id="grid"></div>
   </div></main>
     </div>
@@ -704,15 +705,15 @@ function renderStatus(){
   }
 }
 
-const HOT = {1:[1178,300,1240,400],2:[1252,265,1314,365],3:[1328,225,1390,325],4:[1405,185,1467,282],5:[1480,145,1542,245],6:[1555,105,1615,200],7:[1050,375,1117,485],8:[1130,440,1197,545],9:[1210,490,1278,597],10:[1292,550,1358,657],11:[1368,610,1435,717],12:[1445,660,1515,767],13:[1100,640,1170,752],14:[1180,695,1250,807],15:[1262,752,1332,862],16:[1342,810,1412,918],17:[1505,922,1575,1030],18:[1588,965,1658,1075],19:[1493,1105,1550,1205],20:[1550,1125,1608,1225],21:[1422,870,1492,980],22:[1630,1175,1690,1280],23:[1686,1205,1746,1305],24:[1745,1215,1810,1325]};
-const HOT_H = {1:[846,1340,908,1443],2:[924,1301,988,1410],3:[1002,1256,1066,1365],4:[1079,1217,1144,1320],5:[1157,1170,1221,1275],6:[1234,1127,1297,1224],7:[717,1423,786,1539],8:[799,1494,866,1604],9:[878,1546,949,1662],10:[963,1610,1033,1726],11:[1043,1674,1110,1790],12:[1121,1732,1191,1848],13:[770,1713,840,1829],14:[853,1777,925,1893],15:[935,1835,1005,1951],16:[1018,1906,1085,2016],17:[1185,2022,1256,2138],18:[1269,2067,1340,2183],19:[1170,2202,1230,2318],20:[1230,2228,1292,2344],21:[1099,1964,1170,2074],22:[1311,2299,1372,2409],23:[1368,2331,1430,2441],24:[1430,2351,1494,2460]};
+const HOT = {1:[1328,225,1390,325],2:[1480,145,1542,245],3:[1178,300,1240,400],4:[1555,105,1615,200],5:[1405,185,1467,282],6:[1252,265,1314,365],7:[1130,440,1197,545],8:[1292,550,1358,657],9:[1368,610,1435,717],10:[1050,375,1117,485],11:[1210,490,1278,597],12:[1445,660,1515,767],13:[1262,752,1332,862],14:[1505,922,1575,1030],15:[1422,870,1492,980],16:[1588,965,1658,1075],17:[1100,640,1170,752],18:[1342,810,1412,918],19:[1493,1105,1550,1205],20:[1550,1125,1608,1225],21:[1180,695,1250,807],22:[1630,1175,1690,1280],23:[1686,1205,1746,1305],24:[1745,1215,1810,1325]};
+const HOT_H = {1:[1002,1256,1066,1365],2:[1157,1170,1221,1275],3:[846,1340,908,1443],4:[1234,1127,1297,1224],5:[1079,1217,1144,1320],6:[924,1301,988,1410],7:[799,1494,866,1604],8:[963,1610,1033,1726],9:[1043,1674,1110,1790],10:[717,1423,786,1539],11:[878,1546,949,1662],12:[1121,1732,1191,1848],13:[935,1835,1005,1951],14:[1185,2022,1256,2138],15:[1099,1964,1170,2074],16:[1269,2067,1340,2183],17:[770,1713,840,1829],18:[1018,1906,1085,2016],19:[1170,2202,1230,2318],20:[1230,2228,1292,2344],21:[853,1777,925,1893],22:[1311,2299,1372,2409],23:[1368,2331,1430,2441],24:[1430,2351,1494,2460]};
 /* Tüten im gemalten Treppenhaus: unsichtbare Klickflächen über den gezeichneten Tüten.
    Hochkant (iPhone, iPad im Hochformat) gibt es ein eigenes, höheres Bild mit eigenen Tütenplätzen. */
 const grid = document.getElementById("grid");
-const RAUM = { quer: {fenster: {links: [0, 140, 410, 862], mitte: [1460, 410, 1666, 710], tuer: [2222, 325, 2352, 785]}, bild: "bilder/flurb-eda42985.webp", hot: HOT, w: 2576, h: 1438, mitte: .555},
+const RAUM = { quer: {fenster: {links: [0, 140, 410, 862], mitte: [1460, 410, 1666, 710], tuer: [2222, 325, 2352, 785]}, bild: "bilder/flurb-c34e9230.webp", hot: HOT, w: 2576, h: 1438, mitte: .555},
                // fenster: wo die Fenster im Raumbild liegen (in Pixeln), damit jedes pro Tür einen eigenen Ausschnitt zeigen kann
                // Pro Tür: aus: {links, mitte, tuer} fürs breite Bild, aushoch: {oben, links, mitte, spiegel} fürs Handy, jeweils [x0,y0,x1,y1] im Hintergrundbild
-  hoch: {fenster: {oben: [0, 0, 206, 299], links: [0, 1288, 59, 1932], mitte: [1150, 1468, 1342, 1800], spiegel: [1794, 1475, 1896, 1848]}, bild: "bilder/flurh-0ad6d8dc.webp", hot: HOT_H, w: 1923, h: 2576, mitte: .42} };
+  hoch: {fenster: {oben: [0, 0, 206, 299], links: [0, 1288, 59, 1932], mitte: [1150, 1468, 1342, 1800], spiegel: [1794, 1475, 1896, 1848]}, bild: "bilder/flurh-33938279.webp", hot: HOT_H, w: 1923, h: 2576, mitte: .42} };
 Object.keys(HOT).forEach(n=>{
   const b = document.createElement("button");
   b.className = "door";
@@ -1507,6 +1508,16 @@ renderStatus(); refreshDoors(); setBg(homeBg());
       gl.uniform1f(U("rad"), zoomed ? Math.min(innerWidth, innerHeight) * .5 : sc[2] / 2);
       return true;
     }
+    // Positionen jedes Bild neu messen, falls sich die Kugel noch bewegt
+    function rechtecke(){
+      const flur = document.querySelector(".globe .flur"), gi = document.querySelector(".globe-img"), sc = rect(document.querySelector(".globe .scene"));
+      gl.uniform4f(U("rHall"), ...rect(flur)); gl.uniform4f(U("rFrame"), ...rect(gi)); gl.uniform4f(U("rBall"), ...sc);
+      gl.uniform2f(U("cen"), sc[0] + sc[2] / 2, sc[1] + sc[3] / 2); gl.uniform1f(U("rad"), sc[2] / 2);
+    }
+    async function ruhig(){ // warten, bis die Kugel still steht
+      let last = "", same = 0;
+      for(let i = 0; i < 40 && same < 2; i++){ await new Promise(r=>requestAnimationFrame(r)); const r = rect(document.querySelector(".globe .scene")).map(Math.round).join(); same = r === last ? same + 1 : 0; last = r; }
+    }
     function zeichne(av, bv){ gl.uniform1f(U("fx"), UEB_FX[uebergang()] || 0); gl.uniform1f(U("tm"), performance.now() / 1000 % 1000); gl.uniform1f(U("a"), av); gl.uniform1f(U("b"), bv); gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4); }
     function lauf(ms, f){ return new Promise(res=>{ const t0 = performance.now(); const st = t=>{ const k = Math.min(1, (t - t0) / ms); f(k); if(k < 1) requestAnimationFrame(st); else res(); }; requestAnimationFrame(st); }); }
     const zwei = () => new Promise(r=>requestAnimationFrame(()=>requestAnimationFrame(r)));
@@ -1532,8 +1543,8 @@ renderStatus(); refreshDoors(); setBg(homeBg());
         if(!(await vorbereiten(true))){ weiter(); return; }
         zeichne(0, 1); cv.classList.add("on");
         await lauf(750, k=>zeichne(0, Math.max(.0001, 1 - k)));
-        zeichne(1, 0); weiter(); await zwei(); await new Promise(r=>setTimeout(r, 120));
-        if(await vorbereiten(false)) await lauf(1000, k=>zeichne(1 - k, 0));
+        zeichne(1, 0); weiter(); await zwei(); await ruhig();
+        if(await vorbereiten(false)) await lauf(1000, k=>{ rechtecke(); zeichne(1 - k, 0); });
         cv.classList.remove("on");
       }
     };
@@ -1575,7 +1586,11 @@ renderStatus(); refreshDoors(); setBg(homeBg());
   function leaveNow(){
     wrap.classList.remove("zoomed"); document.body.classList.remove("zoomed-on"); back.hidden = true;
     { const sc = globe.querySelector(".scene"); sc.scrollLeft = 0; sc.scrollTop = 0; }
-    requestAnimationFrame(()=>{ try{ alignViews(); }catch(e){} size(); });
+    // Kugel sofort an die richtige Stelle setzen, ohne Gleiten. Sonst sieht man kurz eine verschobene Kugel.
+    wrap.classList.add("sofort");
+    try{ size(); }catch(e){} try{ alignViews(); }catch(e){}
+    void wrap.offsetWidth;
+    requestAnimationFrame(()=>{ try{ size(); alignViews(); }catch(e){} requestAnimationFrame(()=>requestAnimationFrame(()=>wrap.classList.remove("sofort"))); });
   }
   function leave(){
     if(WL && uebergang() !== "schlicht" && !tauchen){ tauchen = true; WL.raus(leaveNow).then(()=>{ tauchen = false; }); return; }
