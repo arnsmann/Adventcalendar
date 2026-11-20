@@ -387,17 +387,19 @@ footer{font-size:1rem;margin-top:-6px}
 /* Willkommen: erscheint nur beim allerersten Öffnen. Der Brief ist Arnes Bild, nur die Kästen werden je nach Gerät neu beschriftet */
 .welcome{position:fixed;inset:0;z-index:60;display:grid;place-items:center;padding:12px;background:rgba(30,18,14,.62);-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px);opacity:0;transition:opacity .6s}
 .welcome.on{opacity:1}
-.welcome .brief{position:relative;container-type:inline-size;width:min(100%, calc((100dvh - 24px) * 798 / 1344), 560px);aspect-ratio:798/1344;
-  background:url("bilder/brief-0fef1d58.webp") center/100% 100% no-repeat;border-radius:14px;box-shadow:0 30px 80px rgba(0,0,0,.5);
+.welcome .brief{position:relative;container-type:inline-size;width:min(100%, calc((100dvh - 24px) * 1528 / 2576), 560px);aspect-ratio:1528/2576;
+  background:url("bilder/brief-eaa62c30.webp") center/100% 100% no-repeat;border-radius:14px;box-shadow:0 30px 80px rgba(0,0,0,.5);
   transform:translateY(18px) scale(.97);transition:transform .8s cubic-bezier(.3,1.3,.5,1)}
 .welcome.on .brief{transform:none}
-.welcome .feld{position:absolute;display:flex;flex-direction:column;justify-content:center;font-family:"Nunito",var(--f-body);color:#3d2a20}
-.welcome .gruen{left:11.4%;top:47.8%;width:77.8%;padding-right:6% !important;clip-path:polygon(0 0,100% 0,100% 27%,94% 27%,94% 54%,100% 54%,100% 100%,0 100%);height:27%;background:radial-gradient(ellipse 120% 120% at 50% 50%,#d9e0cb 70%,rgba(217,224,203,.0) 100%);font-size:3.5cqw;line-height:1.45;padding:0 2%}
-.welcome .gruen b{font-weight:700;font-size:3.8cqw;display:block;margin-bottom:1.2cqw}
-.welcome .gruen ol{margin:0;padding-left:5.5cqw}
-.welcome .gruen .k{display:inline-block;background:#fbf8f0;border-radius:1.4cqw;padding:0 1.2cqw;font-weight:700;box-shadow:0 1px 0 rgba(0,0,0,.12)}
-.welcome .gelb{left:11.5%;top:78.4%;width:77.4%;height:5.2%;background:#f8e3b0;font-size:3.1cqw;line-height:1.3;padding:0 1.5%}
-.welcome .go{position:absolute;left:29.95%;top:87.05%;width:40%;height:6.7%;border:0;border-radius:999px;background:transparent;cursor:pointer;transition:box-shadow .3s, transform .15s}
+.welcome .feld{position:absolute;display:flex;flex-direction:column;justify-content:center;font-family:"Gochi Hand","Comic Sans MS",cursive;color:#3a2418;line-height:1.25}
+/* Anleitung steht direkt auf dem gemalten Zettel, leicht schräg wie der Zettel selbst */
+.welcome .gruen{left:31%;top:53.6%;width:43%;height:21%;font-size:3.05cqw;justify-content:flex-start;transform:rotate(-3deg);transform-origin:50% 0}
+.welcome .gruen b{font-weight:400;font-size:3.6cqw;display:block;margin-bottom:.8cqw;color:#8e2a2a}
+.welcome .gruen ol{margin:0 0 .6cqw;padding-left:4.6cqw}
+.welcome .gruen li{margin:.2cqw 0}
+.welcome .gruen .k{font-weight:400;color:#8e2a2a;white-space:nowrap}
+.welcome .gelb{left:24%;top:78.2%;width:52%;height:4.8%;font-size:2.55cqw;line-height:1.15;text-align:center;align-items:center;padding:0 1%}
+.welcome .go{position:absolute;left:29.6%;top:87.3%;width:40.6%;height:5.9%;border:0;border-radius:999px;background:transparent;cursor:pointer;transition:box-shadow .3s, transform .15s}
 .welcome .go:hover{box-shadow:0 0 0 3px rgba(255,255,255,.55),0 0 26px rgba(255,200,120,.6)}
 .welcome .go:active{transform:scale(.97)}
 .welcome .vh{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
@@ -1707,9 +1709,10 @@ addEventListener("hashchange", ()=>location.reload());
   if(app){ gruen = `<b>Perfekt ♡</b>Die App ist schon installiert. Ab dem 1. Dezember geht es los!`; if(!ios && !android) gelb = `Jeden Tag eine Tüte. Nicht schummeln! ♡`; }
   else if(ios && !safari){ gruen = `<b>Damit es eine App auf deinem Handy wird</b>Öffne diesen Link am besten in Safari. Dort kannst du ihn dann ganz einfach auf deinen Home-Bildschirm legen.`; }
   else if(ipad){ gruen = `<b>So wird es eine App auf deinem iPad</b><ol><li>Tippe oben rechts auf das Teilen Symbol <span class="k">⬆︎</span> oder auf <span class="k">···</span></li><li>Wähle <span class="k">Zum Home-Bildschirm</span></li><li>Tippe auf <span class="k">Hinzufügen</span></li></ol>Dann ist der Kalender wie eine App auf deinem iPad ♡`; gelb = `Auf dem iPad und am Mac ist der Kalender am schönsten!`; }
-  else if(ios){ /* iPhone: grüner Kasten passt genau zum Bild */ gelb = TIPP_GERAET; }
+  else if(ios){ gruen = `<b>So wird es eine App auf deinem Handy</b><ol><li>Tippe unten auf <span class="k">···</span> oder auf das Teilen Symbol <span class="k">⬆︎</span></li><li>Wähle <span class="k">Zum Home-Bildschirm</span></li><li>Tippe auf <span class="k">Hinzufügen</span></li></ol>Dann ist der Kalender wie eine App auf deinem Handy ♡`; gelb = TIPP_GERAET; }
   else if(android){ gruen = `<b>So wird es eine App auf deinem Handy</b><ol><li>Tippe oben rechts auf <span class="k">⋮</span></li><li>Wähle <span class="k">Zum Startbildschirm hinzufügen</span> oder <span class="k">App installieren</span></li></ol>Dann ist der Kalender wie eine App auf deinem Handy ♡`; gelb = TIPP_GERAET; }
   else { gruen = `<b>So wird es eine App auf deinem Mac</b><ol><li>Klicke oben in der Menüleiste auf <span class="k">Ablage</span></li><li>Wähle <span class="k">Zum Dock hinzufügen</span></li><li>Klicke auf <span class="k">Hinzufügen</span></li></ol>Dann hast du den Kalender als App im Dock ♡`; gelb = `Jeden Tag eine Tüte. Nicht schummeln! ♡`; }
+  if(!gelb) gelb = `Jeden Tag eine Tüte. Nicht schummeln! ♡`;
   const w = document.createElement("div");
   w.className = "welcome"; w.setAttribute("role","dialog"); w.setAttribute("aria-modal","true"); w.setAttribute("aria-label","Willkommen");
   w.innerHTML = `<div class="brief">
