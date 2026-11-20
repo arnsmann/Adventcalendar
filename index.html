@@ -1366,8 +1366,8 @@ renderStatus(); refreshDoors(); setBg(homeBg());
     const VS = "attribute vec2 a;varying vec2 v;void main(){v=a*.5+.5;gl_Position=vec4(a,0.,1.);}";
     const FS = `precision highp float;varying vec2 v;
       uniform vec2 res;uniform float dpr;
-      uniform sampler2D tBg,tHall,tFrame;
-      uniform vec4 rBg,rHall,rFrame,rBall;   // Rechtecke in CSS Pixeln: x,y,w,h
+      uniform sampler2D tBg,tHall,tFrame,tMask;
+      uniform vec4 rBg,rHall,rFrame,rBall,rMask;uniform float hasMask;   // Rechtecke in CSS Pixeln: x,y,w,h
       uniform vec2 cen;uniform float rad;uniform float a;uniform float b;uniform float modeZ;uniform float hasFrame;uniform float fx;uniform float tm;
       vec4 tex(sampler2D t,vec4 r,vec2 p){vec2 u=(p-r.xy)/r.zw;if(u.x<0.||u.y<0.||u.x>1.||u.y>1.)return vec4(0.);return texture2D(t,u);}
       vec3 screen(vec2 p){
@@ -1381,7 +1381,9 @@ renderStatus(); refreshDoors(); setBg(homeBg());
           return c/25.*.85; }
         vec3 c=bg;
         vec2 e=(p-(rBall.xy+rBall.zw*.5))/(rBall.zw*.5);
-        if(dot(e,e)<1.){ vec4 h=tex(tHall,rHall,p); c=mix(bg,h.rgb,h.a); }
+        // genau wie auf der Seite: das Treppenhaus nur innerhalb der Glasöffnung zeigen
+        float inGlas = hasMask>.5 ? tex(tMask,rMask,p).a : step(dot(e,e),1.);
+        if(inGlas>0.){ vec4 h=tex(tHall,rHall,p); c=mix(c,h.rgb,h.a*inGlas); }
         if(hasFrame>.5){ vec4 f=tex(tFrame,rFrame,p); c=mix(c,f.rgb,f.a); }
         return c;}
       vec2 rot(vec2 d,float t){float s=sin(t),c=cos(t);return vec2(c*d.x-s*d.y,s*d.x+c*d.y);}
@@ -1500,6 +1502,11 @@ renderStatus(); refreshDoors(); setBg(homeBg());
       gl.uniform4f(U("rHall"), ...rect(flur));
       gl.uniform4f(U("rFrame"), ...rect(gi));
       gl.uniform1f(U("hasFrame"), showFrame ? 1 : 0);
+      // Maske der Glasöffnung (dieselbe wie auf der Seite)
+      { const gw = document.getElementById("globeWrap"), mu = (gw.style.getPropertyValue("--gm") || "").match(/url\("?(.*?)"?\)/);
+        const mim = !zoomed && mu ? await bild(mu[1]) : null;
+        if(mim){ texFrom(3, "tMask", klein(mim, 1024)); gl.uniform4f(U("rMask"), ...rect(document.querySelector(".globe"))); }
+        gl.uniform1f(U("hasMask"), mim ? 1 : 0); }
       gl.uniform1f(U("modeZ"), zoomed ? 1 : 0);
       const sc = rect(document.querySelector(".globe .scene"));
       gl.uniform4f(U("rBall"), ...sc);
@@ -1511,7 +1518,7 @@ renderStatus(); refreshDoors(); setBg(homeBg());
     // Positionen jedes Bild neu messen, falls sich die Kugel noch bewegt
     function rechtecke(){
       const flur = document.querySelector(".globe .flur"), gi = document.querySelector(".globe-img"), sc = rect(document.querySelector(".globe .scene"));
-      gl.uniform4f(U("rHall"), ...rect(flur)); gl.uniform4f(U("rFrame"), ...rect(gi)); gl.uniform4f(U("rBall"), ...sc);
+      gl.uniform4f(U("rHall"), ...rect(flur)); gl.uniform4f(U("rFrame"), ...rect(gi)); gl.uniform4f(U("rBall"), ...sc); gl.uniform4f(U("rMask"), ...rect(document.querySelector(".globe")));
       gl.uniform2f(U("cen"), sc[0] + sc[2] / 2, sc[1] + sc[3] / 2); gl.uniform1f(U("rad"), sc[2] / 2);
     }
     async function ruhig(){ // warten, bis die Kugel still steht
