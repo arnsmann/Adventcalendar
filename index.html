@@ -17,7 +17,7 @@
 @font-face{font-family:"ArneFueller";src:url("schrift/fueller.woff2") format("woff2");font-display:swap}
 @font-face{font-family:"Arne";src:url("schrift/arne.woff2") format("woff2");font-display:swap}
 /* Kugelschreiberschrift ist sehr fein: mit einem Umriss in Schriftfarbe etwas kräftiger machen */
-.eyebrow,footer,.card .date,.note,.globe-hint,.welcome .feld{-webkit-text-stroke:var(--hand-dick,.03em) currentColor;paint-order:stroke fill}
+.eyebrow,footer,.card .date,.note,.globe-hint,.welcome .feld,.song-head small{-webkit-text-stroke:var(--hand-dick,.03em) currentColor;paint-order:stroke fill}
 </style>
 <script>
 /* Schrift zum Ausprobieren: ?schrift=1 bis 7, 9 = die alte von vorher, 0 = Standard (Arnes Handschrift). Die Wahl merkt sich der Browser. */
@@ -196,7 +196,7 @@ footer{font-family:var(--f-hand);font-size:1.1rem;color:#fff8f1;text-shadow:0 1p
 .song-head{display:flex;align-items:center;gap:12px}
 .song-head .ico{width:42px;height:42px;flex:none;border-radius:50%;background:var(--berry);color:#fff;display:grid;place-items:center;font-size:1.2rem}
 .song-head b{display:block;font-family:var(--f-display);font-weight:500;font-size:1.05rem}
-.song-head small{display:block;color:var(--soft);font-size:.85rem}
+.song-head small{display:block;color:var(--soft);font-size:1.02rem;line-height:1.3;font-family:var(--f-hand)}
 .song audio{width:100%;max-width:100%}
 /* kleine Widmung unten rechts im Bild */
 .clip{position:relative}
