@@ -887,7 +887,7 @@ addEventListener("resize", setzeRaum);
 // Über Web Audio abgespielt: einmal beim ersten Antippen freigeschaltet, danach klappt es auf iPhone, iPad und Mac auch mit Verzögerung.
 // Auf neueren iPhones zählt es als Wiedergabe, damit es nicht vom Stummschalter geschluckt wird.
 const TON = (function(){
-  const NAMEN = ["glocken","schluessel","tuer","tuer-zu","hohoho","eintauchen","quiek1","quiek2","quiek3","quiek4","quiek5"];
+  const NAMEN = ["schneesturm","glocken","schluessel","tuer","tuer-zu","hohoho","eintauchen","quiek1","quiek2","quiek3","quiek4","quiek5"];
   let ac = null; const buf = {}, laedt = {};
   function ctx(){
     if(!ac){ const C = window.AudioContext || window.webkitAudioContext; if(!C) return null; ac = new C(); window._tonCtx = ac; }
@@ -1910,7 +1910,7 @@ renderStatus(); refreshDoors(); setBg(homeBg());
     document.addEventListener("click", e=>{ if(!mn.hidden && !mn.contains(e.target) && e.target !== bt){ mn.hidden = true; bt.setAttribute("aria-expanded", false); } });
   })();
   function enter(){
-    if(!wrap.classList.contains("zoomed") && !tauchen) TON("eintauchen", .6);
+    if(!wrap.classList.contains("zoomed") && !tauchen) TON("schneesturm", .7);
     document.documentElement.classList.toggle("ueb-schlicht", uebergang() === "schlicht");
     if(WL && uebergang() !== "schlicht" && !tauchen && !wrap.classList.contains("zoomed")){
       tauchen = true;
@@ -1945,6 +1945,7 @@ renderStatus(); refreshDoors(); setBg(homeBg());
     requestAnimationFrame(()=>{ try{ size(); alignViews(); }catch(e){} requestAnimationFrame(()=>requestAnimationFrame(()=>wrap.classList.remove("sofort"))); });
   }
   function leave(){
+    if(wrap.classList.contains("zoomed") && !tauchen) TON("eintauchen", .6);
     document.getElementById("globe").classList.remove("licht-aus", "tuer-offen"); // beim Rausgehen Licht wieder an, Tür zu
     if(WL && uebergang() !== "schlicht" && !tauchen){ tauchen = true; WL.raus(leaveNow).then(()=>{ tauchen = false; }); return; }
     if(!tauchen) leaveNow();
