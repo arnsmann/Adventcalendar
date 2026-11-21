@@ -105,9 +105,10 @@ h1{font-family:var(--f-display);font-weight:600;font-size:clamp(1.6rem,4.6vw,2.3
 .spot{position:absolute;border:0;background:none;padding:0;cursor:pointer;-webkit-tap-highlight-color:transparent;border-radius:30%}
 .spot:focus-visible{outline:2px solid #ffe2a8}
 .kerlbahn{position:absolute;pointer-events:none;overflow:hidden}
+.kerl{transform-origin:50% 100%}
 .kerl{position:absolute;left:100%;bottom:0;height:60%;aspect-ratio:360/257;border:0;background:none;padding:0;cursor:pointer;visibility:hidden;-webkit-tap-highlight-color:transparent}
 .kerl.laeuft{visibility:visible}
-.kerl img{width:100%;height:100%;display:block;pointer-events:none;user-select:none;-webkit-user-select:none}
+.kerl img{width:100%;height:100%;object-fit:contain;display:block;pointer-events:none;user-select:none;-webkit-user-select:none}
 .kerl .piep{position:absolute;left:10%;bottom:92%;font-family:var(--f-hand);font-size:max(13px,22%);color:#3a2418;background:#fff8f1;border-radius:999px;padding:.1em .55em;white-space:nowrap;opacity:0;transform:translateY(20%) scale(.8);transition:opacity .2s,transform .2s;box-shadow:0 2px 6px rgba(0,0,0,.3);pointer-events:none}
 .kerl.sagt .piep{opacity:1;transform:none}
 html.raum-hoch .kerl{height:72%}
@@ -857,7 +858,27 @@ document.querySelectorAll(".spot.licht").forEach(b=>b.addEventListener("click", 
       });
     }catch(e){}
   }
-  k.addEventListener("click", e=>{ e.stopPropagation(); if(!anim) return; quietsch(); k.classList.add("sagt"); anim.playbackRate = 2.6; });
+  // Antippen: er quietscht, erschrickt, dreht sich um und rennt nach hinten in den Raum davon
+  const img = k.querySelector("img"), vorne = img.getAttribute("src"), hinten = "bilder/kerl-weg.webp";
+  new Image().src = hinten;
+  let flieht = false;
+  k.addEventListener("click", e=>{
+    e.stopPropagation(); if(!anim || flieht) return; flieht = true;
+    quietsch(); k.classList.add("sagt");
+    const m = new DOMMatrix(getComputedStyle(k).transform), x = m.m41;
+    anim.onfinish = anim.oncancel = null; anim.cancel(); k.style.transform = `translateX(${x}px)`;
+    setTimeout(()=>{
+      k.classList.remove("sagt");
+      img.src = hinten + "?" + Date.now();
+      const h = k.offsetHeight;
+      const a2 = k.animate([
+        {transform:`translateX(${x}px) translateY(0) scale(1)`, opacity:1},
+        {transform:`translateX(${x - h * .15}px) translateY(${-h * .35}px) scale(.55)`, opacity:1, offset:.75},
+        {transform:`translateX(${x - h * .2}px) translateY(${-h * .45}px) scale(.45)`, opacity:0}
+      ], {duration: 2800, easing: "ease-in", fill: "forwards"});
+      a2.onfinish = ()=>{ a2.cancel(); k.style.transform = ""; k.classList.remove("laeuft"); img.src = vorne; anim = null; flieht = false; plan(20000 + Math.random() * 20000); };
+    }, 700);
+  });
   plan(5000);
 })();
 function refreshDoors(){
