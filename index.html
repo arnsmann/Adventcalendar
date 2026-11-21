@@ -105,7 +105,10 @@ h1{font-family:var(--f-display);font-weight:600;font-size:clamp(1.6rem,4.6vw,2.3
 .spot{position:absolute;border:0;background:none;padding:0;cursor:pointer;-webkit-tap-highlight-color:transparent;border-radius:30%}
 .spot:focus-visible{outline:2px solid #ffe2a8}
 .kerlbahn{position:absolute;pointer-events:none;overflow:hidden}
-.kerl{transform-origin:50% 100%}
+.kerl{transform-origin:50% 100%;overflow:visible}
+.kerl .puff{position:absolute;left:52%;bottom:-2%;height:112%;width:auto;transform:translateX(-50%);display:none}
+.kerl.puffen img:not(.puff){visibility:hidden}
+.kerl.puffen .puff{display:block}
 .kerl{position:absolute;left:100%;bottom:0;height:60%;aspect-ratio:360/257;border:0;background:none;padding:0;cursor:pointer;visibility:hidden;-webkit-tap-highlight-color:transparent}
 .kerl.laeuft{visibility:visible}
 .kerl img{width:100%;height:100%;object-fit:contain;display:block;pointer-events:none;user-select:none;-webkit-user-select:none}
@@ -493,7 +496,7 @@ footer{font-size:1rem;margin-top:-6px}
       <button type="button" class="spot licht" data-s="schalter" aria-label="Licht an oder aus"></button>
       <button type="button" class="spot licht" data-s="laterne" aria-label="Licht an oder aus"></button>
       <button type="button" class="spot licht" data-s="baum" aria-label="Licht an oder aus"></button>
-      <div class="kerlbahn" data-s="kerl"><button type="button" class="kerl" aria-label="Fuyu"><img src="bilder/kerl.webp" alt="" draggable="false"><span class="piep">Huch!</span></button></div>
+      <div class="kerlbahn" data-s="kerl"><button type="button" class="kerl" aria-label="Fuyu"><img src="bilder/kerl.webp" alt="" draggable="false"><img class="puff" alt="" draggable="false"><span class="piep">Huch!</span></button></div>
     </div>
   </div></main>
     </div>
@@ -858,26 +861,18 @@ document.querySelectorAll(".spot.licht").forEach(b=>b.addEventListener("click", 
       });
     }catch(e){}
   }
-  // Antippen: er quietscht, erschrickt, dreht sich um und rennt nach hinten in den Raum davon
-  const img = k.querySelector("img"), vorne = img.getAttribute("src"), hinten = "bilder/kerl-weg.webp";
-  new Image().src = hinten;
+  // Antippen: er bleibt stehen, dreht sich erschrocken um, quietscht und verschwindet in einer Glitzerwolke
+  const puff = k.querySelector(".puff"), PUFF = "bilder/kerl-puff.webp";
+  new Image().src = PUFF;
   let flieht = false;
   k.addEventListener("click", e=>{
     e.stopPropagation(); if(!anim || flieht) return; flieht = true;
-    quietsch(); k.classList.add("sagt");
-    const m = new DOMMatrix(getComputedStyle(k).transform), x = m.m41;
-    anim.onfinish = anim.oncancel = null; anim.cancel(); k.style.transform = `translateX(${x}px)`;
-    setTimeout(()=>{
-      k.classList.remove("sagt");
-      img.src = hinten + "?" + Date.now();
-      const h = k.offsetHeight;
-      const a2 = k.animate([
-        {transform:`translateX(${x}px) translateY(0) scale(1)`, opacity:1},
-        {transform:`translateX(${x - h * .15}px) translateY(${-h * .35}px) scale(.55)`, opacity:1, offset:.75},
-        {transform:`translateX(${x - h * .2}px) translateY(${-h * .45}px) scale(.45)`, opacity:0}
-      ], {duration: 2800, easing: "ease-in", fill: "forwards"});
-      a2.onfinish = ()=>{ a2.cancel(); k.style.transform = ""; k.classList.remove("laeuft"); img.src = vorne; anim = null; flieht = false; plan(20000 + Math.random() * 20000); };
-    }, 700);
+    anim.pause();
+    puff.src = PUFF + "?" + Date.now(); k.classList.add("puffen");
+    setTimeout(()=>{ quietsch(); k.classList.add("sagt"); }, 450);
+    setTimeout(()=>k.classList.remove("sagt"), 1700);
+    setTimeout(()=>{ anim.onfinish = anim.oncancel = null; anim.cancel(); anim = null;
+      k.classList.remove("puffen", "laeuft"); puff.removeAttribute("src"); flieht = false; plan(20000 + Math.random() * 20000); }, 3050);
   });
   plan(5000);
 })();
