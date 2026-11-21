@@ -106,7 +106,7 @@ h1{font-family:var(--f-display);font-weight:600;font-size:clamp(1.6rem,4.6vw,2.3
 .spot:focus-visible{outline:2px solid #ffe2a8}
 .kerlbahn{position:absolute;pointer-events:none;overflow:hidden}
 .kerl{transform-origin:50% 100%;overflow:visible}
-.kerl .puff{position:absolute;left:52%;bottom:-2%;height:112%;width:auto;transform:translateX(-50%);display:none}
+.kerl .puff{position:absolute;left:15.3%;bottom:-3.2%;height:115.7%;width:auto;display:none}
 .kerl.puffen img:not(.puff){visibility:hidden}
 .kerl.puffen .puff{display:block}
 .kerl{position:absolute;right:100%;bottom:0;height:40%;aspect-ratio:360/257;border:0;background:none;padding:0;cursor:pointer;visibility:hidden;-webkit-tap-highlight-color:transparent}
@@ -853,13 +853,18 @@ document.querySelectorAll(".spot.licht").forEach(b=>b.addEventListener("click", 
   function sitzen(){
     if(!drin() || anim || sitzt){ plan(4000); return; }
     sitzt = true; new Image().src = GEHT;
-    szImg.onload = ()=>{ szImg.onload = null; sz.classList.add("da"); szT = setTimeout(gehen, 9000); };
-    szImg.src = KOMMT + "?" + Date.now();
+    // eine Datei: auftauchen, sitzen, verschwinden (15 Sekunden). Erst komplett laden, dann frisch einsetzen, damit sie von vorne startet
+    const pre = new Image();
+    pre.onload = ()=>{ szImg.src = pre.src; sz.classList.add("da"); szT = setTimeout(weg, 15000); };
+    pre.src = KOMMT;
   }
+  function weg(){ clearTimeout(szT); sz.classList.remove("da"); szImg.removeAttribute("src"); sitzt = false; plan(15000 + Math.random() * 20000); }
+  // Antippen: sofort verschwinden
   function gehen(){
     clearTimeout(szT);
-    szImg.onload = ()=>{ szImg.onload = null; szT = setTimeout(()=>{ sz.classList.remove("da"); szImg.removeAttribute("src"); sitzt = false; plan(15000 + Math.random() * 20000); }, 3000); };
-    szImg.src = GEHT + "?" + Date.now();
+    const pre = new Image();
+    pre.onload = ()=>{ szImg.src = pre.src; szT = setTimeout(weg, 3000); };
+    pre.src = GEHT + "?" + Date.now();
   }
   sz.addEventListener("click", e=>{ e.stopPropagation(); if(!sitzt || !sz.classList.contains("da")) return; quietsch(); gehen(); });
   function rennen(){
