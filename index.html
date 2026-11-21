@@ -101,6 +101,9 @@ h1{font-family:var(--f-display);font-weight:600;font-size:clamp(1.6rem,4.6vw,2.3
   -webkit-mask:var(--licht-maske) 0 0/100% 100% no-repeat;mask:var(--licht-maske) 0 0/100% 100% no-repeat}
 .licht-aus .lichter{opacity:.92}
 .spots{position:absolute;inset:0;z-index:5;pointer-events:none}
+/* Nikolaus (6. Dezember): gefüllter Stiefel an der Tür */
+.stiefel{position:absolute;z-index:2;pointer-events:none;display:none}
+.nikolaustag .stiefel{display:block}
 .globe-wrap.zoomed .spots .spot,.globe-wrap.zoomed .spots .kerl{pointer-events:auto}
 .spot{position:absolute;border:0;background:none;padding:0;cursor:pointer;-webkit-tap-highlight-color:transparent;border-radius:30%}
 .spot:focus-visible{outline:2px solid #ffe2a8}
@@ -509,6 +512,7 @@ footer{font-size:1rem;margin-top:-6px}
     <div class="view fen" data-f="oben" aria-hidden="true"><div class="layer"></div><div class="layer"></div></div>
     <div class="view fen" data-f="spiegel" aria-hidden="true"><div class="layer"></div><div class="layer"></div></div>
     <img class="flur" src="bilder/flurb-c34e9230.webp" alt="Unser Treppenhaus mit 24 Tüten" draggable="false">
+    <img class="stiefel" data-s="stiefel" src="" alt="" aria-hidden="true" draggable="false">
     <div class="lichter" aria-hidden="true"></div>
     <div class="nacht" aria-hidden="true"></div>
     <div id="grid"></div>
@@ -815,8 +819,8 @@ const HOT_H = {1:[1002,1256,1066,1365],2:[1157,1170,1221,1275],3:[846,1340,908,1
 const grid = document.getElementById("grid");
 // Klickbare Stellen im Raum [x0,y0,x1,y1] in Bildpixeln
 const SPOTS = {
-  quer: {schalter: [1735, 670, 1815, 770], laterne: [1600, 190, 1700, 340], baum: [690, 330, 1010, 800], sitz: [1790, 1186, 2063, 1364], sitz2: [778, 724, 996, 866], schlaf: [814, 757, 961, 853], kerl: [596, 1080, 2240, 1418]},
-  hoch: {schalter: [1420, 1750, 1500, 1860], laterne: [1280, 1230, 1370, 1370], baum: [360, 1420, 650, 1880], sitz: [560, 2296, 860, 2492], sitz2: [357, 1809, 597, 1966], schlaf: [396, 1846, 558, 1951], kerl: [236, 2235, 1923, 2475]}
+  quer: {schalter: [1735, 670, 1815, 770], laterne: [1600, 190, 1700, 340], baum: [690, 330, 1010, 800], sitz: [1790, 1186, 2063, 1364], sitz2: [778, 724, 996, 866], schlaf: [814, 757, 961, 853], stiefel: [1967, 1117, 2181, 1363], kerl: [596, 1080, 2240, 1418]},
+  hoch: {schalter: [1420, 1750, 1500, 1860], laterne: [1280, 1230, 1370, 1370], baum: [360, 1420, 650, 1880], sitz: [560, 2296, 860, 2492], sitz2: [357, 1809, 597, 1966], schlaf: [396, 1846, 558, 1951], stiefel: [1385, 2146, 1548, 2334], kerl: [236, 2235, 1923, 2475]}
 };
 const RAUM = { quer: {lichter: "bilder/flurb-licht-7c37f5a9.webp", fenster: {links: [0, 140, 410, 862], mitte: [1460, 410, 1666, 710], tuer: [2222, 325, 2352, 785]}, bild: "bilder/flurb-c34e9230.webp", hot: HOT, w: 2576, h: 1438, mitte: .555},
                // fenster: wo die Fenster im Raumbild liegen (in Pixeln), damit jedes pro Tür einen eigenen Ausschnitt zeigen kann
@@ -849,6 +853,10 @@ function setzeRaum(){
 }
 setzeRaum();
 addEventListener("resize", setzeRaum);
+// Am 6. Dezember steht ein gefüllter Stiefel an der Tür (zum Testen: ?nikolaus)
+(function(){ const d = new Date();
+  if(/nikolaus/.test(location.search) || (d.getMonth() === 11 && d.getDate() === 6)){
+    const st = document.querySelector(".stiefel"); const setz = () => { st.src = raumArt === "hoch" ? "bilder/stiefel-h.webp" : "bilder/stiefel.webp"; }; setz(); addEventListener("resize", setz); document.getElementById("globe").classList.add("nikolaustag"); } })();
 
 /* Kleine Geräusche im Raum, direkt im Browser erzeugt (keine Tondateien) */
 const RAUMTON = (function(){
