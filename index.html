@@ -410,6 +410,9 @@ body.text-links header h1{font-size:clamp(1.7rem,2.6vw,2.8rem)}
 body.anker-quer .wrap > header, body.anker-quer .wrap > .globe-hint, body.anker-quer .wrap > .motion-btn{transform:translateY(-14px)}
 .globe-wrap.side:not(.zoomed)::after,.globe-wrap.anker:not(.zoomed)::after{display:none}
 .globe-wrap.anker{min-width:0}
+/* Kugel sitzt auf der gemalten Kugel: die Seite darf dann nicht scrollen, sonst verrutscht das Treppenhaus gegen das Bild */
+html.anker-fest,html.anker-fest body{overflow:hidden;overscroll-behavior:none;height:100%}
+html.anker-fest body{position:fixed;inset:0;width:100%}
 .globe-wrap::after{content:"";position:absolute;left:8%;right:8%;bottom:calc(-1 * var(--mb, 0px) - 6px);height:7%;z-index:0;pointer-events:none;border-radius:50%;
   background:radial-gradient(closest-side,rgba(20,10,5,.45),rgba(20,10,5,0))}
 .globe-hint{font-size:.95rem}
@@ -654,7 +657,7 @@ const GLOBE_DEFAULT = document.querySelector(".globe-img").getAttribute("src");
     // Kugel sitzt auf einem Sockel, der schon im Hintergrundbild ist (Handy Hochformat)
     const A = window.globeAnker;
     if(A && g.getAttribute("src") === A.k){
-      w._anker = true; w.classList.add("anker"); w.classList.remove("side");
+      w._anker = true; w.classList.add("anker"); w.classList.remove("side"); document.documentElement.classList.add("anker-fest"); scrollTo(0, 0);
       document.body.classList.toggle("anker-quer", innerWidth > innerHeight);
       document.body.classList.toggle("text-links", innerWidth > innerHeight && A.links);
       w.style.left = ""; w.style.top = ""; w.style.transition = "none"; w.style.setProperty("--ey", A.ry / A.r);
@@ -677,6 +680,7 @@ const GLOBE_DEFAULT = document.querySelector(".globe-img").getAttribute("src");
       return;
     }
     document.body.classList.remove("anker-quer"); document.body.classList.remove("text-links");
+    document.documentElement.classList.remove("anker-fest");
     if(w._anker){ w._anker = false; w.classList.remove("anker"); window.bgAnkerCss = null; document.querySelectorAll(".bg .layer").forEach(l=>{ l.style.backgroundSize = ""; }); }
     w.style.left = (window.globeShift && innerWidth > innerHeight && innerWidth > 820) ? window.globeShift : "";
     // beim Messen keine Animation des Abstands, sonst stimmt die gemessene Unterkante nicht
