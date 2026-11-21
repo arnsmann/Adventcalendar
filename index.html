@@ -537,6 +537,7 @@ footer{font-size:1rem;margin-top:-6px}
       <button type="button" class="spot licht" data-s="laterne" aria-label="Licht an oder aus"></button>
       <button type="button" class="spot licht" data-s="baum" aria-label="Licht an oder aus"></button>
       <button type="button" class="spot schluessel" data-s="schluessel" aria-label="Schlüssel"></button>
+      <button type="button" class="spot nikolaus" data-s="nikolaus" aria-label="Nikolaus"></button>
       <div class="kerlbahn" data-s="kerl"><button type="button" class="kerl" aria-label="Fuyu"><img src="bilder/kerl.webp" alt="" draggable="false"><img class="puff" alt="" draggable="false"><span class="piep">Huch!</span></button></div>
       <button type="button" class="sitzer" data-s="sitz" aria-label="Fuyu"><img alt="" draggable="false"></button>
       <button type="button" class="schlaefer" data-s="schlaf" aria-label="Fuyu schläft"><img src="" alt="" draggable="false"><span class="zz"><i>z</i><i>z</i><i>Z</i></span><span class="piep">Pssst…</span></button>
@@ -836,8 +837,8 @@ const HOT_H = {1:[1002,1256,1066,1365],2:[1157,1170,1221,1275],3:[846,1340,908,1
 const grid = document.getElementById("grid");
 // Klickbare Stellen im Raum [x0,y0,x1,y1] in Bildpixeln
 const SPOTS = {
-  quer: {schalter: [1735, 670, 1815, 770], laterne: [1600, 190, 1700, 340], baum: [690, 330, 1010, 800], sitz: [1790, 1186, 2063, 1364], sitz2: [778, 724, 996, 866], schlaf: [814, 757, 961, 853], stiefel: [1967, 1117, 2181, 1363], tuerauf: [2189, 252, 2388, 1341], schluessel: [2310, 1075, 2445, 1165], kerl: [596, 1080, 2240, 1418]},
-  hoch: {schalter: [1420, 1750, 1500, 1860], laterne: [1280, 1230, 1370, 1370], baum: [360, 1420, 650, 1880], sitz: [560, 2296, 860, 2492], sitz2: [357, 1809, 597, 1966], schlaf: [396, 1846, 558, 1951], stiefel: [1385, 2146, 1548, 2334], tuerauf: [0, 0, 0, 0], schluessel: [0, 0, 0, 0], kerl: [236, 2235, 1923, 2475]}
+  quer: {schalter: [1735, 670, 1815, 770], laterne: [1600, 190, 1700, 340], baum: [690, 330, 1010, 800], sitz: [1790, 1186, 2063, 1364], sitz2: [778, 724, 996, 866], schlaf: [814, 757, 961, 853], stiefel: [1967, 1117, 2181, 1363], tuerauf: [2189, 252, 2388, 1341], schluessel: [2310, 1075, 2445, 1165], nikolaus: [395, 920, 545, 1175], kerl: [596, 1080, 2240, 1418]},
+  hoch: {schalter: [1420, 1750, 1500, 1860], laterne: [1280, 1230, 1370, 1370], baum: [360, 1420, 650, 1880], sitz: [560, 2296, 860, 2492], sitz2: [357, 1809, 597, 1966], schlaf: [396, 1846, 558, 1951], stiefel: [1385, 2146, 1548, 2334], tuerauf: [0, 0, 0, 0], schluessel: [0, 0, 0, 0], nikolaus: [0, 2010, 190, 2290], kerl: [236, 2235, 1923, 2475]}
 };
 const RAUM = { quer: {lichter: "bilder/flurb-licht-7c37f5a9.webp", fenster: {links: [0, 140, 410, 862], mitte: [1460, 410, 1666, 710], tuer: [2222, 325, 2352, 785], offen: [2189, 252, 2388, 1341]}, bild: "bilder/flurb-c34e9230.webp", hot: HOT, w: 2576, h: 1438, mitte: .555},
                // fenster: wo die Fenster im Raumbild liegen (in Pixeln), damit jedes pro Tür einen eigenen Ausschnitt zeigen kann
@@ -875,6 +876,10 @@ addEventListener("resize", setzeRaum);
   if(/nikolaus/.test(location.search) || (d.getMonth() === 11 && d.getDate() === 6)){
     const st = document.querySelector(".stiefel"); const setz = () => { st.src = raumArt === "hoch" ? "bilder/stiefel-h.webp" : "bilder/stiefel.webp"; }; setz(); addEventListener("resize", setz); document.getElementById("globe").classList.add("nikolaustag"); } })();
 
+/* Echte Geräusche (Tondateien in toene/) */
+const TON = (function(){ const c = {};
+  return function(name, vol){ try{ const a = c[name] || (c[name] = new Audio("toene/" + name + ".mp3")); a.currentTime = 0; a.volume = vol == null ? .8 : vol; a.play().catch(()=>{}); }catch(e){} };
+})();
 /* Kleine Geräusche im Raum, direkt im Browser erzeugt (keine Tondateien) */
 const RAUMTON = (function(){
   let ac = null;
@@ -944,6 +949,8 @@ const RAUMTON = (function(){
   return { glocken, klick, zzzp, schluessel, knarren };
 })();
 
+/* Nikolaus antippen: Ho ho ho */
+document.querySelector(".spot.nikolaus").addEventListener("click", e=>{ e.stopPropagation(); TON("hohoho", .75); });
 /* Schlüssel antippen: Tür auf oder zu */
 document.querySelector(".spot.schluessel").addEventListener("click", e=>{
   e.stopPropagation();
@@ -951,13 +958,13 @@ document.querySelector(".spot.schluessel").addEventListener("click", e=>{
   if(!img.getAttribute("src")) img.src = "bilder/tuer-auf.webp";
   const auf = !g.classList.contains("tuer-offen");
   // Türgeräusch: Öffnen oder Schließen
-  try{ window._tuerTon = window._tuerTon || {auf: new Audio("toene/tuer.mp3"), zu: new Audio("toene/tuer-zu.mp3")};
-    const t = window._tuerTon[auf ? "auf" : "zu"]; t.currentTime = 0; t.volume = .8; t.play().catch(()=>{}); }catch(er){}
+  TON("schluessel");
+  setTimeout(()=>TON(auf ? "tuer" : "tuer-zu"), auf ? 450 : 350);
   g.classList.toggle("tuer-offen"); try{ alignViews(); }catch(er){}
 });
 /* Licht an und aus: Lichtschalter, Laterne oder Weihnachtsbaum antippen, jeweils mit eigenem Geräusch */
 document.querySelectorAll(".spot.licht").forEach(b=>b.addEventListener("click", ()=>{
-  try{ ({schalter: RAUMTON.klick, laterne: RAUMTON.zzzp, baum: RAUMTON.glocken})[b.dataset.s](); }catch(e){}
+  try{ ({schalter: RAUMTON.klick, laterne: RAUMTON.zzzp, baum: ()=>TON("glocken")})[b.dataset.s](); }catch(e){}
   document.getElementById("globe").classList.toggle("licht-aus");
 }));
 
@@ -1010,7 +1017,9 @@ document.querySelectorAll(".spot.licht").forEach(b=>b.addEventListener("click", 
   }
   // kleines Quietschen, direkt im Browser erzeugt (keine Tondatei nötig)
   let ac = null;
+  let letzt = 0;
   function quietsch(){
+    let n; do{ n = 1 + Math.floor(Math.random() * 5); }while(n === letzt); letzt = n; TON("quiek" + n, .7); return;
     try{
       ac = ac || new (window.AudioContext || window.webkitAudioContext)(); if(ac.state === "suspended") ac.resume();
       const t0 = ac.currentTime;
@@ -1866,6 +1875,7 @@ renderStatus(); refreshDoors(); setBg(homeBg());
     document.addEventListener("click", e=>{ if(!mn.hidden && !mn.contains(e.target) && e.target !== bt){ mn.hidden = true; bt.setAttribute("aria-expanded", false); } });
   })();
   function enter(){
+    if(!wrap.classList.contains("zoomed") && !tauchen) TON("eintauchen", .6);
     document.documentElement.classList.toggle("ueb-schlicht", uebergang() === "schlicht");
     if(WL && uebergang() !== "schlicht" && !tauchen && !wrap.classList.contains("zoomed")){
       tauchen = true;
