@@ -101,20 +101,16 @@ h1{font-family:var(--f-display);font-weight:600;font-size:clamp(1.6rem,4.6vw,2.3
   -webkit-mask:var(--licht-maske) 0 0/100% 100% no-repeat;mask:var(--licht-maske) 0 0/100% 100% no-repeat}
 .licht-aus .lichter{opacity:.92}
 .spots{position:absolute;inset:0;z-index:5;pointer-events:none}
-.globe-wrap.zoomed .spots .spot,.globe-wrap.zoomed .spots .maus{pointer-events:auto}
+.globe-wrap.zoomed .spots .spot,.globe-wrap.zoomed .spots .kerl{pointer-events:auto}
 .spot{position:absolute;border:0;background:none;padding:0;cursor:pointer;-webkit-tap-highlight-color:transparent;border-radius:30%}
 .spot:focus-visible{outline:2px solid #ffe2a8}
-.mausloch{position:absolute;overflow:hidden;pointer-events:none}
-.maus{position:absolute;right:0;bottom:0;height:56%;aspect-ratio:120/70;border:0;background:none;padding:0;cursor:pointer;transform:translateX(105%);transition:transform .7s cubic-bezier(.4,1.4,.6,1);-webkit-tap-highlight-color:transparent}
-.maus svg{width:100%;height:100%;display:block;overflow:visible}
-.maus.guckt{transform:translateX(38%)}
-.maus.wackelt svg{animation:mauswackeln .5s ease 2}
-@keyframes mauswackeln{50%{transform:rotate(-6deg) translateY(-4%)}}
-.maus.rennt{transition:transform 1.3s cubic-bezier(.5,0,.9,.6),opacity .4s 1s;transform:translateX(-520%);opacity:0}
-.maus .piep{position:absolute;left:-10%;bottom:105%;font-family:var(--f-hand);font-size:max(13px,90%);color:#3a2418;background:#fff8f1;border-radius:999px;padding:.1em .55em;white-space:nowrap;opacity:0;transform:translateY(20%) scale(.8);transition:opacity .2s,transform .2s;box-shadow:0 2px 6px rgba(0,0,0,.3);pointer-events:none}
-.maus.sagt .piep{opacity:1;transform:none}
-html.raum-hoch .maus{height:60%}
-.licht-aus .maus svg{filter:brightness(.5) saturate(.7);transition:filter .9s}
+.kerlbahn{position:absolute;pointer-events:none}
+.kerl{position:absolute;left:100%;bottom:0;height:100%;aspect-ratio:360/257;border:0;background:none;padding:0;cursor:pointer;visibility:hidden;-webkit-tap-highlight-color:transparent}
+.kerl.laeuft{visibility:visible}
+.kerl img{width:100%;height:100%;display:block;pointer-events:none;user-select:none;-webkit-user-select:none}
+.kerl .piep{position:absolute;left:10%;bottom:92%;font-family:var(--f-hand);font-size:max(13px,22%);color:#3a2418;background:#fff8f1;border-radius:999px;padding:.1em .55em;white-space:nowrap;opacity:0;transform:translateY(20%) scale(.8);transition:opacity .2s,transform .2s;box-shadow:0 2px 6px rgba(0,0,0,.3);pointer-events:none}
+.kerl.sagt .piep{opacity:1;transform:none}
+.licht-aus .kerl img{filter:brightness(.55) saturate(.7);transition:filter .9s}
 
 /* gemaltes Treppenhaus */
 .flur{position:absolute;inset:0;width:100%;height:100%;display:block;z-index:2;pointer-events:none;user-select:none;-webkit-user-select:none}
@@ -492,7 +488,7 @@ footer{font-size:1rem;margin-top:-6px}
       <button type="button" class="spot licht" data-s="schalter" aria-label="Licht an oder aus"></button>
       <button type="button" class="spot licht" data-s="laterne" aria-label="Licht an oder aus"></button>
       <button type="button" class="spot licht" data-s="baum" aria-label="Licht an oder aus"></button>
-      <div class="mausloch" data-s="maus"><button type="button" class="maus" aria-label="Maus"><svg viewBox="0 0 120 70" aria-hidden="true"><path d="M108 52 C122 46 120 30 110 32" fill="none" stroke="#8a7a72" stroke-width="3" stroke-linecap="round"/><ellipse cx="72" cy="48" rx="38" ry="20" fill="#9c8f88"/><ellipse cx="64" cy="54" rx="26" ry="10" fill="#b3a79f"/><path d="M38 40 C26 40 14 46 10 52 C16 58 30 60 40 56 Z" fill="#9c8f88"/><circle cx="44" cy="26" r="13" fill="#9c8f88"/><circle cx="44" cy="26" r="8" fill="#e7b3b0"/><circle cx="24" cy="44" r="2.6" fill="#2a1d18"/><circle cx="24.8" cy="43.2" r=".8" fill="#fff"/><circle cx="10" cy="52" r="3" fill="#d98c8f"/><path d="M12 50 L0 46 M12 53 L0 54 M12 55 L2 60" stroke="#6f625c" stroke-width="1" stroke-linecap="round"/><ellipse cx="50" cy="66" rx="6" ry="3" fill="#8a7a72"/><ellipse cx="90" cy="66" rx="6" ry="3" fill="#8a7a72"/></svg><span class="piep">Piep!</span></button></div>
+      <div class="kerlbahn" data-s="kerl"><button type="button" class="kerl" aria-label="Kleiner Kerl"><img src="bilder/kerl.webp" alt="" draggable="false"><span class="piep">Huch!</span></button></div>
     </div>
   </div></main>
     </div>
@@ -788,8 +784,8 @@ const HOT_H = {1:[1002,1256,1066,1365],2:[1157,1170,1221,1275],3:[846,1340,908,1
 const grid = document.getElementById("grid");
 // Klickbare Stellen im Raum [x0,y0,x1,y1] in Bildpixeln
 const SPOTS = {
-  quer: {schalter: [1735, 670, 1815, 770], laterne: [1600, 190, 1700, 340], baum: [690, 330, 1010, 800], maus: [1250, 980, 1842, 1140]},
-  hoch: {schalter: [1420, 1750, 1500, 1860], laterne: [1280, 1230, 1370, 1370], baum: [360, 1420, 650, 1880], maus: [420, 2230, 905, 2470]}
+  quer: {schalter: [1735, 670, 1815, 770], laterne: [1600, 190, 1700, 340], baum: [690, 330, 1010, 800], kerl: [0, 1190, 2576, 1420]},
+  hoch: {schalter: [1420, 1750, 1500, 1860], laterne: [1280, 1230, 1370, 1370], baum: [360, 1420, 650, 1880], kerl: [0, 2330, 1923, 2560]}
 };
 const RAUM = { quer: {lichter: "bilder/flurb-licht-7c37f5a9.webp", fenster: {links: [0, 140, 410, 862], mitte: [1460, 410, 1666, 710], tuer: [2222, 325, 2352, 785]}, bild: "bilder/flurb-c34e9230.webp", hot: HOT, w: 2576, h: 1438, mitte: .555},
                // fenster: wo die Fenster im Raumbild liegen (in Pixeln), damit jedes pro Tür einen eigenen Ausschnitt zeigen kann
@@ -828,26 +824,21 @@ document.querySelectorAll(".spot.licht").forEach(b=>b.addEventListener("click", 
   document.getElementById("globe").classList.toggle("licht-aus");
 }));
 
-/* Die kleine Maus: guckt ab und zu hervor, beim Antippen sagt sie Piep und rennt weg */
+/* Arnes kleiner Kerl: rennt ab und zu über den Boden. Antippen: "Huch!" und er rennt schneller */
 (function(){
-  const m = document.querySelector(".maus"), wrap = document.getElementById("globeWrap");
-  let t = null, weg = false;
+  const k = document.querySelector(".kerl"), bahn = document.querySelector(".kerlbahn"), wrap = document.getElementById("globeWrap");
+  let anim = null, t = null;
   const drin = () => wrap && wrap.classList.contains("zoomed");
-  function plan(ms){ clearTimeout(t); t = setTimeout(gucken, ms); }
-  function gucken(){
-    if(!drin() || weg){ plan(4000); return; }
-    m.classList.remove("rennt"); m.style.opacity = "";
-    m.classList.add("guckt"); setTimeout(()=>m.classList.add("wackelt"), 700); setTimeout(()=>m.classList.remove("wackelt"), 1800);
-    setTimeout(()=>{ if(!weg){ m.classList.remove("guckt"); plan(12000 + Math.random() * 14000); } }, 4500);
+  function plan(ms){ clearTimeout(t); t = setTimeout(rennen, ms); }
+  function rennen(){
+    if(!drin() || anim){ plan(4000); return; }
+    const weg = bahn.clientWidth + k.offsetWidth * 1.2;
+    k.classList.add("laeuft");
+    anim = k.animate([{transform:"translateX(0)"},{transform:`translateX(${-weg}px)`}], {duration: 11000, easing: "linear"});
+    anim.onfinish = anim.oncancel = ()=>{ k.classList.remove("laeuft", "sagt"); anim = null; plan(15000 + Math.random() * 20000); };
   }
-  m.addEventListener("click", e=>{
-    e.stopPropagation(); if(weg) return; weg = true;
-    m.classList.add("guckt", "sagt");
-    setTimeout(()=>{ m.classList.remove("sagt"); m.classList.add("rennt"); }, 900);
-    setTimeout(()=>{ m.classList.add("ohne"); m.classList.remove("rennt", "guckt"); m.style.transition = "none"; m.style.opacity = "";
-      requestAnimationFrame(()=>{ m.style.transition = ""; m.classList.remove("ohne"); weg = false; plan(25000 + Math.random() * 15000); }); }, 2600);
-  });
-  plan(7000);
+  k.addEventListener("click", e=>{ e.stopPropagation(); if(!anim) return; k.classList.add("sagt"); anim.playbackRate = 2.6; });
+  plan(5000);
 })();
 function refreshDoors(){
   const today = todayNum();
