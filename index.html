@@ -125,6 +125,14 @@ html.raum-hoch .kerl{height:48%}
 .globe-wrap.zoomed .spots .sitzer{pointer-events:auto}
 .sitzer img{width:100%;height:100%;display:block;pointer-events:none;user-select:none;-webkit-user-select:none}
 .licht-aus .sitzer img{filter:brightness(.55) saturate(.7);transition:filter .9s}
+/* Fuyu ins Bild einfügen: warmes Licht vom Raum annehmen und einen weichen Schatten auf den Boden werfen */
+.kerl img,.sitzer img,.schlaefer img{filter:sepia(.5) saturate(1.25) hue-rotate(-8deg) brightness(.84) contrast(.9) blur(.35px) drop-shadow(-1px -1px 0 rgba(255,184,100,.32))}
+.licht-aus .kerl img,.licht-aus .sitzer img,.licht-aus .schlaefer img{filter:sepia(.5) saturate(.8) brightness(.48) contrast(.9) blur(.35px)}
+.kerl::before,.sitzer::before,.schlaefer::before{content:"";position:absolute;left:18%;right:18%;bottom:2%;height:16%;border-radius:50%;
+  background:radial-gradient(closest-side,rgba(25,9,2,.85),rgba(25,9,2,.45) 55%,rgba(25,9,2,0));pointer-events:none}
+.sitzer::before{left:24%;right:14%;bottom:3%;height:15%}
+.schlaefer::before{left:8%;right:8%;bottom:1%;height:14%}
+.kerl.puffen::before{opacity:.5}
 /* Nachts schläft Fuyu oben auf dem Schrank vor dem Baum */
 .schlaefer{position:absolute;border:0;background:none;padding:0;cursor:pointer;display:none;-webkit-tap-highlight-color:transparent}
 .nachtzeit .schlaefer{display:block}
