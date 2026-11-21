@@ -801,8 +801,8 @@ const HOT_H = {1:[1002,1256,1066,1365],2:[1157,1170,1221,1275],3:[846,1340,908,1
 const grid = document.getElementById("grid");
 // Klickbare Stellen im Raum [x0,y0,x1,y1] in Bildpixeln
 const SPOTS = {
-  quer: {schalter: [1735, 670, 1815, 770], laterne: [1600, 190, 1700, 340], baum: [690, 330, 1010, 800], sitz: [1790, 1186, 2063, 1364], kerl: [596, 1080, 2240, 1418]},
-  hoch: {schalter: [1420, 1750, 1500, 1860], laterne: [1280, 1230, 1370, 1370], baum: [360, 1420, 650, 1880], sitz: [560, 2296, 860, 2492], kerl: [236, 2235, 1923, 2475]}
+  quer: {schalter: [1735, 670, 1815, 770], laterne: [1600, 190, 1700, 340], baum: [690, 330, 1010, 800], sitz: [1790, 1186, 2063, 1364], sitz2: [778, 724, 996, 866], kerl: [596, 1080, 2240, 1418]},
+  hoch: {schalter: [1420, 1750, 1500, 1860], laterne: [1280, 1230, 1370, 1370], baum: [360, 1420, 650, 1880], sitz: [560, 2296, 860, 2492], sitz2: [357, 1809, 597, 1966], kerl: [236, 2235, 1923, 2475]}
 };
 const RAUM = { quer: {lichter: "bilder/flurb-licht-7c37f5a9.webp", fenster: {links: [0, 140, 410, 862], mitte: [1460, 410, 1666, 710], tuer: [2222, 325, 2352, 785]}, bild: "bilder/flurb-c34e9230.webp", hot: HOT, w: 2576, h: 1438, mitte: .555},
                // fenster: wo die Fenster im Raumbild liegen (in Pixeln), damit jedes pro Tür einen eigenen Ausschnitt zeigen kann
@@ -903,6 +903,9 @@ document.querySelectorAll(".spot.licht").forEach(b=>b.addEventListener("click", 
   function sitzen(){
     if(!drin() || anim || sitzt){ plan(4000); return; }
     sitzt = true; new Image().src = GEHT;
+    // mal auf dem Boden, mal oben auf dem Schrank vor dem Weihnachtsbaum
+    { const ort = Math.random() < .5 ? "sitz" : "sitz2", R = RAUM[raumArt], [x0,y0,x1,y1] = SPOTS[raumArt][ort];
+      sz.style.left = x0/R.w*100 + "%"; sz.style.top = y0/R.h*100 + "%"; sz.style.width = (x1-x0)/R.w*100 + "%"; sz.style.height = (y1-y0)/R.h*100 + "%"; }
     // eine Datei: auftauchen, sitzen, verschwinden (15 Sekunden). Erst komplett laden, dann frisch einsetzen, damit sie von vorne startet
     const pre = new Image();
     pre.onload = ()=>{ szImg.src = pre.src; sz.classList.add("da"); szT = setTimeout(weg, 15000); };
