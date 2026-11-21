@@ -836,8 +836,58 @@ function setzeRaum(){
 setzeRaum();
 addEventListener("resize", setzeRaum);
 
-/* Licht an und aus: Lichtschalter, Laterne oder Weihnachtsbaum antippen */
+/* Kleine Geräusche im Raum, direkt im Browser erzeugt (keine Tondateien) */
+const RAUMTON = (function(){
+  let ac = null;
+  const ctx = () => { ac = ac || new (window.AudioContext || window.webkitAudioContext)(); if(ac.state === "suspended") ac.resume(); return ac; };
+  function rauschen(c, dauer){ const b = c.createBuffer(1, Math.ceil(c.sampleRate * dauer), c.sampleRate), d = b.getChannelData(0); for(let i = 0; i < d.length; i++) d[i] = Math.random() * 2 - 1; const s = c.createBufferSource(); s.buffer = b; return s; }
+  // Schellen wie am Rentierschlitten, dazu leises Rascheln der Zweige
+  function glocken(){
+    const c = ctx(), t0 = c.currentTime, out = c.createGain(); out.gain.value = .22; out.connect(c.destination);
+    for(let i = 0; i < 14; i++){
+      const t = t0 + i * .055 + Math.random() * .03, f = 2400 + Math.random() * 1600;
+      [1, 2.76, 5.4].forEach((m, j)=>{
+        const o = c.createOscillator(), g = c.createGain(); o.type = "sine"; o.frequency.value = f * m;
+        const v = (.5 / (j + 1)) * (1 - i / 18);
+        g.gain.setValueAtTime(0, t); g.gain.linearRampToValueAtTime(v, t + .004); g.gain.exponentialRampToValueAtTime(.0008, t + .35 - j * .08);
+        o.connect(g).connect(out); o.start(t); o.stop(t + .4);
+      });
+    }
+    const n = rauschen(c, .7), bp = c.createBiquadFilter(), g = c.createGain();
+    bp.type = "bandpass"; bp.frequency.value = 4500; bp.Q.value = .8;
+    g.gain.setValueAtTime(0, t0); g.gain.linearRampToValueAtTime(.12, t0 + .08); g.gain.exponentialRampToValueAtTime(.001, t0 + .7);
+    n.connect(bp).connect(g).connect(out); n.start(t0);
+  }
+  // Klick vom Lichtschalter
+  function klick(){
+    const c = ctx(), t0 = c.currentTime;
+    [[0, .5], [.035, .25]].forEach(([d, v])=>{
+      const n = rauschen(c, .03), hp = c.createBiquadFilter(), g = c.createGain();
+      hp.type = "bandpass"; hp.frequency.value = 2200; hp.Q.value = 1.2;
+      g.gain.setValueAtTime(v, t0 + d); g.gain.exponentialRampToValueAtTime(.001, t0 + d + .025);
+      n.connect(hp).connect(g).connect(c.destination); n.start(t0 + d);
+    });
+  }
+  // altes Licht: kurzes elektrisches Zzzzp
+  function zzzp(){
+    const c = ctx(), t0 = c.currentTime, out = c.createGain(); out.gain.value = .14; out.connect(c.destination);
+    const o = c.createOscillator(), g = c.createGain(), lp = c.createBiquadFilter();
+    o.type = "sawtooth"; o.frequency.setValueAtTime(100, t0); lp.type = "lowpass"; lp.frequency.value = 2500;
+    g.gain.setValueAtTime(0, t0);
+    for(let i = 0; i < 9; i++){ const t = t0 + i * .035; g.gain.setValueAtTime(Math.random() < .65 ? .9 : .15, t); }
+    g.gain.setValueAtTime(.6, t0 + .32); g.gain.exponentialRampToValueAtTime(.001, t0 + .55);
+    o.connect(lp).connect(g).connect(out); o.start(t0); o.stop(t0 + .6);
+    const n = rauschen(c, .4), hp = c.createBiquadFilter(), gn = c.createGain();
+    hp.type = "highpass"; hp.frequency.value = 3000;
+    gn.gain.setValueAtTime(.5, t0); gn.gain.exponentialRampToValueAtTime(.001, t0 + .35);
+    n.connect(hp).connect(gn).connect(out); n.start(t0);
+  }
+  return { glocken, klick, zzzp };
+})();
+
+/* Licht an und aus: Lichtschalter, Laterne oder Weihnachtsbaum antippen, jeweils mit eigenem Geräusch */
 document.querySelectorAll(".spot.licht").forEach(b=>b.addEventListener("click", ()=>{
+  try{ ({schalter: RAUMTON.klick, laterne: RAUMTON.zzzp, baum: RAUMTON.glocken})[b.dataset.s](); }catch(e){}
   document.getElementById("globe").classList.toggle("licht-aus");
 }));
 
