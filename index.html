@@ -105,9 +105,14 @@ h1{font-family:var(--f-display);font-weight:600;font-size:clamp(1.6rem,4.6vw,2.3
 .stiefel{position:absolute;z-index:2;pointer-events:none;display:none}
 .nikolaustag .stiefel{display:block}
 /* Schlüssel antippen: die Haustür geht auf, draußen sieht man das Bild des Tages */
-.stage .view.offen{z-index:2;visibility:hidden!important;-webkit-mask:url("bilder/tuer-durchblick.png") 0 0/100% 100% no-repeat;mask:url("bilder/tuer-durchblick.png") 0 0/100% 100% no-repeat}
+.stage .view.offen{z-index:4;visibility:hidden!important;-webkit-mask:url("bilder/tuer-durchblick.png") 0 0/100% 100% no-repeat;mask:url("bilder/tuer-durchblick.png") 0 0/100% 100% no-repeat}
 .stage .view.offen.zeigen{visibility:visible!important}
-.tuer-auf{position:absolute;z-index:2;pointer-events:none;display:none}
+.tuer-auf{position:absolute;z-index:4;pointer-events:none;display:none}
+/* offene Tür liegt über der Nacht-Ebene: der Ausblick bleibt hell wie bei den Fenstern, die Tür selbst wird eigens abgedunkelt */
+.tuer-nacht{position:absolute;z-index:4;pointer-events:none;display:none;background:#232a52;mix-blend-mode:multiply;opacity:0;transition:opacity .9s ease;
+  -webkit-mask:url("bilder/tuer-auf.webp") 0 0/100% 100% no-repeat;mask:url("bilder/tuer-auf.webp") 0 0/100% 100% no-repeat}
+.tuer-offen .tuer-nacht{display:block}
+.licht-aus .tuer-nacht{opacity:.82}
 .tuer-offen .tuer-auf{display:block}
 html.raum-hoch .spot.schluessel{display:none}
 .globe-wrap.zoomed .spots .spot,.globe-wrap.zoomed .spots .kerl{pointer-events:auto}
@@ -528,6 +533,7 @@ footer{font-size:1rem;margin-top:-6px}
     <img class="flur" src="bilder/flurb-c34e9230.webp" alt="Unser Treppenhaus mit 24 Tüten" draggable="false">
     <div class="view fen offen" data-f="offen" aria-hidden="true"><div class="layer"></div><div class="layer"></div></div>
     <img class="tuer-auf" data-s="tuerauf" alt="" aria-hidden="true" draggable="false">
+    <div class="tuer-nacht" data-s="tuerauf" aria-hidden="true"></div>
     <img class="stiefel" data-s="stiefel" src="" alt="" aria-hidden="true" draggable="false">
     <div class="lichter" aria-hidden="true"></div>
     <div class="nacht" aria-hidden="true"></div>
