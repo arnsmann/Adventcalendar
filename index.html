@@ -104,12 +104,13 @@ h1{font-family:var(--f-display);font-weight:600;font-size:clamp(1.6rem,4.6vw,2.3
 .globe-wrap.zoomed .spots .spot,.globe-wrap.zoomed .spots .kerl{pointer-events:auto}
 .spot{position:absolute;border:0;background:none;padding:0;cursor:pointer;-webkit-tap-highlight-color:transparent;border-radius:30%}
 .spot:focus-visible{outline:2px solid #ffe2a8}
-.kerlbahn{position:absolute;pointer-events:none}
-.kerl{position:absolute;left:100%;bottom:0;height:100%;aspect-ratio:360/257;border:0;background:none;padding:0;cursor:pointer;visibility:hidden;-webkit-tap-highlight-color:transparent}
+.kerlbahn{position:absolute;pointer-events:none;overflow:hidden}
+.kerl{position:absolute;left:100%;bottom:0;height:60%;aspect-ratio:360/257;border:0;background:none;padding:0;cursor:pointer;visibility:hidden;-webkit-tap-highlight-color:transparent}
 .kerl.laeuft{visibility:visible}
 .kerl img{width:100%;height:100%;display:block;pointer-events:none;user-select:none;-webkit-user-select:none}
 .kerl .piep{position:absolute;left:10%;bottom:92%;font-family:var(--f-hand);font-size:max(13px,22%);color:#3a2418;background:#fff8f1;border-radius:999px;padding:.1em .55em;white-space:nowrap;opacity:0;transform:translateY(20%) scale(.8);transition:opacity .2s,transform .2s;box-shadow:0 2px 6px rgba(0,0,0,.3);pointer-events:none}
 .kerl.sagt .piep{opacity:1;transform:none}
+html.raum-hoch .kerl{height:72%}
 .licht-aus .kerl img{filter:brightness(.55) saturate(.7);transition:filter .9s}
 
 /* gemaltes Treppenhaus */
@@ -784,8 +785,8 @@ const HOT_H = {1:[1002,1256,1066,1365],2:[1157,1170,1221,1275],3:[846,1340,908,1
 const grid = document.getElementById("grid");
 // Klickbare Stellen im Raum [x0,y0,x1,y1] in Bildpixeln
 const SPOTS = {
-  quer: {schalter: [1735, 670, 1815, 770], laterne: [1600, 190, 1700, 340], baum: [690, 330, 1010, 800], kerl: [0, 1190, 2576, 1420]},
-  hoch: {schalter: [1420, 1750, 1500, 1860], laterne: [1280, 1230, 1370, 1370], baum: [360, 1420, 650, 1880], kerl: [0, 2330, 1923, 2560]}
+  quer: {schalter: [1735, 670, 1815, 770], laterne: [1600, 190, 1700, 340], baum: [690, 330, 1010, 800], kerl: [1020, 1050, 2240, 1392]},
+  hoch: {schalter: [1420, 1750, 1500, 1860], laterne: [1280, 1230, 1370, 1370], baum: [360, 1420, 650, 1880], kerl: [695, 2190, 1923, 2430]}
 };
 const RAUM = { quer: {lichter: "bilder/flurb-licht-7c37f5a9.webp", fenster: {links: [0, 140, 410, 862], mitte: [1460, 410, 1666, 710], tuer: [2222, 325, 2352, 785]}, bild: "bilder/flurb-c34e9230.webp", hot: HOT, w: 2576, h: 1438, mitte: .555},
                // fenster: wo die Fenster im Raumbild liegen (in Pixeln), damit jedes pro Tür einen eigenen Ausschnitt zeigen kann
@@ -832,12 +833,27 @@ document.querySelectorAll(".spot.licht").forEach(b=>b.addEventListener("click", 
   function plan(ms){ clearTimeout(t); t = setTimeout(rennen, ms); }
   function rennen(){
     if(!drin() || anim){ plan(4000); return; }
-    const weg = bahn.clientWidth + k.offsetWidth * 1.2;
+    // er kommt hinter dem Schreibtisch hervor und verschwindet hinter dem Schrank, Tempo immer gleich
+    const weg = bahn.clientWidth + k.offsetWidth * 1.1, raum = bahn.parentElement.clientWidth || 1000;
     k.classList.add("laeuft");
-    anim = k.animate([{transform:"translateX(0)"},{transform:`translateX(${-weg}px)`}], {duration: 11000, easing: "linear"});
+    anim = k.animate([{transform:"translateX(0)"},{transform:`translateX(${-weg}px)`}], {duration: weg / raum * 11000, easing: "linear"});
     anim.onfinish = anim.oncancel = ()=>{ k.classList.remove("laeuft", "sagt"); anim = null; plan(15000 + Math.random() * 20000); };
   }
-  k.addEventListener("click", e=>{ e.stopPropagation(); if(!anim) return; k.classList.add("sagt"); anim.playbackRate = 2.6; });
+  // kleines Quietschen, direkt im Browser erzeugt (keine Tondatei nötig)
+  let ac = null;
+  function quietsch(){
+    try{
+      ac = ac || new (window.AudioContext || window.webkitAudioContext)(); if(ac.state === "suspended") ac.resume();
+      const t0 = ac.currentTime;
+      [[0, 1500, 2600], [.13, 1800, 3100]].forEach(([d, f0, f1])=>{
+        const o = ac.createOscillator(), g = ac.createGain(); o.type = "sine";
+        o.frequency.setValueAtTime(f0, t0 + d); o.frequency.exponentialRampToValueAtTime(f1, t0 + d + .07); o.frequency.exponentialRampToValueAtTime(f0 * 1.1, t0 + d + .11);
+        g.gain.setValueAtTime(0, t0 + d); g.gain.linearRampToValueAtTime(.16, t0 + d + .012); g.gain.exponentialRampToValueAtTime(.001, t0 + d + .12);
+        o.connect(g).connect(ac.destination); o.start(t0 + d); o.stop(t0 + d + .13);
+      });
+    }catch(e){}
+  }
+  k.addEventListener("click", e=>{ e.stopPropagation(); if(!anim) return; quietsch(); k.classList.add("sagt"); anim.playbackRate = 2.6; });
   plan(5000);
 })();
 function refreshDoors(){
