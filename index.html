@@ -949,7 +949,7 @@ document.querySelector(".spot.schluessel").addEventListener("click", e=>{
   e.stopPropagation();
   const g = document.getElementById("globe"), img = document.querySelector(".tuer-auf");
   if(!img.getAttribute("src")) img.src = "bilder/tuer-auf.webp";
-  try{ RAUMTON.schluessel(); RAUMTON.knarren(); }catch(er){}
+  // Geräusche kommen später als echte Tondateien
   g.classList.toggle("tuer-offen"); try{ alignViews(); }catch(er){}
 });
 /* Licht an und aus: Lichtschalter, Laterne oder Weihnachtsbaum antippen, jeweils mit eigenem Geräusch */
