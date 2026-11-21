@@ -116,6 +116,12 @@ h1{font-family:var(--f-display);font-weight:600;font-size:clamp(1.6rem,4.6vw,2.3
 .kerl .piep{position:absolute;left:10%;bottom:92%;font-family:var(--f-hand);font-size:max(13px,22%);color:#3a2418;background:#fff8f1;border-radius:999px;padding:.1em .55em;white-space:nowrap;opacity:0;transform:translateY(20%) scale(.8);transition:opacity .2s,transform .2s;box-shadow:0 2px 6px rgba(0,0,0,.3);pointer-events:none}
 .kerl.sagt .piep{opacity:1;transform:none}
 html.raum-hoch .kerl{height:48%}
+/* Fuyu taucht ab und zu auf, sitzt kurz da und verschwindet wieder */
+.sitzer{position:absolute;border:0;background:none;padding:0;cursor:pointer;display:none;-webkit-tap-highlight-color:transparent}
+.sitzer.da{display:block}
+.globe-wrap.zoomed .spots .sitzer{pointer-events:auto}
+.sitzer img{width:100%;height:100%;display:block;pointer-events:none;user-select:none;-webkit-user-select:none}
+.licht-aus .sitzer img{filter:brightness(.55) saturate(.7);transition:filter .9s}
 .licht-aus .kerl img{filter:brightness(.55) saturate(.7);transition:filter .9s}
 
 /* gemaltes Treppenhaus */
@@ -498,6 +504,7 @@ footer{font-size:1rem;margin-top:-6px}
       <button type="button" class="spot licht" data-s="laterne" aria-label="Licht an oder aus"></button>
       <button type="button" class="spot licht" data-s="baum" aria-label="Licht an oder aus"></button>
       <div class="kerlbahn" data-s="kerl"><button type="button" class="kerl" aria-label="Fuyu"><img src="bilder/kerl.webp" alt="" draggable="false"><img class="puff" alt="" draggable="false"><span class="piep">Huch!</span></button></div>
+      <button type="button" class="sitzer" data-s="sitz" aria-label="Fuyu"><img alt="" draggable="false"></button>
     </div>
   </div></main>
     </div>
@@ -794,8 +801,8 @@ const HOT_H = {1:[1002,1256,1066,1365],2:[1157,1170,1221,1275],3:[846,1340,908,1
 const grid = document.getElementById("grid");
 // Klickbare Stellen im Raum [x0,y0,x1,y1] in Bildpixeln
 const SPOTS = {
-  quer: {schalter: [1735, 670, 1815, 770], laterne: [1600, 190, 1700, 340], baum: [690, 330, 1010, 800], kerl: [596, 1080, 2240, 1418]},
-  hoch: {schalter: [1420, 1750, 1500, 1860], laterne: [1280, 1230, 1370, 1370], baum: [360, 1420, 650, 1880], kerl: [236, 2235, 1923, 2475]}
+  quer: {schalter: [1735, 670, 1815, 770], laterne: [1600, 190, 1700, 340], baum: [690, 330, 1010, 800], sitz: [1790, 1186, 2063, 1364], kerl: [596, 1080, 2240, 1418]},
+  hoch: {schalter: [1420, 1750, 1500, 1860], laterne: [1280, 1230, 1370, 1370], baum: [360, 1420, 650, 1880], sitz: [560, 2296, 860, 2492], kerl: [236, 2235, 1923, 2475]}
 };
 const RAUM = { quer: {lichter: "bilder/flurb-licht-7c37f5a9.webp", fenster: {links: [0, 140, 410, 862], mitte: [1460, 410, 1666, 710], tuer: [2222, 325, 2352, 785]}, bild: "bilder/flurb-c34e9230.webp", hot: HOT, w: 2576, h: 1438, mitte: .555},
                // fenster: wo die Fenster im Raumbild liegen (in Pixeln), damit jedes pro Tür einen eigenen Ausschnitt zeigen kann
@@ -839,9 +846,24 @@ document.querySelectorAll(".spot.licht").forEach(b=>b.addEventListener("click", 
   const k = document.querySelector(".kerl"), bahn = document.querySelector(".kerlbahn"), wrap = document.getElementById("globeWrap");
   let anim = null, t = null;
   const drin = () => wrap && wrap.classList.contains("zoomed");
-  function plan(ms){ clearTimeout(t); t = setTimeout(rennen, ms); }
+  function plan(ms){ clearTimeout(t); t = setTimeout(()=> Math.random() < .4 ? sitzen() : rennen(), ms); }
+  // ab und zu: er erscheint, sitzt eine Weile, verschwindet wieder
+  const sz = document.querySelector(".sitzer"), szImg = sz.querySelector("img"), KOMMT = "bilder/fuyu-sitzt.webp", GEHT = "bilder/fuyu-geht.webp";
+  let sitzt = false, szT = null;
+  function sitzen(){
+    if(!drin() || anim || sitzt){ plan(4000); return; }
+    sitzt = true; new Image().src = GEHT;
+    szImg.onload = ()=>{ szImg.onload = null; sz.classList.add("da"); szT = setTimeout(gehen, 9000); };
+    szImg.src = KOMMT + "?" + Date.now();
+  }
+  function gehen(){
+    clearTimeout(szT);
+    szImg.onload = ()=>{ szImg.onload = null; szT = setTimeout(()=>{ sz.classList.remove("da"); szImg.removeAttribute("src"); sitzt = false; plan(15000 + Math.random() * 20000); }, 3000); };
+    szImg.src = GEHT + "?" + Date.now();
+  }
+  sz.addEventListener("click", e=>{ e.stopPropagation(); if(!sitzt || !sz.classList.contains("da")) return; quietsch(); gehen(); });
   function rennen(){
-    if(!drin() || anim){ plan(4000); return; }
+    if(!drin() || anim || sitzt){ plan(4000); return; }
     // er kommt hinter der Heizung hervor, rennt nach rechts und verschwindet hinter dem Schränkchen an der Tür, Tempo immer gleich
     const weg = bahn.clientWidth + k.offsetWidth * 1.1, raum = bahn.parentElement.clientWidth || 1000;
     k.classList.add("laeuft");
