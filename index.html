@@ -877,13 +877,39 @@ addEventListener("resize", setzeRaum);
     const st = document.querySelector(".stiefel"); const setz = () => { st.src = raumArt === "hoch" ? "bilder/stiefel-h.webp" : "bilder/stiefel.webp"; }; setz(); addEventListener("resize", setz); document.getElementById("globe").classList.add("nikolaustag"); } })();
 
 /* Echte Geräusche (Tondateien in toene/) */
-const TON = (function(){ const c = {};
-  return function(name, vol){ try{ const a = c[name] || (c[name] = new Audio("toene/" + name + ".mp3")); a.currentTime = 0; a.volume = vol == null ? .8 : vol; a.play().catch(()=>{}); }catch(e){} };
+// Über Web Audio abgespielt: einmal beim ersten Antippen freigeschaltet, danach klappt es auf iPhone, iPad und Mac auch mit Verzögerung.
+// Auf neueren iPhones zählt es als Wiedergabe, damit es nicht vom Stummschalter geschluckt wird.
+const TON = (function(){
+  const NAMEN = ["glocken","schluessel","tuer","tuer-zu","hohoho","eintauchen","quiek1","quiek2","quiek3","quiek4","quiek5"];
+  let ac = null; const buf = {}, laedt = {};
+  function ctx(){
+    if(!ac){ const C = window.AudioContext || window.webkitAudioContext; if(!C) return null; ac = new C(); window._tonCtx = ac; }
+    if(ac.state !== "running") ac.resume().catch(()=>{});
+    return ac;
+  }
+  try{ if(navigator.audioSession) navigator.audioSession.type = "playback"; }catch(e){}
+  function laden(n){
+    if(buf[n] || laedt[n]) return laedt[n];
+    const c = ctx(); if(!c) return Promise.resolve();
+    return laedt[n] = fetch("toene/" + n + ".mp3").then(r=>r.arrayBuffer()).then(d=>new Promise((ok,no)=>c.decodeAudioData(d, ok, no))).then(b=>{ buf[n] = b; }).catch(()=>{ laedt[n] = null; });
+  }
+  function freischalten(){
+    const c = ctx(); if(!c) return;
+    try{ const b = c.createBuffer(1, 1, 22050), q = c.createBufferSource(); q.buffer = b; q.connect(c.destination); q.start(0); }catch(e){}
+    NAMEN.forEach(laden);
+  }
+  ["pointerdown","touchend","keydown"].forEach(ev=>addEventListener(ev, freischalten, {passive:true, capture:true}));
+  function spiel(name, vol, spaeter){
+    const c = ctx(); if(!c) return;
+    const go = ()=>{ const b = buf[name]; if(!b) return; const q = c.createBufferSource(), g = c.createGain(); q.buffer = b; g.gain.value = vol == null ? .8 : vol; q.connect(g).connect(c.destination); q.start(c.currentTime + (spaeter || 0)); };
+    if(buf[name]) go(); else { const p = laden(name); if(p) p.then(go); }
+  }
+  return spiel;
 })();
 /* Kleine Geräusche im Raum, direkt im Browser erzeugt (keine Tondateien) */
 const RAUMTON = (function(){
   let ac = null;
-  const ctx = () => { ac = ac || new (window.AudioContext || window.webkitAudioContext)(); if(ac.state === "suspended") ac.resume(); return ac; };
+  const ctx = () => { ac = ac || window._tonCtx || new (window.AudioContext || window.webkitAudioContext)(); if(ac.state === "suspended") ac.resume(); return ac; };
   function rauschen(c, dauer){ const b = c.createBuffer(1, Math.ceil(c.sampleRate * dauer), c.sampleRate), d = b.getChannelData(0); for(let i = 0; i < d.length; i++) d[i] = Math.random() * 2 - 1; const s = c.createBufferSource(); s.buffer = b; return s; }
   // Schellen wie am Rentierschlitten, dazu leises Rascheln der Zweige
   function glocken(){
@@ -959,7 +985,7 @@ document.querySelector(".spot.schluessel").addEventListener("click", e=>{
   const auf = !g.classList.contains("tuer-offen");
   // Türgeräusch: Öffnen oder Schließen
   TON("schluessel");
-  setTimeout(()=>TON(auf ? "tuer" : "tuer-zu"), auf ? 450 : 350);
+  TON(auf ? "tuer" : "tuer-zu", .8, auf ? .45 : .35);
   g.classList.toggle("tuer-offen"); try{ alignViews(); }catch(er){}
 });
 /* Licht an und aus: Lichtschalter, Laterne oder Weihnachtsbaum antippen, jeweils mit eigenem Geräusch */
@@ -1039,7 +1065,8 @@ document.querySelectorAll(".spot.licht").forEach(b=>b.addEventListener("click", 
     e.stopPropagation(); if(!anim || flieht) return; flieht = true;
     anim.pause();
     puff.src = PUFF + "?" + Date.now(); k.classList.add("puffen");
-    setTimeout(()=>{ quietsch(); k.classList.add("sagt"); }, 450);
+    quietsch();
+    setTimeout(()=>{ k.classList.add("sagt"); }, 450);
     setTimeout(()=>k.classList.remove("sagt"), 1700);
     setTimeout(()=>{ anim.onfinish = anim.oncancel = null; anim.cancel(); anim = null;
       k.classList.remove("puffen", "laeuft"); puff.removeAttribute("src"); flieht = false; plan(20000 + Math.random() * 20000); }, 3050);
