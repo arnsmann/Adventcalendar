@@ -101,6 +101,9 @@ h1{font-family:var(--f-display);font-weight:600;font-size:clamp(1.6rem,4.6vw,2.3
   -webkit-mask:var(--licht-maske) 0 0/100% 100% no-repeat;mask:var(--licht-maske) 0 0/100% 100% no-repeat}
 .licht-aus .lichter{opacity:.92}
 .spots{position:absolute;inset:0;z-index:5;pointer-events:none}
+/* Nikolaus winkt: Animation liegt genau über dem gemalten Nikolaus */
+.niko-anim{position:absolute;z-index:3;pointer-events:none;display:none}
+.niko-anim.an{display:block}
 .globe-wrap.zoomed .spots .spot,.globe-wrap.zoomed .spots .kerl{pointer-events:auto}
 .spot{position:absolute;border:0;background:none;padding:0;cursor:pointer;-webkit-tap-highlight-color:transparent;border-radius:30%}
 .spot:focus-visible{outline:2px solid #ffe2a8}
@@ -489,6 +492,7 @@ footer{font-size:1rem;margin-top:-6px}
     <div class="view fen" data-f="oben" aria-hidden="true"><div class="layer"></div><div class="layer"></div></div>
     <div class="view fen" data-f="spiegel" aria-hidden="true"><div class="layer"></div><div class="layer"></div></div>
     <img class="flur" src="bilder/flurb-c34e9230.webp" alt="Unser Treppenhaus mit 24 Tüten" draggable="false">
+    <img class="niko-anim" data-s="nikoanim" alt="" aria-hidden="true" draggable="false">
     <div class="lichter" aria-hidden="true"></div>
     <div class="nacht" aria-hidden="true"></div>
     <div id="grid"></div>
@@ -496,6 +500,7 @@ footer{font-size:1rem;margin-top:-6px}
       <button type="button" class="spot licht" data-s="schalter" aria-label="Licht an oder aus"></button>
       <button type="button" class="spot licht" data-s="laterne" aria-label="Licht an oder aus"></button>
       <button type="button" class="spot licht" data-s="baum" aria-label="Licht an oder aus"></button>
+      <button type="button" class="spot nikolaus" data-s="nikolaus" aria-label="Nikolaus"></button>
       <div class="kerlbahn" data-s="kerl"><button type="button" class="kerl" aria-label="Fuyu"><img src="bilder/kerl.webp" alt="" draggable="false"><img class="puff" alt="" draggable="false"><span class="piep">Huch!</span></button></div>
     </div>
   </div></main>
@@ -793,8 +798,8 @@ const HOT_H = {1:[1002,1256,1066,1365],2:[1157,1170,1221,1275],3:[846,1340,908,1
 const grid = document.getElementById("grid");
 // Klickbare Stellen im Raum [x0,y0,x1,y1] in Bildpixeln
 const SPOTS = {
-  quer: {schalter: [1735, 670, 1815, 770], laterne: [1600, 190, 1700, 340], baum: [690, 330, 1010, 800], kerl: [596, 1080, 2240, 1418]},
-  hoch: {schalter: [1420, 1750, 1500, 1860], laterne: [1280, 1230, 1370, 1370], baum: [360, 1420, 650, 1880], kerl: [236, 2235, 1923, 2475]}
+  quer: {schalter: [1735, 670, 1815, 770], laterne: [1600, 190, 1700, 340], baum: [690, 330, 1010, 800], kerl: [596, 1080, 2240, 1418], nikoanim: [371, 862, 558, 1195], nikolaus: [395, 920, 545, 1175]},
+  hoch: {schalter: [1420, 1750, 1500, 1860], laterne: [1280, 1230, 1370, 1370], baum: [360, 1420, 650, 1880], kerl: [236, 2235, 1923, 2475], nikoanim: [0, 1952, 209, 2323], nikolaus: [0, 2010, 190, 2290]}
 };
 const RAUM = { quer: {lichter: "bilder/flurb-licht-7c37f5a9.webp", fenster: {links: [0, 140, 410, 862], mitte: [1460, 410, 1666, 710], tuer: [2222, 325, 2352, 785]}, bild: "bilder/flurb-c34e9230.webp", hot: HOT, w: 2576, h: 1438, mitte: .555},
                // fenster: wo die Fenster im Raumbild liegen (in Pixeln), damit jedes pro Tür einen eigenen Ausschnitt zeigen kann
@@ -819,7 +824,7 @@ function setzeRaum(){
   document.querySelectorAll(".flur,.flur-rand").forEach(i=>{ if(i.getAttribute("src") !== R.bild) i.src = R.bild; });
   document.documentElement.style.setProperty("--raum-maske", `url("${R.bild}")`);
   document.documentElement.style.setProperty("--licht-maske", `url("${R.lichter}")`);
-  document.querySelectorAll(".spots [data-s]").forEach(e=>{ const [x0,y0,x1,y1] = SPOTS[art][e.dataset.s];
+  document.querySelectorAll(".stage [data-s]").forEach(e=>{ const [x0,y0,x1,y1] = SPOTS[art][e.dataset.s];
     e.style.left = x0/R.w*100 + "%"; e.style.top = y0/R.h*100 + "%"; e.style.width = (x1-x0)/R.w*100 + "%"; e.style.height = (y1-y0)/R.h*100 + "%"; });
   grid.querySelectorAll(".door").forEach(b=>{ const [x0,y0,x1,y1] = R.hot[b.dataset.n];
     b.style.cssText = `left:${x0/R.w*100}%;top:${y0/R.h*100}%;width:${(x1-x0)/R.w*100}%;height:${(y1-y0)/R.h*100}%`; });
@@ -832,6 +837,18 @@ addEventListener("resize", setzeRaum);
 document.querySelectorAll(".spot.licht").forEach(b=>b.addEventListener("click", ()=>{
   document.getElementById("globe").classList.toggle("licht-aus");
 }));
+
+/* Nikolaus antippen: er dreht sich um und winkt, dann wieder zurück */
+(function(){
+  const b = document.querySelector(".spot.nikolaus"), a = document.querySelector(".niko-anim"), SRC = "bilder/nikolaus.webp";
+  let laeuft = false;
+  b.addEventListener("click", e=>{
+    e.stopPropagation(); if(laeuft) return; laeuft = true;
+    a.onload = ()=>{ a.classList.add("an"); setTimeout(()=>{ a.classList.remove("an"); a.removeAttribute("src"); laeuft = false; }, 6350); };
+    a.src = SRC + "?" + Date.now();
+  });
+  addEventListener("load", ()=>{ setTimeout(()=>{ new Image().src = SRC; }, 3000); });
+})();
 
 /* Arnes kleiner Kerl: rennt ab und zu über den Boden. Antippen: "Huch!" und er rennt schneller */
 (function(){
