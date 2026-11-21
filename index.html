@@ -112,12 +112,12 @@ h1{font-family:var(--f-display);font-weight:600;font-size:clamp(1.6rem,4.6vw,2.3
 .kerl .puff{position:absolute;left:52%;bottom:-2%;height:112%;width:auto;transform:translateX(-50%);display:none}
 .kerl.puffen img:not(.puff){visibility:hidden}
 .kerl.puffen .puff{display:block}
-.kerl{position:absolute;left:100%;bottom:0;height:60%;aspect-ratio:360/257;border:0;background:none;padding:0;cursor:pointer;visibility:hidden;-webkit-tap-highlight-color:transparent}
+.kerl{position:absolute;left:100%;bottom:0;height:40%;aspect-ratio:360/257;border:0;background:none;padding:0;cursor:pointer;visibility:hidden;-webkit-tap-highlight-color:transparent}
 .kerl.laeuft{visibility:visible}
 .kerl img{width:100%;height:100%;object-fit:contain;display:block;pointer-events:none;user-select:none;-webkit-user-select:none}
 .kerl .piep{position:absolute;left:10%;bottom:92%;font-family:var(--f-hand);font-size:max(13px,22%);color:#3a2418;background:#fff8f1;border-radius:999px;padding:.1em .55em;white-space:nowrap;opacity:0;transform:translateY(20%) scale(.8);transition:opacity .2s,transform .2s;box-shadow:0 2px 6px rgba(0,0,0,.3);pointer-events:none}
 .kerl.sagt .piep{opacity:1;transform:none}
-html.raum-hoch .kerl{height:72%}
+html.raum-hoch .kerl{height:48%}
 .licht-aus .kerl img{filter:brightness(.55) saturate(.7);transition:filter .9s}
 
 /* gemaltes Treppenhaus */
@@ -840,14 +840,14 @@ document.querySelectorAll(".spot.licht").forEach(b=>b.addEventListener("click", 
 
 /* Nikolaus antippen: er dreht sich um und winkt, dann wieder zurück */
 (function(){
-  const b = document.querySelector(".spot.nikolaus"), a = document.querySelector(".niko-anim"), SRC = "bilder/nikolaus.webp";
+  const b = document.querySelector(".spot.nikolaus"), a = document.querySelector(".niko-anim"); const quelle = () => raumArt === "hoch" ? "bilder/nikolaus-h.webp" : "bilder/nikolaus-q.webp";
   let laeuft = false;
   b.addEventListener("click", e=>{
     e.stopPropagation(); if(laeuft) return; laeuft = true;
     a.onload = ()=>{ a.classList.add("an"); setTimeout(()=>{ a.classList.remove("an"); a.removeAttribute("src"); laeuft = false; }, 6350); };
-    a.src = SRC + "?" + Date.now();
+    a.src = quelle() + "?" + Date.now();
   });
-  addEventListener("load", ()=>{ setTimeout(()=>{ new Image().src = SRC; }, 3000); });
+  addEventListener("load", ()=>{ setTimeout(()=>{ new Image().src = quelle(); }, 3000); });
 })();
 
 /* Arnes kleiner Kerl: rennt ab und zu über den Boden. Antippen: "Huch!" und er rennt schneller */
