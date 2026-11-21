@@ -104,6 +104,12 @@ h1{font-family:var(--f-display);font-weight:600;font-size:clamp(1.6rem,4.6vw,2.3
 /* Nikolaus (6. Dezember): gefüllter Stiefel an der Tür */
 .stiefel{position:absolute;z-index:2;pointer-events:none;display:none}
 .nikolaustag .stiefel{display:block}
+/* Schlüssel antippen: die Haustür geht auf, draußen sieht man das Bild des Tages */
+.stage .view.offen{z-index:2;visibility:hidden!important;-webkit-mask:url("bilder/tuer-durchblick.png") 0 0/100% 100% no-repeat;mask:url("bilder/tuer-durchblick.png") 0 0/100% 100% no-repeat}
+.stage .view.offen.zeigen{visibility:visible!important}
+.tuer-auf{position:absolute;z-index:2;pointer-events:none;display:none}
+.tuer-offen .tuer-auf{display:block}
+html.raum-hoch .spot.schluessel{display:none}
 .globe-wrap.zoomed .spots .spot,.globe-wrap.zoomed .spots .kerl{pointer-events:auto}
 .spot{position:absolute;border:0;background:none;padding:0;cursor:pointer;-webkit-tap-highlight-color:transparent;border-radius:30%}
 .spot:focus-visible{outline:2px solid #ffe2a8}
@@ -520,6 +526,8 @@ footer{font-size:1rem;margin-top:-6px}
     <div class="view fen" data-f="oben" aria-hidden="true"><div class="layer"></div><div class="layer"></div></div>
     <div class="view fen" data-f="spiegel" aria-hidden="true"><div class="layer"></div><div class="layer"></div></div>
     <img class="flur" src="bilder/flurb-c34e9230.webp" alt="Unser Treppenhaus mit 24 Tüten" draggable="false">
+    <div class="view fen offen" data-f="offen" aria-hidden="true"><div class="layer"></div><div class="layer"></div></div>
+    <img class="tuer-auf" data-s="tuerauf" alt="" aria-hidden="true" draggable="false">
     <img class="stiefel" data-s="stiefel" src="" alt="" aria-hidden="true" draggable="false">
     <div class="lichter" aria-hidden="true"></div>
     <div class="nacht" aria-hidden="true"></div>
@@ -528,6 +536,7 @@ footer{font-size:1rem;margin-top:-6px}
       <button type="button" class="spot licht" data-s="schalter" aria-label="Licht an oder aus"></button>
       <button type="button" class="spot licht" data-s="laterne" aria-label="Licht an oder aus"></button>
       <button type="button" class="spot licht" data-s="baum" aria-label="Licht an oder aus"></button>
+      <button type="button" class="spot schluessel" data-s="schluessel" aria-label="Schlüssel"></button>
       <div class="kerlbahn" data-s="kerl"><button type="button" class="kerl" aria-label="Fuyu"><img src="bilder/kerl.webp" alt="" draggable="false"><img class="puff" alt="" draggable="false"><span class="piep">Huch!</span></button></div>
       <button type="button" class="sitzer" data-s="sitz" aria-label="Fuyu"><img alt="" draggable="false"></button>
       <button type="button" class="schlaefer" data-s="schlaf" aria-label="Fuyu schläft"><img src="" alt="" draggable="false"><span class="zz"><i>z</i><i>z</i><i>Z</i></span><span class="piep">Pssst…</span></button>
@@ -827,10 +836,10 @@ const HOT_H = {1:[1002,1256,1066,1365],2:[1157,1170,1221,1275],3:[846,1340,908,1
 const grid = document.getElementById("grid");
 // Klickbare Stellen im Raum [x0,y0,x1,y1] in Bildpixeln
 const SPOTS = {
-  quer: {schalter: [1735, 670, 1815, 770], laterne: [1600, 190, 1700, 340], baum: [690, 330, 1010, 800], sitz: [1790, 1186, 2063, 1364], sitz2: [778, 724, 996, 866], schlaf: [814, 757, 961, 853], stiefel: [1967, 1117, 2181, 1363], kerl: [596, 1080, 2240, 1418]},
-  hoch: {schalter: [1420, 1750, 1500, 1860], laterne: [1280, 1230, 1370, 1370], baum: [360, 1420, 650, 1880], sitz: [560, 2296, 860, 2492], sitz2: [357, 1809, 597, 1966], schlaf: [396, 1846, 558, 1951], stiefel: [1385, 2146, 1548, 2334], kerl: [236, 2235, 1923, 2475]}
+  quer: {schalter: [1735, 670, 1815, 770], laterne: [1600, 190, 1700, 340], baum: [690, 330, 1010, 800], sitz: [1790, 1186, 2063, 1364], sitz2: [778, 724, 996, 866], schlaf: [814, 757, 961, 853], stiefel: [1967, 1117, 2181, 1363], tuerauf: [2189, 252, 2388, 1341], schluessel: [2195, 820, 2330, 900], kerl: [596, 1080, 2240, 1418]},
+  hoch: {schalter: [1420, 1750, 1500, 1860], laterne: [1280, 1230, 1370, 1370], baum: [360, 1420, 650, 1880], sitz: [560, 2296, 860, 2492], sitz2: [357, 1809, 597, 1966], schlaf: [396, 1846, 558, 1951], stiefel: [1385, 2146, 1548, 2334], tuerauf: [0, 0, 0, 0], schluessel: [0, 0, 0, 0], kerl: [236, 2235, 1923, 2475]}
 };
-const RAUM = { quer: {lichter: "bilder/flurb-licht-7c37f5a9.webp", fenster: {links: [0, 140, 410, 862], mitte: [1460, 410, 1666, 710], tuer: [2222, 325, 2352, 785]}, bild: "bilder/flurb-c34e9230.webp", hot: HOT, w: 2576, h: 1438, mitte: .555},
+const RAUM = { quer: {lichter: "bilder/flurb-licht-7c37f5a9.webp", fenster: {links: [0, 140, 410, 862], mitte: [1460, 410, 1666, 710], tuer: [2222, 325, 2352, 785], offen: [2189, 252, 2388, 1341]}, bild: "bilder/flurb-c34e9230.webp", hot: HOT, w: 2576, h: 1438, mitte: .555},
                // fenster: wo die Fenster im Raumbild liegen (in Pixeln), damit jedes pro Tür einen eigenen Ausschnitt zeigen kann
                // Pro Tür: aus: {links, mitte, tuer} fürs breite Bild, aushoch: {oben, links, mitte, spiegel} fürs Handy, jeweils [x0,y0,x1,y1] im Hintergrundbild
   hoch: {lichter: "bilder/flurh-licht-392a252d.webp", fenster: {oben: [0, 0, 206, 299], links: [0, 1288, 59, 1932], mitte: [1150, 1468, 1342, 1800], spiegel: [1794, 1475, 1896, 1848]}, bild: "bilder/flurh-33938279.webp", hot: HOT_H, w: 1923, h: 2576, mitte: .42} };
@@ -912,9 +921,37 @@ const RAUMTON = (function(){
     gn.gain.setValueAtTime(.5, t0); gn.gain.exponentialRampToValueAtTime(.001, t0 + .35);
     n.connect(hp).connect(gn).connect(out); n.start(t0);
   }
-  return { glocken, klick, zzzp };
+  // Schlüsselbund klimpert
+  function schluessel(){
+    const c = ctx(), t0 = c.currentTime, out = c.createGain(); out.gain.value = .12; out.connect(c.destination);
+    for(let i = 0; i < 7; i++){
+      const t = t0 + i * .045 + Math.random() * .03, f = 3200 + Math.random() * 2200;
+      [1, 2.4].forEach((m, j)=>{ const o = c.createOscillator(), g = c.createGain(); o.type = "triangle"; o.frequency.value = f * m;
+        g.gain.setValueAtTime(0, t); g.gain.linearRampToValueAtTime(.5 / (j + 1), t + .003); g.gain.exponentialRampToValueAtTime(.001, t + .12);
+        o.connect(g).connect(out); o.start(t); o.stop(t + .14); });
+    }
+  }
+  // alte Tür knarrt
+  function knarren(){
+    const c = ctx(), t0 = c.currentTime + .25, out = c.createGain(); out.gain.value = .09; out.connect(c.destination);
+    const o = c.createOscillator(), lfo = c.createOscillator(), lg = c.createGain(), bp = c.createBiquadFilter(), g = c.createGain();
+    o.type = "sawtooth"; o.frequency.setValueAtTime(140, t0); o.frequency.linearRampToValueAtTime(260, t0 + .5); o.frequency.linearRampToValueAtTime(180, t0 + .9);
+    lfo.frequency.value = 23; lg.gain.value = 40; lfo.connect(lg).connect(o.frequency);
+    bp.type = "bandpass"; bp.frequency.value = 900; bp.Q.value = 3;
+    g.gain.setValueAtTime(0, t0); g.gain.linearRampToValueAtTime(1, t0 + .08); g.gain.setValueAtTime(1, t0 + .7); g.gain.exponentialRampToValueAtTime(.001, t0 + .95);
+    o.connect(bp).connect(g).connect(out); o.start(t0); lfo.start(t0); o.stop(t0 + 1); lfo.stop(t0 + 1);
+  }
+  return { glocken, klick, zzzp, schluessel, knarren };
 })();
 
+/* Schlüssel antippen: Tür auf oder zu */
+document.querySelector(".spot.schluessel").addEventListener("click", e=>{
+  e.stopPropagation();
+  const g = document.getElementById("globe"), img = document.querySelector(".tuer-auf");
+  if(!img.getAttribute("src")) img.src = "bilder/tuer-auf.webp";
+  try{ RAUMTON.schluessel(); RAUMTON.knarren(); }catch(er){}
+  g.classList.toggle("tuer-offen"); try{ alignViews(); }catch(er){}
+});
 /* Licht an und aus: Lichtschalter, Laterne oder Weihnachtsbaum antippen, jeweils mit eigenem Geräusch */
 document.querySelectorAll(".spot.licht").forEach(b=>b.addEventListener("click", ()=>{
   try{ ({schalter: RAUMTON.klick, laterne: RAUMTON.zzzp, baum: RAUMTON.glocken})[b.dataset.s](); }catch(e){}
@@ -1860,7 +1897,7 @@ renderStatus(); refreshDoors(); setBg(homeBg());
     requestAnimationFrame(()=>{ try{ size(); alignViews(); }catch(e){} requestAnimationFrame(()=>requestAnimationFrame(()=>wrap.classList.remove("sofort"))); });
   }
   function leave(){
-    document.getElementById("globe").classList.remove("licht-aus"); // beim Rausgehen Licht wieder an
+    document.getElementById("globe").classList.remove("licht-aus", "tuer-offen"); // beim Rausgehen Licht wieder an, Tür zu
     if(WL && uebergang() !== "schlicht" && !tauchen){ tauchen = true; WL.raus(leaveNow).then(()=>{ tauchen = false; }); return; }
     if(!tauchen) leaveNow();
   }
@@ -1908,6 +1945,13 @@ function alignViews(){
       const wh = ab ? [ab[1], ab[2]] : window._shownWH;
       const haupt = [...document.querySelector(".view:not(.fen)").querySelectorAll(".layer")];
       v.querySelectorAll(".layer").forEach((l,i)=>{ const want = ab ? `url("${ab[0]}")` : ""; if(ab){ if(!l.style.backgroundImage.includes(ab[0])) l.style.backgroundImage = want; l.classList.add("on"); } else { l.style.backgroundImage = haupt[i].style.backgroundImage; l.classList.toggle("on", haupt[i].classList.contains("on")); } });
+      if(v.dataset.f === "offen"){
+        v.classList.toggle("zeigen", zoomedIn && document.getElementById("globe").classList.contains("tuer-offen"));
+        if(!cut){
+          v.querySelectorAll(".layer").forEach(l=>{ l.style.backgroundSize = (zoomedIn && fz) ? fz[0] : (ank ? ank[0] : ""); l.style.backgroundPosition = (zoomedIn && fz) ? fz[1] : (ank ? ank[1] : ""); l.style.inset = "auto"; l.style.left = (L - r.left) + "px"; l.style.top = (T - r.top) + "px"; l.style.width = W + "px"; l.style.height = H + "px"; });
+          return;
+        }
+      }
       if(zoomedIn && cut && wh){
         const [x0,y0,x1,y1] = cut, sc = Math.max(r.width / (x1 - x0), r.height / (y1 - y0));
         const ox = (r.width - (x1 - x0) * sc) / 2, oy = (r.height - (y1 - y0) * sc) / 2;
