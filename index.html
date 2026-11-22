@@ -382,6 +382,15 @@ body.peek .ueb-btn,body.zoomed-on .ueb-btn{opacity:0;pointer-events:none}
 .hilfe-btn{position:fixed;z-index:12;right:calc(12px + env(safe-area-inset-right,0px));top:calc(12px + env(safe-area-inset-top,0px));width:34px;height:34px;border:0;border-radius:50%;cursor:pointer;
   background:rgba(20,12,8,.45);color:#fff8f1;font-family:"Nunito",system-ui,sans-serif;font-weight:700;font-size:1.1rem;line-height:1;-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px)}
 body.zoomed-on .hilfe-btn,body.peek .hilfe-btn{opacity:0;pointer-events:none}
+.hilfe-menu{left:auto;bottom:auto;right:calc(12px + env(safe-area-inset-right,0px));top:calc(54px + env(safe-area-inset-top,0px))}
+.songhilfe{position:fixed;inset:0;z-index:60;display:flex;align-items:center;justify-content:center;padding:16px;background:rgba(20,12,8,.5);opacity:0;transition:opacity .3s}
+.songhilfe.on{opacity:1}
+.sh-karte{position:relative;max-width:440px;max-height:calc(100dvh - 32px);overflow:auto;background:#fff8f1;color:var(--ink);border-radius:20px;padding:22px 22px 16px;box-shadow:var(--shadow);font-family:var(--f-body);font-size:.95rem;line-height:1.45}
+.sh-karte h3{margin:0 28px 8px 0;font-family:var(--f-titel);font-weight:400;font-size:1.6rem;color:#8e2a2a}
+.sh-karte ol{padding-left:1.3em;margin:10px 0}
+.sh-karte li{margin:6px 0}
+.sh-klein{font-size:.82rem;color:var(--soft);margin:8px 0 0}
+.sh-zu{position:absolute;right:12px;top:12px;border:0;background:none;font-size:1.1rem;cursor:pointer;color:var(--ink)}
 .ueb-menu b{font-family:var(--f-display);font-weight:600;font-size:.95rem;padding:6px 10px 4px;color:var(--ink)}
 .ueb-menu button{border:0;background:none;text-align:left;padding:9px 10px;border-radius:12px;font-family:var(--f-body);font-size:.95rem;color:var(--ink);cursor:pointer;display:flex;gap:8px;align-items:center}
 .ueb-menu button:hover{background:rgba(201,86,107,.1)}
@@ -1163,6 +1172,7 @@ function showCard(n){
       </div>`;
     }
     media.innerHTML = html;
+    if(song && !PREVIEW){ try{ localStorage.setItem("advent-songhilfe", "ja"); }catch(e){} }
     const yt = media.querySelector(".yt");
     if(yt) initClip(yt);
   }
@@ -2038,8 +2048,43 @@ addEventListener("hashchange", ()=>location.reload());
   // kleiner Hilfe Knopf: zeigt den Brief mit der Anleitung jederzeit wieder
   const hb = document.createElement("button");
   hb.type = "button"; hb.className = "hilfe-btn"; hb.setAttribute("aria-label", "Anleitung nochmal anzeigen"); hb.innerHTML = "?";
-  hb.addEventListener("click", ()=>{ if(!document.querySelector(".welcome")) zeigeBrief(); });
+  const hm = document.createElement("div");
+  hm.className = "ueb-menu hilfe-menu"; hm.hidden = true;
+  hm.innerHTML = `<b>Hilfe</b><button type="button" data-h="app">📱 Kalender als App</button><button type="button" data-h="songs">♫ Songs auf dein Handy und in Spotify</button>`;
+  document.body.appendChild(hm);
+  hb.addEventListener("click", e=>{
+    e.stopPropagation();
+    let songs = false; try{ songs = localStorage.getItem("advent-songhilfe") === "ja"; }catch(er){}
+    if(!songs){ if(!document.querySelector(".welcome")) zeigeBrief(); return; }  // vor dem ersten Türchen: nur der Brief, nichts verraten
+    hm.hidden = !hm.hidden;
+  });
+  hm.addEventListener("click", e=>{ const x = e.target.closest("[data-h]"); if(!x) return; hm.hidden = true;
+    if(x.dataset.h === "app"){ if(!document.querySelector(".welcome")) zeigeBrief(); } else songHilfe(); });
+  document.addEventListener("click", e=>{ if(!hm.hidden && !hm.contains(e.target) && e.target !== hb) hm.hidden = true; });
   document.body.appendChild(hb);
+  function songHilfe(){
+    const iosG = /iPhone|iPad|iPod/.test(navigator.userAgent) || (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1);
+    const schritte = iosG ? `<ol>
+        <li>Nur beim ersten Mal: In Spotify auf dein Profilbild tippen, dann Einstellungen und Datenschutz › Apps und Geräte › „Lokale Audiodateien“ einschalten.</li>
+        <li>Im Türchen auf „↓ Song speichern“ tippen und mit „Laden“ bestätigen.</li>
+        <li>Die App Dateien öffnen und im Ordner Downloads den Song gedrückt halten › Bewegen.</li>
+        <li>„Auf meinem iPhone“ › Ordner „Spotify“ wählen und auf Bewegen tippen.</li>
+        <li>In Spotify unter Bibliothek › Lokale Dateien ist er jetzt da und läuft auch ohne Internet. ♫</li></ol>`
+      : `<ol>
+        <li>Im Türchen auf „↓ Song speichern“ klicken. Der Song landet in deinem Ordner Downloads.</li>
+        <li>In Spotify am Mac oben rechts auf dein Profilbild › Einstellungen.</li>
+        <li>Bei „Lokale Dateien“ den Schalter einschalten und den Ordner Downloads hinzufügen.</li>
+        <li>In Spotify unter Bibliothek › Lokale Dateien sind deine Songs jetzt da. ♫</li></ol>`;
+    const o = document.createElement("div");
+    o.className = "songhilfe"; o.setAttribute("role", "dialog"); o.setAttribute("aria-modal", "true");
+    o.innerHTML = `<div class="sh-karte"><button type="button" class="sh-zu" aria-label="Schließen">✕</button><h3>So nimmst du die Songs mit</h3>
+      <p>Jeder Song lässt sich speichern, dann kannst du ihn auch ohne den Kalender hören, zum Beispiel auf dem Weg zur Arbeit.</p>${schritte}
+      <p class="sh-klein">Das geht bei jedem Türchen, das schon offen ist.</p></div>`;
+    document.body.appendChild(o);
+    requestAnimationFrame(()=>o.classList.add("on"));
+    const zu = ()=>{ o.classList.remove("on"); setTimeout(()=>o.remove(), 300); };
+    o.addEventListener("click", e=>{ if(e.target === o || e.target.closest(".sh-zu")) zu(); });
+  }
   if(!force && (seen || PREVIEW)) return;
   zeigeBrief();
   function zeigeBrief(){
