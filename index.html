@@ -378,6 +378,10 @@ body.peek .ueb-btn,body.zoomed-on .ueb-btn{opacity:0;pointer-events:none}
 .ueb-menu{position:fixed;z-index:13;left:calc(12px + env(safe-area-inset-left,0px));bottom:calc(58px + env(safe-area-inset-bottom,0px));
   background:rgba(255,248,241,.96);border-radius:18px;padding:8px;box-shadow:var(--shadow);display:flex;flex-direction:column;gap:2px;min-width:210px}
 .ueb-menu[hidden]{display:none}
+/* Hilfe: oben rechts, öffnet den Brief mit der Anleitung nochmal */
+.hilfe-btn{position:fixed;z-index:12;right:calc(12px + env(safe-area-inset-right,0px));top:calc(12px + env(safe-area-inset-top,0px));width:34px;height:34px;border:0;border-radius:50%;cursor:pointer;
+  background:rgba(20,12,8,.45);color:#fff8f1;font-family:"Nunito",system-ui,sans-serif;font-weight:700;font-size:1.1rem;line-height:1;-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px)}
+body.zoomed-on .hilfe-btn,body.peek .hilfe-btn{opacity:0;pointer-events:none}
 .ueb-menu b{font-family:var(--f-display);font-weight:600;font-size:.95rem;padding:6px 10px 4px;color:var(--ink)}
 .ueb-menu button{border:0;background:none;text-align:left;padding:9px 10px;border-radius:12px;font-family:var(--f-body);font-size:.95rem;color:var(--ink);cursor:pointer;display:flex;gap:8px;align-items:center}
 .ueb-menu button:hover{background:rgba(201,86,107,.1)}
@@ -2031,7 +2035,14 @@ addEventListener("hashchange", ()=>location.reload());
 (function(){
   const force = /willkommen/.test(location.hash);
   let seen = false; try{ seen = localStorage.getItem("advent-willkommen") === "ja"; }catch(e){}
+  // kleiner Hilfe Knopf: zeigt den Brief mit der Anleitung jederzeit wieder
+  const hb = document.createElement("button");
+  hb.type = "button"; hb.className = "hilfe-btn"; hb.setAttribute("aria-label", "Anleitung nochmal anzeigen"); hb.innerHTML = "?";
+  hb.addEventListener("click", ()=>{ if(!document.querySelector(".welcome")) zeigeBrief(); });
+  document.body.appendChild(hb);
   if(!force && (seen || PREVIEW)) return;
+  zeigeBrief();
+  function zeigeBrief(){
   const ua = navigator.userAgent;
   const ios = /iPhone|iPad|iPod/.test(ua) || (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1);
   const android = /Android/.test(ua);
@@ -2064,6 +2075,7 @@ addEventListener("hashchange", ()=>location.reload());
     w.classList.remove("on"); setTimeout(()=>w.remove(), 600);
     if(force) history.replaceState(null, "", location.pathname);
   });
+  }
 })();
 </script>
 </body>
