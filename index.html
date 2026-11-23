@@ -403,6 +403,9 @@ body.zoomed-on .pl-btn,body.peek .pl-btn{opacity:0;pointer-events:none}
 .pl-steuer{display:flex;align-items:center;justify-content:center;gap:14px;padding:12px 16px 18px}
 .pl-steuer button{border:0;border-radius:999px;cursor:pointer;background:rgba(142,42,42,.1);color:#8e2a2a;width:44px;height:44px;font-size:1.1rem;-webkit-text-stroke:0}
 .pl-steuer .pl-play{width:58px;height:58px;background:#8e2a2a;color:#fff8f1;font-size:1.4rem}
+.pl-laut{display:flex;align-items:center;justify-content:center;gap:8px;padding:0 22px 18px;font-size:1rem;-webkit-text-stroke:0}
+.pl-laut input{width:min(220px,60%);accent-color:#8e2a2a;cursor:pointer}
+@media (hover:none){.pl-laut{display:none}}
 .pl-zeit{height:4px;margin:0 22px;border-radius:2px;background:rgba(142,42,42,.15);overflow:hidden}
 .pl-zeit i{display:block;height:100%;width:0;background:#8e2a2a}
 /* Hilfe: oben rechts, öffnet den Brief mit der Anleitung nochmal */
@@ -2078,10 +2081,16 @@ window.Playlist = (function(){
   const o = document.createElement("div"); o.className = "playlist"; o.setAttribute("role", "dialog"); o.setAttribute("aria-modal", "true");
   o.innerHTML = `<div class="pl-karte"><button type="button" class="pl-zu" aria-label="Schließen">✕</button>
     <div class="pl-kopf"><h3>Deine Playlist</h3><small></small></div><ol class="pl-liste"></ol><div class="pl-zeit"><i></i></div>
-    <div class="pl-steuer"><button type="button" class="pl-zurueck" aria-label="Vorheriger Song">⏮</button><button type="button" class="pl-play" aria-label="Abspielen">▶</button><button type="button" class="pl-vor" aria-label="Nächster Song">⏭</button></div></div>`;
+    <div class="pl-steuer"><button type="button" class="pl-zurueck" aria-label="Vorheriger Song">⏮</button><button type="button" class="pl-play" aria-label="Abspielen">▶</button><button type="button" class="pl-vor" aria-label="Nächster Song">⏭</button></div>
+    <label class="pl-laut"><span aria-hidden="true">🔈</span><input type="range" min="0" max="1" step="0.05" value="0.9" aria-label="Lautstärke"><span aria-hidden="true">🔊</span></label></div>`;
   document.body.appendChild(btn); document.body.appendChild(o);
   const liste = o.querySelector(".pl-liste"), play = o.querySelector(".pl-play"), balken = o.querySelector(".pl-zeit i");
   const a = new Audio(); a.preload = "auto"; const naechster = new Audio(); naechster.preload = "auto";
+  // Lautstärke (am Computer; iPhone und iPad regeln das nur über die Tasten am Gerät)
+  const regler = o.querySelector(".pl-laut input");
+  try{ const v = parseFloat(localStorage.getItem("advent-lautstaerke")); if(v >= 0 && v <= 1) regler.value = v; }catch(e){}
+  a.volume = +regler.value;
+  regler.addEventListener("input", ()=>{ a.volume = +regler.value; try{ localStorage.setItem("advent-lautstaerke", regler.value); }catch(e){} });
   let titel = [], pos = -1;
   function songs(){
     let g = []; try{ g = JSON.parse(localStorage.getItem("advent-geoeffnet") || "[]"); }catch(e){}
