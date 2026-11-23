@@ -378,6 +378,33 @@ body.peek .ueb-btn,body.zoomed-on .ueb-btn{opacity:0;pointer-events:none}
 .ueb-menu{position:fixed;z-index:13;left:calc(12px + env(safe-area-inset-left,0px));bottom:calc(58px + env(safe-area-inset-bottom,0px));
   background:rgba(255,248,241,.96);border-radius:18px;padding:8px;box-shadow:var(--shadow);display:flex;flex-direction:column;gap:2px;min-width:210px}
 .ueb-menu[hidden]{display:none}
+/* Playlist: nur Songs von Türchen, die sie schon selbst geöffnet hat */
+.pl-btn{position:fixed;z-index:12;right:calc(54px + env(safe-area-inset-right,0px));top:calc(12px + env(safe-area-inset-top,0px));height:34px;border:0;border-radius:999px;padding:0 12px;cursor:pointer;display:none;align-items:center;gap:6px;
+  background:rgba(20,12,8,.45);color:#fff8f1;font-family:var(--f-hand);font-size:1.05rem;-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px)}
+.pl-btn.da{display:flex}
+.pl-btn.spielt{background:rgba(142,42,42,.75)}
+body.zoomed-on .pl-btn,body.peek .pl-btn{opacity:0;pointer-events:none}
+@media (max-width:520px){.pl-btn span{display:none}.pl-btn{width:34px;padding:0;justify-content:center}}
+.playlist{position:fixed;inset:0;z-index:60;display:flex;align-items:center;justify-content:center;padding:16px;background:rgba(20,12,8,.5);opacity:0;pointer-events:none;transition:opacity .3s}
+.playlist.on{opacity:1;pointer-events:auto}
+.pl-karte{position:relative;width:min(440px,100%);max-height:calc(100dvh - 32px);display:flex;flex-direction:column;background:#fff8f1;color:var(--ink);border-radius:20px;box-shadow:var(--shadow);font-family:var(--f-hand);font-size:1.15rem;-webkit-text-stroke:.03em currentColor;paint-order:stroke fill}
+.pl-kopf{padding:20px 22px 10px}
+.pl-kopf h3{margin:0 28px 2px 0;font-family:var(--f-titel);font-weight:400;font-size:1.7rem;color:#8e2a2a;-webkit-text-stroke:0}
+.pl-kopf small{color:var(--soft);font-size:1rem}
+.pl-zu{position:absolute;right:12px;top:12px;border:0;background:none;font-size:1.1rem;cursor:pointer;color:var(--ink);-webkit-text-stroke:0}
+.pl-liste{list-style:none;margin:0;padding:0 10px;overflow:auto;flex:1}
+.pl-liste li{display:flex;align-items:center;gap:10px;padding:8px 12px;border-radius:12px;cursor:pointer}
+.pl-liste li:hover{background:rgba(201,86,107,.08)}
+.pl-liste li.jetzt{background:rgba(201,86,107,.16)}
+.pl-liste .nr{width:2em;text-align:right;color:var(--soft);font-size:.95rem}
+.pl-liste .t{flex:1}
+.pl-liste .eq{visibility:hidden;color:#8e2a2a}
+.pl-liste li.jetzt .eq{visibility:visible}
+.pl-steuer{display:flex;align-items:center;justify-content:center;gap:14px;padding:12px 16px 18px}
+.pl-steuer button{border:0;border-radius:999px;cursor:pointer;background:rgba(142,42,42,.1);color:#8e2a2a;width:44px;height:44px;font-size:1.1rem;-webkit-text-stroke:0}
+.pl-steuer .pl-play{width:58px;height:58px;background:#8e2a2a;color:#fff8f1;font-size:1.4rem}
+.pl-zeit{height:4px;margin:0 22px;border-radius:2px;background:rgba(142,42,42,.15);overflow:hidden}
+.pl-zeit i{display:block;height:100%;width:0;background:#8e2a2a}
 /* Hilfe: oben rechts, öffnet den Brief mit der Anleitung nochmal */
 .hilfe-btn{position:fixed;z-index:12;right:calc(12px + env(safe-area-inset-right,0px));top:calc(12px + env(safe-area-inset-top,0px));width:34px;height:34px;border:0;border-radius:50%;cursor:pointer;
   background:rgba(20,12,8,.45);color:#fff8f1;font-family:"Nunito",system-ui,sans-serif;font-weight:700;font-size:1.1rem;line-height:1;-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px)}
@@ -1173,7 +1200,9 @@ function showCard(n){
       </div>`;
     }
     media.innerHTML = html;
-    if(song && !PREVIEW){ try{ localStorage.setItem("advent-songhilfe", "ja"); }catch(e){} }
+    if(song && !PREVIEW){ try{ localStorage.setItem("advent-songhilfe", "ja");
+      const g = JSON.parse(localStorage.getItem("advent-geoeffnet") || "[]"); if(!g.includes(+n)){ g.push(+n); localStorage.setItem("advent-geoeffnet", JSON.stringify(g)); } }catch(e){} }
+    if(song && window.Playlist) Playlist.aktualisieren();
     const yt = media.querySelector(".yt");
     if(yt) initClip(yt);
   }
@@ -2042,6 +2071,61 @@ setInterval(()=>{ renderStatus(); refreshDoors(); if(!bgPicked) setBg(homeBg());
 addEventListener("hashchange", ()=>location.reload());
 </script>
 <script>
+/* Playlist: alle Songs der Türchen, die sie schon selbst geöffnet hat, hintereinander.
+   Doppelt gesichert: nur was sie geöffnet hat UND was laut Datum schon offen sein darf. In der Vorschau alle offenen. */
+window.Playlist = (function(){
+  const btn = document.createElement("button"); btn.type = "button"; btn.className = "pl-btn"; btn.innerHTML = "♫<span>Playlist</span>"; btn.setAttribute("aria-label", "Playlist");
+  const o = document.createElement("div"); o.className = "playlist"; o.setAttribute("role", "dialog"); o.setAttribute("aria-modal", "true");
+  o.innerHTML = `<div class="pl-karte"><button type="button" class="pl-zu" aria-label="Schließen">✕</button>
+    <div class="pl-kopf"><h3>Deine Playlist</h3><small></small></div><ol class="pl-liste"></ol><div class="pl-zeit"><i></i></div>
+    <div class="pl-steuer"><button type="button" class="pl-zurueck" aria-label="Vorheriger Song">⏮</button><button type="button" class="pl-play" aria-label="Abspielen">▶</button><button type="button" class="pl-vor" aria-label="Nächster Song">⏭</button></div></div>`;
+  document.body.appendChild(btn); document.body.appendChild(o);
+  const liste = o.querySelector(".pl-liste"), play = o.querySelector(".pl-play"), balken = o.querySelector(".pl-zeit i");
+  const a = new Audio(); a.preload = "auto"; const naechster = new Audio(); naechster.preload = "auto";
+  let titel = [], pos = -1;
+  function songs(){
+    let g = []; try{ g = JSON.parse(localStorage.getItem("advent-geoeffnet") || "[]"); }catch(e){}
+    const out = [];
+    for(let n = 1; n <= 24; n++){
+      const t = TUERCHEN[n]; if(!t || !t.song) continue;
+      if(!isOpenable(n)) continue;
+      if(!PREVIEW && !g.includes(n)) continue;
+      out.push({n, titel: t.titel || "Türchen " + n, src: "songs/" + t.song.replace(/[^A-Za-z0-9_-]/g, "") + ".mp3"});
+    }
+    return out;
+  }
+  function aktualisieren(){
+    titel = songs();
+    btn.classList.toggle("da", titel.length > 0);
+    o.querySelector(".pl-kopf small").textContent = titel.length === 1 ? "1 Song, gespielt von Arne ♡" : titel.length + " Songs, gespielt von Arne ♡";
+    liste.innerHTML = titel.map((x, i)=>`<li data-i="${i}"><span class="nr">${x.n}</span><span class="t"></span><span class="eq">♫</span></li>`).join("");
+    liste.querySelectorAll(".t").forEach((e, i)=>{ e.textContent = titel[i].titel; });
+    markieren();
+  }
+  function markieren(){ liste.querySelectorAll("li").forEach((li, i)=>li.classList.toggle("jetzt", i === pos)); }
+  function spiele(i){
+    if(i < 0 || i >= titel.length){ a.pause(); pos = -1; markieren(); zustand(); return; }
+    pos = i; a.src = titel[i].src; a.play().catch(()=>{}); markieren();
+    if(titel[i + 1]) naechster.src = titel[i + 1].src;   // nächsten schon laden, damit es ohne Pause weitergeht
+    // andere Songs auf der Seite anhalten
+    document.querySelectorAll("audio").forEach(x=>{ if(x !== a) x.pause(); });
+  }
+  function zustand(){ const l = !a.paused && pos >= 0; play.textContent = l ? "⏸" : "▶"; btn.classList.toggle("spielt", l); }
+  a.addEventListener("ended", ()=>spiele(pos + 1));
+  a.addEventListener("play", zustand); a.addEventListener("pause", zustand);
+  a.addEventListener("timeupdate", ()=>{ balken.style.width = a.duration ? (a.currentTime / a.duration * 100) + "%" : "0"; });
+  // läuft ein Song im Türchen, pausiert die Playlist
+  document.addEventListener("play", e=>{ if(e.target !== a && e.target.tagName === "AUDIO") a.pause(); }, true);
+  play.addEventListener("click", ()=>{ if(pos < 0) spiele(0); else if(a.paused) a.play().catch(()=>{}); else a.pause(); });
+  o.querySelector(".pl-vor").addEventListener("click", ()=>spiele(Math.min(pos + 1, titel.length - 1)));
+  o.querySelector(".pl-zurueck").addEventListener("click", ()=>{ if(a.currentTime > 3 || pos <= 0) { a.currentTime = 0; if(pos < 0) spiele(0); } else spiele(pos - 1); });
+  liste.addEventListener("click", e=>{ const li = e.target.closest("li"); if(li) spiele(+li.dataset.i); });
+  btn.addEventListener("click", ()=>{ aktualisieren(); o.classList.add("on"); });
+  o.addEventListener("click", e=>{ if(e.target === o || e.target.closest(".pl-zu")) o.classList.remove("on"); });
+  aktualisieren();
+  return {aktualisieren, audio: a};
+})();
+
 /* Willkommensbrief: nur beim allerersten Öffnen (oder mit #willkommen zum Testen) */
 (function(){
   const force = /willkommen/.test(location.hash);
