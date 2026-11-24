@@ -1233,8 +1233,20 @@ function showCard(n){
     // das Video läuft stumm und folgt genau der Stelle im Song (auch beim Pausieren und Zurückspulen)
     const ib = media.querySelector(".intro"), au = media.querySelector("audio");
     if(ib && au){
-      const vids = [...ib.querySelectorAll("video")], L = +item.intro.laenge || 0;
+      const vids = [...ib.querySelectorAll("video")], L = +item.intro.laenge || 0, box = au.closest(".song");
+      box.dataset.vorspann = L;
+      // YouTube Clip: lädt unsichtbar unter dem Vorspann an (Titel und Ladekreis verschwinden in der Zeit),
+      // springt genau beim Ende des Vorspanns auf den Anfang und ist sofort zu sehen
+      let ytVor = false, ytAn = false;
+      const ytSteuern = t => { if(!clipPlayer || !clipReady) return;
+        try{
+          if(t < L - 4.5){ ytVor = ytAn = false; if(clipPlayer.getPlayerState() === 1) clipPlayer.pauseVideo(); return; }
+          if(au.paused) return;
+          if(!ytVor){ ytVor = true; clipPlayer.mute(); clipPlayer.seekTo(0, true); clipPlayer.playVideo(); }
+          if(t >= L && !ytAn){ ytAn = true; clipPlayer.seekTo(0, true); clipPlayer.playVideo(); clearTimeout(clipShowT); box.classList.add("clip-on"); }
+        }catch(e){} };
       const sync = () => { const t = au.currentTime, drin = t < L - .05 && (!au.paused || t > 0);
+        ytSteuern(t);
         ib.classList.toggle("zeigen", drin);
         vids.forEach(v=>{
           if(drin){ if(Math.abs(v.currentTime - t) > .3) v.currentTime = t; if(!au.paused && v.paused) v.play().catch(()=>{}); if(au.paused && !v.paused) v.pause(); }
@@ -1288,12 +1300,14 @@ document.getElementById("card-media").addEventListener("click", e=>{
 const cm = document.getElementById("card-media");
 ["play","pause","ended"].forEach(ev=>cm.addEventListener(ev, e=>{
   const box = e.target.closest && e.target.closest(".song");
-  if(!box) return;
+  if(!box || e.target.closest(".intro")) return; // Vorspann Video zählt nicht als Song Start oder Pause
   box.classList.toggle("playing", ev === "play");
   if(ev === "play" && box.querySelector(".clip")){ scrim.classList.add("cinema"); scrim.querySelector(".card").classList.add("cinema"); }
   if(ev !== "play") box.classList.remove("clip-on");
   if(clipPlayer && clipReady){
-    try{ if(ev === "play"){ clipPlayer.mute(); clipPlayer.playVideo(); } else clipPlayer.pauseVideo(); }catch(err){}
+    // mit Vorspann startet der Clip erst kurz vor dessen Ende (das regelt der Vorspann selbst)
+    const vor = +box.dataset.vorspann || 0, au = box.querySelector("audio");
+    try{ if(ev === "play"){ if(!vor || (au && au.currentTime >= vor - 4.5)){ clipPlayer.mute(); clipPlayer.playVideo(); } } else clipPlayer.pauseVideo(); }catch(err){}
   }
 }, true));
 scrim.addEventListener("click", e=>{ if(e.target === scrim) closeCard(); });
@@ -1331,7 +1345,7 @@ function initClip(el){
       events: {
         onReady: e=>{
           clipReady = true; e.target.mute();
-          if(box.classList.contains("playing")) e.target.playVideo();
+          if(box.classList.contains("playing") && !box.dataset.vorspann) e.target.playVideo();
         },
         onStateChange: e=>{
           clearTimeout(clipShowT);
