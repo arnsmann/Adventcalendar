@@ -151,6 +151,7 @@ html.raum-hoch .spot.schluessel,html.raum-hoch .spot.haustuer{display:none}
 .mo-fuyu.hopp{animation:moHopp .3s ease-in-out}
 @keyframes moHopp{50%{transform:translate(-50%,-95%)}}
 .mo-feld{position:absolute;transform:translate(-50%,-50%);border-radius:4px;pointer-events:none}
+.mo-stapel{position:absolute;left:50%;top:50%;width:62%;transform:translate(-50%,-50%) rotate(-4deg);filter:drop-shadow(0 1px 2px rgba(0,0,0,.25))}
 .mo-ecke{position:absolute;inset:3%;width:94%;height:94%;object-fit:cover;border-radius:2px}
 .mo-mini{position:absolute;left:50%;top:50%;width:84%;margin:-42% 0 0 -42%;aspect-ratio:1;object-fit:cover;border:clamp(1.5px,.35vw,3px) solid #fdfbf5;border-bottom-width:clamp(3px,.8vw,7px);box-shadow:0 2px 4px rgba(0,0,0,.35);animation:moMini .45s cubic-bezier(.2,1.3,.4,1)}
 @keyframes moMini{from{opacity:0;scale:.3}}
@@ -2732,7 +2733,7 @@ window.Mono = (function(){
     try{ TON("wuerfel", .9); }catch(e){}
     for(let t = 0; t < 12; t++){ a = 1 + Math.floor(Math.random() * 6); b = 1 + Math.floor(Math.random() * 6); zeigeWuerfel(wue[0], a); zeigeWuerfel(wue[1], b); await warte(80); }
     wue.forEach(w => w.classList.remove("rollt"));
-    await warte(800); await laufen(a + b); // erst kurz das Ergebnis sehen lassen, dann losgehen await landen(); speichern(); standZeigen(); los.disabled = false; });
+    await warte(800); /* erst kurz das Ergebnis sehen lassen, dann losgehen */ await laufen(a + b); await landen(); speichern(); standZeigen(); los.disabled = false; });
   const zu = () => o.classList.remove("on");
   o.querySelector(".sch-zu").addEventListener("click", zu);
   o.addEventListener("click", e=>{ if(e.target === o) zu(); });
@@ -2742,6 +2743,8 @@ window.Mono = (function(){
   if(!st.feldFoto || typeof st.feldFoto !== "object") st.feldFoto = {};
   o.querySelectorAll(".mo-feld").forEach(f => f.style.pointerEvents = "none"); fotosAufBrett();
   // gemalte Ecken: Los, Nur zu Besuch (Fuyus Häuschen), Frei parken (Kakao), Ab ins Bett
+  // Kartenfelder: kleiner Stapel roter oder grüner Karten
+  FELD.forEach((f, i) => { if(f.typ === "rot" || f.typ === "gruen") o.querySelector(`.mo-feld[data-i="${i}"]`).innerHTML = `<img class="mo-stapel" src="bilder/mono/feld-${f.typ}.webp" alt="">`; });
   [["los", 0], ["besuch", 8], ["kakao", 16], ["bett", 24]].forEach(([n, i]) => { const f = o.querySelector(`.mo-feld[data-i="${i}"]`); f.innerHTML = `<img class="mo-ecke" src="bilder/mono/ecke-${n}.webp" alt="">`; });
   const knopf = document.querySelector(".spot.monoknopf");
   if(knopf) knopf.addEventListener("click", e=>{ e.stopPropagation(); o.classList.add("on"); });
