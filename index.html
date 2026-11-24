@@ -103,6 +103,12 @@ h1{font-family:var(--f-display);font-weight:600;font-size:clamp(1.6rem,4.6vw,2.3
 .spots{position:absolute;inset:0;z-index:5;pointer-events:none}
 /* Nikolaus (6. Dezember): gefüllter Stiefel an der Tür */
 .stiefel{position:absolute;z-index:2;pointer-events:none;display:none}
+/* Zeiger der Wanduhr: zeigen die echte Uhrzeit, wie mit Tinte gezeichnet */
+.uhr{position:absolute;z-index:2;pointer-events:none;overflow:visible;filter:blur(.25px)}
+.uhr line{stroke:#3a2418;stroke-linecap:round;transform-origin:0 0}
+.uhr .std{stroke-width:5}
+.uhr .min{stroke-width:3.2}
+.uhr circle{fill:#3a2418}
 .nikolaustag .stiefel{display:block}
 /* Schlüssel antippen: die Haustür geht auf, draußen sieht man das Bild des Tages */
 .stage .view.offen{z-index:4;visibility:hidden!important;-webkit-mask:url("bilder/tuer-durchblick.png") 0 0/100% 100% no-repeat;mask:url("bilder/tuer-durchblick.png") 0 0/100% 100% no-repeat}
@@ -564,7 +570,7 @@ footer{font-size:1rem;margin-top:-6px}
   <div class="globe-wrap" id="globeWrap">
     <img class="globe-img" src="bilder/kugel-d332569e.webp" alt="Schneekugel mit unserem Treppenhaus" draggable="false">
     <div class="globe" id="globe">
-    <img class="flur-rand" src="bilder/flurb-b9d94b84.webp" alt="" aria-hidden="true" draggable="false">
+    <img class="flur-rand" src="bilder/flurb-351cbee0.webp" alt="" aria-hidden="true" draggable="false">
     <main class="scene"><div class="stage">
     <div class="view" aria-hidden="true" style="left:0;top:0;width:100%;height:100%"><div class="layer"></div><div class="layer"></div></div>
     <div class="view fen" data-f="links" aria-hidden="true"><div class="layer"></div><div class="layer"></div></div>
@@ -572,10 +578,11 @@ footer{font-size:1rem;margin-top:-6px}
     <div class="view fen" data-f="tuer" aria-hidden="true"><div class="layer"></div><div class="layer"></div></div>
     <div class="view fen" data-f="oben" aria-hidden="true"><div class="layer"></div><div class="layer"></div></div>
     <div class="view fen" data-f="spiegel" aria-hidden="true"><div class="layer"></div><div class="layer"></div></div>
-    <img class="flur" src="bilder/flurb-b9d94b84.webp" alt="Unser Treppenhaus mit 24 Tüten" draggable="false">
+    <img class="flur" src="bilder/flurb-351cbee0.webp" alt="Unser Treppenhaus mit 24 Tüten" draggable="false">
     <div class="view fen offen" data-f="offen" aria-hidden="true"><div class="layer"></div><div class="layer"></div></div>
     <img class="tuer-auf" data-s="tuerauf" alt="" aria-hidden="true" draggable="false">
     <div class="tuer-nacht" data-s="tuerauf" aria-hidden="true"></div>
+    <svg class="uhr" data-s="uhr" viewBox="-60 -60 120 120" aria-hidden="true"><line class="std" x1="0" y1="6" x2="0" y2="-27"/><line class="min" x1="0" y1="8" x2="0" y2="-43"/><circle r="3.6"/></svg>
     <img class="stiefel" data-s="stiefel" src="" alt="" aria-hidden="true" draggable="false">
     <div class="lichter" aria-hidden="true"></div>
     <div class="nacht" aria-hidden="true"></div>
@@ -886,13 +893,13 @@ const HOT_H = {1:[1002,1256,1066,1365],2:[1157,1170,1221,1275],3:[846,1340,908,1
 const grid = document.getElementById("grid");
 // Klickbare Stellen im Raum [x0,y0,x1,y1] in Bildpixeln
 const SPOTS = {
-  quer: {schalter: [1735, 670, 1815, 770], laterne: [1600, 190, 1700, 340], baum: [690, 330, 1010, 800], sitz: [1790, 1186, 2063, 1364], sitz2: [778, 724, 996, 866], schlaf: [814, 757, 961, 853], stiefel: [1967, 1117, 2181, 1363], tuerauf: [2189, 252, 2388, 1341], schluessel: [2310, 1075, 2445, 1165], nikolaus: [395, 920, 545, 1175], haustuer: [2200, 290, 2385, 1060], kerl: [596, 1080, 2240, 1418]},
-  hoch: {schalter: [1420, 1750, 1500, 1860], laterne: [1280, 1230, 1370, 1370], baum: [360, 1420, 650, 1880], sitz: [560, 2296, 860, 2492], sitz2: [357, 1809, 597, 1966], schlaf: [396, 1846, 558, 1951], stiefel: [1385, 2146, 1548, 2334], tuerauf: [0, 0, 0, 0], schluessel: [0, 0, 0, 0], nikolaus: [0, 2010, 190, 2290], haustuer: [0, 0, 0, 0], kerl: [236, 2305, 1923, 2545]}
+  quer: {uhr: [1746.5, 390, 1866.5, 510], schalter: [1735, 670, 1815, 770], laterne: [1600, 190, 1700, 340], baum: [690, 330, 1010, 800], sitz: [1790, 1186, 2063, 1364], sitz2: [778, 724, 996, 866], schlaf: [814, 757, 961, 853], stiefel: [1967, 1117, 2181, 1363], tuerauf: [2189, 252, 2388, 1341], schluessel: [2310, 1075, 2445, 1165], nikolaus: [395, 920, 545, 1175], haustuer: [2200, 290, 2385, 1060], kerl: [596, 1080, 2240, 1418]},
+  hoch: {uhr: [1434, 1422, 1546, 1534], schalter: [1420, 1750, 1500, 1860], laterne: [1280, 1230, 1370, 1370], baum: [360, 1420, 650, 1880], sitz: [560, 2296, 860, 2492], sitz2: [357, 1809, 597, 1966], schlaf: [396, 1846, 558, 1951], stiefel: [1385, 2146, 1548, 2334], tuerauf: [0, 0, 0, 0], schluessel: [0, 0, 0, 0], nikolaus: [0, 2010, 190, 2290], haustuer: [0, 0, 0, 0], kerl: [236, 2305, 1923, 2545]}
 };
-const RAUM = { quer: {lichter: "bilder/flurb-licht-7c37f5a9.webp", fenster: {links: [0, 140, 410, 862], mitte: [1460, 410, 1666, 710], tuer: [2222, 325, 2352, 785], offen: [2189, 252, 2388, 1341]}, bild: "bilder/flurb-b9d94b84.webp", hot: HOT, w: 2576, h: 1438, mitte: .555},
+const RAUM = { quer: {lichter: "bilder/flurb-licht-7c37f5a9.webp", fenster: {links: [0, 140, 410, 862], mitte: [1460, 410, 1666, 710], tuer: [2222, 325, 2352, 785], offen: [2189, 252, 2388, 1341]}, bild: "bilder/flurb-351cbee0.webp", hot: HOT, w: 2576, h: 1438, mitte: .555},
                // fenster: wo die Fenster im Raumbild liegen (in Pixeln), damit jedes pro Tür einen eigenen Ausschnitt zeigen kann
                // Pro Tür: aus: {links, mitte, tuer} fürs breite Bild, aushoch: {oben, links, mitte, spiegel} fürs Handy, jeweils [x0,y0,x1,y1] im Hintergrundbild
-  hoch: {lichter: "bilder/flurh-licht-392a252d.webp", fenster: {oben: [0, 0, 206, 299], links: [0, 1288, 59, 1932], mitte: [1150, 1468, 1342, 1800], spiegel: [1794, 1475, 1896, 1848]}, bild: "bilder/flurh-33938279.webp", hot: HOT_H, w: 1923, h: 2576, mitte: .42} };
+  hoch: {lichter: "bilder/flurh-licht-392a252d.webp", fenster: {oben: [0, 0, 206, 299], links: [0, 1288, 59, 1932], mitte: [1150, 1468, 1342, 1800], spiegel: [1794, 1475, 1896, 1848]}, bild: "bilder/flurh-aabb9da2.webp", hot: HOT_H, w: 1923, h: 2576, mitte: .42} };
 Object.keys(HOT).forEach(n=>{
   const b = document.createElement("button");
   b.className = "door";
@@ -920,6 +927,11 @@ function setzeRaum(){
 }
 setzeRaum();
 addEventListener("resize", setzeRaum);
+// Wanduhr: Stunden und Minutenzeiger nach der echten Uhrzeit auf ihrem Gerät
+function uhrWinkel(){ const d = new Date(), m = d.getMinutes() + d.getSeconds() / 60; return {std: (d.getHours() % 12 + m / 60) * 30, min: m * 6}; }
+(function(){ const u = document.querySelector(".uhr"); if(!u) return;
+  const stellen = () => { const w = uhrWinkel(); u.querySelector(".std").setAttribute("transform", `rotate(${w.std})`); u.querySelector(".min").setAttribute("transform", `rotate(${w.min})`); };
+  stellen(); setInterval(stellen, 15000); document.addEventListener("visibilitychange", stellen); })();
 // Am 6. Dezember steht ein gefüllter Stiefel an der Tür (zum Testen: ?nikolaus)
 (function(){ const d = new Date();
   if(/nikolaus/.test(location.search) || (d.getMonth() === 11 && d.getDate() === 6)){
@@ -1898,11 +1910,27 @@ renderStatus(); refreshDoors(); setBg(homeBg());
         l.naturalWidth = w; l.naturalHeight = h; return l;
       }).catch(()=>hall);
     }
+    // Zeiger der Wanduhr in eine Kopie des Raumbilds malen (die Animation kennt die echten Zeiger nicht)
+    function mitZeigern(hall, istDunkel){
+      try{
+        const art = document.documentElement.classList.contains("raum-hoch") ? "hoch" : "quer", R = RAUM[art], box = SPOTS[art].uhr; if(!box) return hall;
+        const W = hall.naturalWidth || hall.width, H = hall.naturalHeight || hall.height, k = W / R.w;
+        const c = document.createElement("canvas"); c.width = W; c.height = H; const x = c.getContext("2d"); x.drawImage(hall, 0, 0, W, H);
+        const s = (box[2] - box[0]) / 120 * k, w = uhrWinkel();
+        x.translate((box[0] + box[2]) / 2 * k, (box[1] + box[3]) / 2 * k); x.scale(s, s);
+        x.strokeStyle = x.fillStyle = istDunkel ? "#120f17" : "#3a2418"; x.lineCap = "round";
+        [[w.std, 5, 6, -27], [w.min, 3.2, 8, -43]].forEach(([g, b, y1, y2])=>{ x.save(); x.rotate(g * Math.PI / 180); x.lineWidth = b; x.beginPath(); x.moveTo(0, y1); x.lineTo(0, y2); x.stroke(); x.restore(); });
+        x.beginPath(); x.arc(0, 0, 3.6, 0, Math.PI * 2); x.fill();
+        c.naturalWidth = W; c.naturalHeight = H; return c;
+      }catch(e){ return hall; }
+    }
     function rect(el){ const r = el.getBoundingClientRect(); return [r.left, r.top, r.width, r.height]; }
     async function vorbereiten(zoomed){
       const B = await bgRect(); if(!B) return false;
       const flur = document.querySelector(".globe .flur"); let hall = await bild(flur.currentSrc || flur.src); if(!hall) return false;
-      if(document.getElementById("globe").classList.contains("licht-aus")) hall = await dunkel(hall);
+      const istDunkel = document.getElementById("globe").classList.contains("licht-aus");
+      if(istDunkel) hall = await dunkel(hall);
+      hall = mitZeigern(hall, istDunkel);
       const gi = document.querySelector(".globe-img"), fr = await bild(gi.currentSrc || gi.src);
       const d = Math.min(2, devicePixelRatio || 1);
       cv.width = Math.round(innerWidth * d); cv.height = Math.round(innerHeight * d); gl.viewport(0, 0, cv.width, cv.height);
