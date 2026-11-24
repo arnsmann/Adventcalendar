@@ -1005,15 +1005,16 @@ addEventListener("resize", setzeRaum);
    Höchstens bis heute (bzw. bis 24), nie in die Zukunft. Vor Dezember: das echte Datum, nichts zu blättern. */
 const Ansicht = (function(){
   const MONATE = ["JANUARY","FEBRUARY","MARCH","APRIL","MAY","JUNE","JULY","AUGUST","SEPTEMBER","OCTOBER","NOVEMBER","DECEMBER"];
-  const maxTag = () => { if(PREVIEW) return 24; const t = berlinNow(); if(t.year > JAHR) return 24; return (t.year === JAHR && t.month === 12) ? Math.min(t.day, 24) : 0; };
+  const echterTag = () => { const t = berlinNow(); if(t.year > JAHR) return 24; return (t.year === JAHR && t.month === 12) ? Math.min(t.day, 24) : 0; };
+  const maxTag = () => PREVIEW ? 24 : echterTag(); // in der Vorschau darf man bis 24 blättern, startet aber beim echten Datum
   const bildFuer = d => { for(let i = d; i >= 1; i--){ const bi = (TUERCHEN[i] || {}).bild; if(bi) return bi; } return START_BILD; };
-  const A = { tag: maxTag() };
-  A.geht = d => A.tag > 0 && d >= 1 && d <= maxTag();
+  const A = { tag: echterTag() };
+  A.geht = d => (A.tag > 0 || PREVIEW) && d >= 1 && d <= maxTag();
   A.text = d => { if(d > 0) return ["DECEMBER", String(d)]; const t = berlinNow(); return [MONATE[t.month - 1], String(t.day)]; };
   A.zeichnen = () => { const [m, n] = A.text(A.tag); const k = document.querySelector(".kal"); if(!k) return; k.querySelector(".km").textContent = m; k.querySelector(".kt").textContent = n; };
   A.setzen = d => { A.tag = d; bgPicked = true; setBg(bildFuer(d)); A.zeichnen(); setTimeout(()=>{ try{ alignViews(); }catch(er){} }, 700); };
   A.folgen = d => { A.tag = d; A.zeichnen(); };          // wenn sie ein Türchen öffnet: Kalender zeigt diesen Tag
-  A.neuerTag = () => { if(!bgPicked){ A.tag = maxTag(); } A.zeichnen(); }; // um Mitternacht
+  A.neuerTag = () => { if(!bgPicked){ A.tag = echterTag(); } A.zeichnen(); }; // um Mitternacht
   return A;
 })();
 Ansicht.zeichnen();
