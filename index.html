@@ -241,6 +241,11 @@ footer{font-family:var(--f-hand);font-size:1.1rem;color:#fff8f1;text-shadow:0 1p
 .clip::after{content:"";position:absolute;inset:0;pointer-events:none;box-shadow:inset 0 0 50px 18px rgba(30,20,19,.55);border-radius:inherit;z-index:2}
 .clip .cover{position:absolute;inset:0;z-index:1;background:var(--inside);opacity:1;transition:opacity .3s}
 .song.clip-on .clip .cover{opacity:0;transition:opacity 1.2s}
+.clip .intro{position:absolute;inset:0;z-index:3;opacity:0;transition:opacity .8s ease;pointer-events:none;background:#000;overflow:hidden}
+.clip .intro video{position:absolute;inset:0;width:100%;height:100%}
+.clip .intro .ib{object-fit:cover;filter:blur(18px) brightness(.55);transform:scale(1.15)}
+.clip .intro .iv{object-fit:contain}
+.clip .intro.zeigen{opacity:1;transition:opacity .3s ease}
 .clip .cover .vinyl{width:auto;height:78%;animation-play-state:running}
 .watch{display:flex;align-items:center;justify-content:center;gap:12px;aspect-ratio:16/9;width:100%;max-width:100%;border-radius:18px;
   background:linear-gradient(135deg,var(--door-a),var(--door-d));color:var(--ink);text-decoration:none;font-family:var(--f-display);font-size:1.2rem;font-weight:500}
@@ -657,7 +662,7 @@ const START_BILD = "bilder/start-e7869cbb.jpg";
 const TUERCHEN = {
   1:  { video: "", song: "t01-3b94657d", titel: "Lily's Theme", notiz: "weil in der Weihnachtszeit Harry Potter nicht fehlen darf!", bild: "bilder/b01-b0a27244.jpg", aus: {mitte: [1620, 160, 2120, 890]}, hochkant: { bild: "bilder/b01h-affe8960.jpg", kugel: [905, 1710, 249, 270] }, quer: { bild: "bilder/b01q-505e3ecc.jpg", kugel: [1302.0, 524.9, 350.7, 362.9], kugelbild: "bilder/kugel-hpsockel-4873e147.webp", textlinks: true }, wetter: "magie", kugel: "bilder/kugel-hp-f9b0b214.webp", clip: "https://youtu.be/BWp-MmUmhbA", text: "" },
   2:  { video: "", song: "t02-3147c97f", titel: "Those Eyes", notiz: "weil das einfach ein Banger ist :D", bild: "bilder/b02-014cea09.jpg", hochkant: { bild: "bilder/b02h-8f8b8be3.jpg", kugel: [737.0, 2327.0, 102.0, 102.0], kugelbild: "bilder/kugel-rankenh-cab23102.webp", zoom: 2.0 }, quer: { bild: "bilder/b02q-1e74c29b.jpg", kugel: [1307.5, 1130.0, 123.5, 122.5], kugelbild: "bilder/kugel-ranken-14c15e81.webp" }, wetter: "gluehwuermchen", kugel: "bilder/kugel-mond-4b3af2f3.webp", clip: "https://youtu.be/memUamSICTc", text: "" },
-  3:  { video: "", song: "t08-014d8a98", titel: "Tommi", notiz: "Tommi, ich glaub ich hab Heimweh.", widmung: "Wir denken an dich, mach's gut Tom ♡", aus: {links: [0, 300, 500, 1180], mitte: [640, 400, 1010, 940], tuer: [1680, 420, 1830, 950]}, bild: "bilder/b08-868a325d.jpg", wetter: "sonnenstrahlen", bildposhoch: "30% 50%", hochkant: { bild: "bilder/b08h-e700b001.jpg", kugel: [830.4, 1952.8, 171.4, 186.4], kugelbild: "bilder/kugel-koeln-h-a84c112e.webp", zoom: 2.1 }, quer: { bild: "bilder/b08q-1adf5fce.jpg", kugel: [1315.9, 687.6, 278.3, 303.0], kugelbild: "bilder/kugel-koeln-q-edad00bc.webp" }, clip: "https://youtu.be/znEIdOO6Ze0", cliphoch: true, text: "" },
+  3:  { video: "", song: "t08-014d8a98", intro: { video: "videos/i03-62c6d7e5.mp4", song: "t03i-7e71cbf6", laenge: 9.25 }, titel: "Tommi", notiz: "Tommi, ich glaub ich hab Heimweh.", widmung: "Wir denken an dich, mach's gut Tom ♡", aus: {links: [0, 300, 500, 1180], mitte: [640, 400, 1010, 940], tuer: [1680, 420, 1830, 950]}, bild: "bilder/b08-868a325d.jpg", wetter: "sonnenstrahlen", bildposhoch: "30% 50%", hochkant: { bild: "bilder/b08h-e700b001.jpg", kugel: [830.4, 1952.8, 171.4, 186.4], kugelbild: "bilder/kugel-koeln-h-a84c112e.webp", zoom: 2.1 }, quer: { bild: "bilder/b08q-1adf5fce.jpg", kugel: [1315.9, 687.6, 278.3, 303.0], kugelbild: "bilder/kugel-koeln-q-edad00bc.webp" }, clip: "https://youtu.be/znEIdOO6Ze0", cliphoch: true, text: "" },
   4:  { video: "", song: "t04-42593136", titel: "Creep", notiz: "weil das einfach schön auf dem Klavier ist.", bild: "bilder/b04-af7d115d.jpg", hochkant: { bild: "bilder/b04h-f0ce736a.jpg", kugel: [793.5, 2380.0, 68.0, 75.0], kugelbild: "bilder/kugel-regenh-e734dc06.webp", zoom: 2.3 }, quer: { bild: "bilder/b04q-d36811ec.jpg", kugel: [1415.0, 1131.0, 115.0, 115.0], kugelbild: "bilder/kugel-regenstand-a214a286.webp" }, wetter: "regen", kugel: "bilder/kugel-regen-b47fee09.webp", text: "" },
   5:  { video: "", song: "t05-ebefd28c", titel: "Memories", notiz: "um an deine Shawn Mendes Phase zu erinnern", aus: {mitte: [1800, 40, 2420, 940]}, kugel: "bilder/kugel-wald-58817d5f.webp", kugelrand: [200,80], kugelversatz: "17vw", bildpos: "100% 50%", bild: "bilder/b05-6134d4dd.jpg", hochkant: { bild: "bilder/b05h-d60dd0dc.jpg", kugel: [726.0, 2297.0, 135.0, 135.0], kugelbild: "bilder/kugel-wurzelh-84cc5492.webp", zoom: 1.7 }, quer: { bild: "bilder/b05q-f967d529.jpg", kugel: [1304.2, 731.4, 127.0, 127.0], kugelbild: "bilder/kugel-wurzel-a0580b16.webp" }, wetter: "pusteblume", text: "" },
   6:  { video: "", song: "t06-6a105033", titel: "Drei Nüsse für Aschenbrödel", notiz: "Wie könnte ich Drei Nüsse für Aschenbrödel vergessen, Frohen Nikolaus!", ausbild: ["bilder/b06a-af10f104.jpg", 1584, 672], aus: {links: [330, 40, 620, 550], mitte: [1080, 90, 1390, 540], tuer: [1230, 250, 1350, 672]}, clip: "https://youtu.be/zqamJZ3Jiy4", wetter: "zauberschnee", kugel: "bilder/kugel-perle-05acc6d6.webp", kugelrand: [137,165], bild: "bilder/b06-95ed29b3.jpg", kugelversatz: "-31vw", kugelhoch: true, text: "" },
@@ -1205,9 +1210,9 @@ function showCard(n){
     if(song){
       html += `<div class="song">
         <div class="song-head"><span class="ico cover-art" aria-hidden="true"></span><span><b>${item.titel ? esc(item.titel) : "Der Song von heute"}</b><small>gespielt von Arne ♡${item.notiz ? (/^[A-ZÄÖÜ]/.test(item.notiz) ? `<span class="notiz-zeile">${esc(item.notiz)}</span>` : " " + esc(item.notiz)) : " zum Korrigieren und Vorbereiten am Schreibtisch"}</small></span></div>
-        ${clipId ? `<div class="video clip"><div class="yt" data-clip="${clipId}"></div><div class="vinyl-wrap cover" aria-hidden="true"><div class="vinyl"><div class="label"><span>${n}</span></div></div></div>${item.widmung ? `<span class="widmung">${esc(item.widmung)}</span>` : ""}</div>` : ""}
+        ${clipId ? `<div class="video clip"><div class="yt" data-clip="${clipId}"></div>${item.intro ? `<div class="intro" aria-hidden="true"><video class="ib" src="${esc(item.intro.video)}" muted playsinline preload="auto"></video><video class="iv" src="${esc(item.intro.video)}" muted playsinline preload="auto"></video></div>` : ""}<div class="vinyl-wrap cover" aria-hidden="true"><div class="vinyl"><div class="label"><span>${n}</span></div></div></div>${item.widmung ? `<span class="widmung">${esc(item.widmung)}</span>` : ""}</div>` : ""}
         ${!id && !clipId ? `<div class="vinyl-wrap"><div class="vinyl" aria-hidden="true"><div class="label"><span>${n}</span></div></div></div>` : ""}
-        <audio controls preload="none" src="songs/${song}.mp3"></audio>
+        <audio controls preload="none" src="songs/${item.intro && clipId ? esc(item.intro.song) : song}.mp3"></audio>
         <div class="song-actions"><button type="button" class="big-btn" aria-pressed="false">⤢ Großbild</button><a class="save" href="songs/${song}.mp3" download="${item.titel ? esc(item.titel) : "Tuerchen " + n}.mp3">↓ Song speichern</a></div>
         <details class="guide"><summary>So landet der Song in deinem Spotify</summary><ol>
           <li class="once">Nur beim ersten Mal: In Spotify auf dein Profilbild tippen, dann Einstellungen und Datenschutz › Apps und Geräte › „Lokale Audiodateien“ einschalten.</li>
@@ -1224,6 +1229,18 @@ function showCard(n){
     if(song && window.Playlist) Playlist.aktualisieren();
     const yt = media.querySelector(".yt");
     if(yt) initClip(yt);
+    // Vorspann: ein Video (z.B. ein Freund, der singt) läuft vor dem Clip. Der Ton ist schon in die Song Datei gemischt,
+    // das Video läuft stumm und folgt genau der Stelle im Song (auch beim Pausieren und Zurückspulen)
+    const ib = media.querySelector(".intro"), au = media.querySelector("audio");
+    if(ib && au){
+      const vids = [...ib.querySelectorAll("video")], L = +item.intro.laenge || 0;
+      const sync = () => { const t = au.currentTime, drin = t < L - .05 && (!au.paused || t > 0);
+        ib.classList.toggle("zeigen", drin);
+        vids.forEach(v=>{
+          if(drin){ if(Math.abs(v.currentTime - t) > .3) v.currentTime = t; if(!au.paused && v.paused) v.play().catch(()=>{}); if(au.paused && !v.paused) v.pause(); }
+          else if(!v.paused) v.pause(); }); };
+      ["play","playing","pause","seeked","timeupdate","ended"].forEach(e=>au.addEventListener(e, sync));
+    }
   }
   const note = document.getElementById("card-note");
   note.textContent = item.text || "";
