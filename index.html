@@ -1172,7 +1172,7 @@ function uhrWinkel(){ const d = new Date(), m = d.getMinutes() + d.getSeconds() 
 // Über Web Audio abgespielt: einmal beim ersten Antippen freigeschaltet, danach klappt es auf iPhone, iPad und Mac auch mit Verzögerung.
 // Auf neueren iPhones zählt es als Wiedergabe, damit es nicht vom Stummschalter geschluckt wird.
 const TON = (function(){
-  const NAMEN = ["schneesturm","glocken","schluessel","tuer","tuer-zu","hohoho","eintauchen","quiek1","quiek2","quiek3","quiek4","quiek5","schrank-auf","schrank-zu","schachzug","wuerfel","riss1","riss2"];
+  const NAMEN = ["schneesturm","glocken","schluessel","tuer","tuer-zu","hohoho","eintauchen","quiek1","quiek2","quiek3","quiek4","quiek5","schrank-auf","schrank-zu","schachzug","wuerfel","riss1","riss2","feuerwerk"];
   let ac = null; const buf = {}, laedt = {};
   function ctx(){
     if(!ac){ const C = window.AudioContext || window.webkitAudioContext; if(!C) return null; ac = new C(); window._tonCtx = ac; }
@@ -2769,7 +2769,7 @@ window.Mono = (function(){
    und draußen geht ein Feuerwerk los (Video mit schwarzem Hintergrund, "screen" lässt nur die Funken sichtbar). */
 window.Feuerwerk = (function(){
   let tipps = [], laeuft = false;
-  function zuenden(){ if(laeuft) return; laeuft = true; window.Eier && Eier.fund("feuerwerk");
+  function zuenden(){ if(laeuft) return; laeuft = true; window.Eier && Eier.fund("feuerwerk"); TON("feuerwerk", .85);
     const fen = [...document.querySelectorAll(".stage .view.fen")];
     fen.forEach(v => { const d = document.createElement("div"); d.className = "fw";
       d.innerHTML = `<video src="videos/feuerwerk.mp4" muted playsinline preload="auto"></video>`; v.appendChild(d);
