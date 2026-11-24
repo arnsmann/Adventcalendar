@@ -58,6 +58,8 @@
 }
 *{box-sizing:border-box}
 html,body{margin:0}
+/* Android Browser sollen die Schrift nicht eigenmächtig vergrößern (sonst wird alles riesig und die Kugel rutscht nach unten) */
+html{-webkit-text-size-adjust:100%;text-size-adjust:100%}
 html{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);background:#2b211d}
 [hidden]{display:none!important}
 body{background:#2b211d;color:var(--ink);font-family:var(--f-body);font-size:16px;line-height:1.55;min-height:100vh;overflow-x:hidden}
