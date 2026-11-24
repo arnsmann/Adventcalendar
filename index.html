@@ -419,6 +419,8 @@ body.zoomed-on .pl-btn,body.peek .pl-btn{opacity:0;pointer-events:none}
 @media (hover:none){.pl-laut{display:none}}
 .pl-zeit{height:4px;margin:0 22px;border-radius:2px;background:rgba(142,42,42,.15);overflow:hidden}
 .pl-zeit i{display:block;height:100%;width:0;background:#8e2a2a}
+/* Hinweis unter der Kugel (antippen, schütteln) ausgeblendet: das ist jetzt Teil der Easter Eggs */
+#globeHint{display:none!important}
 /* Easter Eggs: Fuyus Liste, oben links */
 .eier-btn{position:fixed;z-index:12;left:calc(12px + env(safe-area-inset-left,0px));top:calc(12px + env(safe-area-inset-top,0px));height:34px;border:0;border-radius:999px;padding:0 12px 0 6px;cursor:pointer;display:flex;align-items:center;gap:6px;
   background:rgba(20,12,8,.45);color:#fff8f1;font-family:var(--f-hand);font-size:1.05rem;-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px)}
