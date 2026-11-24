@@ -475,6 +475,11 @@ body.zoomed-on .eier-btn,body.peek .eier-btn{opacity:0;pointer-events:none}
 .ei-liste .zu .ok{color:var(--soft)}
 .ei-liste .zu .t{color:var(--soft)}
 .ei-liste .t small{display:block;font-size:.9rem;color:var(--soft)}
+.ei-liste li.gefunden{cursor:pointer}
+.ei-liste .pfeil{display:inline-block;margin-left:6px;font-size:.8rem;opacity:.55;transition:transform .25s;-webkit-text-stroke:0}
+.ei-liste li.offen .pfeil{transform:rotate(180deg)}
+.ei-liste .info{font-size:.95rem;line-height:1.3;color:#5a4330;display:block;max-height:0;overflow:hidden;opacity:0;transition:max-height .35s ease,opacity .3s ease,margin .3s ease}
+.ei-liste li.offen .info{max-height:8em;opacity:1;margin-top:4px}
 .ei-liste li.frisch{background:rgba(201,86,107,.16);border-radius:12px}
 .ei-toast{position:fixed;z-index:70;left:50%;bottom:calc(22px + env(safe-area-inset-bottom,0px));transform:translate(-50%,140%);display:flex;align-items:center;gap:10px;max-width:calc(100vw - 32px);
   background:linear-gradient(170deg,#f6ead0,#ead7b0);color:#3d2a1c;border-radius:8px;padding:8px 16px 8px 8px;box-shadow:var(--shadow);font-family:var(--f-hand);font-size:1.1rem;line-height:1.2;-webkit-text-stroke:.03em currentColor;paint-order:stroke fill;cursor:pointer;transition:transform .5s cubic-bezier(.2,1.3,.4,1)}
@@ -2320,17 +2325,17 @@ addEventListener("hashchange", ()=>location.reload());
 window.Eier = (function(){
   const FUYU = "bilder/fuyu-still-3b96ad30.webp";
   const LISTE = [
-    ["fuyu", "Fuyu erwischt", "Ab und zu huscht hier jemand vorbei. Schnell sein!"],
-    ["schlaf", "Fuyu beim Schlafen gestört", "Wer schläft hier eigentlich nachts?"],
-    ["nikolaus", "Ho ho ho", "Auf der Heizung steht jemand ganz still."],
-    ["licht", "Licht aus", "Irgendwo im Treppenhaus ist ein Schalter."],
-    ["laterne", "Die Laterne", "Die Laterne hängt nicht nur zur Deko da."],
-    ["baum", "Glöckchen", "Klingelt da was am Weihnachtsbaum?"],
-    ["tuer", "Tür auf", "Wo hängt eigentlich der Schlüssel?"],
-    ["schnee", "Schneesturm", "Was macht man mit einer Schneekugel?"],
-    ["uhr", "Zeitreise", "Die Uhr im Flur tickt ein bisschen anders."],
-    ["kalender", "Abreißkalender", "Unter der Uhr hängt noch etwas."],
-    ["stiefel", "Nikolausstiefel", "Schau am 6. Dezember mal genau hin."]
+    ["fuyu", "Fuyu erwischt", "Ab und zu huscht hier jemand vorbei. Schnell sein!", "Fuyu ist der kleine Kerl, der ab und zu durchs Treppenhaus rennt oder sich kurz hinsetzt. Tipp ihn an, dann quiekt er erschrocken und verschwindet."],
+    ["schlaf", "Fuyu beim Schlafen gestört", "Wer schläft hier eigentlich nachts?", "Von 21:30 bis 6 Uhr schläft Fuyu auf dem Schrank und das Licht geht aus. Tippst du ihn an, flüstert er nur Pssst."],
+    ["nikolaus", "Ho ho ho", "Auf der Heizung steht jemand ganz still.", "Der kleine Nikolaus auf der Heizung lacht dir ein Ho ho ho zu, wenn du ihn antippst."],
+    ["licht", "Licht aus", "Irgendwo im Treppenhaus ist ein Schalter.", "Mit dem Lichtschalter neben dem Fenster machst du das Licht im Treppenhaus aus und wieder an."],
+    ["laterne", "Die Laterne", "Die Laterne hängt nicht nur zur Deko da.", "Die Laterne über dem Fenster ist auch ein Lichtschalter, mit einem alten elektrischen Zzzzp."],
+    ["baum", "Glöckchen", "Klingelt da was am Weihnachtsbaum?", "Tipp den Weihnachtsbaum an: die Glöckchen klingeln und das Licht geht aus oder an."],
+    ["tuer", "Tür auf", "Wo hängt eigentlich der Schlüssel?", "Tipp den Schlüssel auf der Kommode oder die Haustür an, dann geht die Tür auf und du schaust nach draußen. Nochmal tippen macht sie wieder zu."],
+    ["schnee", "Schneesturm", "Was macht man mit einer Schneekugel?", "Schüttel dein Handy oder tipp auf den Sockel der Schneekugel, dann wirbelt der Schnee durcheinander."],
+    ["uhr", "Zeitreise", "Die Uhr im Flur tickt ein bisschen anders.", "Tipp links auf die Uhr und du reist einen Tag zurück, rechts einen Tag vor. Die Welt draußen wechselt mit, aber weiter als bis heute geht es nicht."],
+    ["kalender", "Abreißkalender", "Unter der Uhr hängt noch etwas.", "Reiß ein Blatt ab und es geht einen Tag weiter, zusammen mit der Welt draußen. Weiter als bis heute geht es natürlich nicht."],
+    ["stiefel", "Nikolausstiefel", "Schau am 6. Dezember mal genau hin.", "Am Nikolaustag steht ein gefüllter Stiefel an der Tür."]
   ];
   let gefunden = [];
   try{ gefunden = JSON.parse(localStorage.getItem("advent-eier") || "[]").filter(id => LISTE.some(e => e[0] === id)); }catch(e){}
@@ -2347,8 +2352,8 @@ window.Eier = (function(){
     const n = gefunden.length, alle = LISTE.length;
     btn.querySelector("span").textContent = `${n}/${alle}`;
     o.querySelector(".pl-kopf small").textContent = n === alle ? `Alle ${alle} gefunden! Du bist unglaublich ♡` : `${n} von ${alle} entdeckt`;
-    o.querySelector(".ei-liste").innerHTML = LISTE.map(([id, name, tipp]) => gefunden.includes(id)
-      ? `<li class="${id === frisch ? "frisch" : ""}"><span class="ok">✓</span><span class="t">${name}</span></li>`
+    o.querySelector(".ei-liste").innerHTML = LISTE.map(([id, name, tipp, info]) => gefunden.includes(id)
+      ? `<li class="gefunden ${id === frisch ? "frisch" : ""}" tabindex="0" role="button" aria-expanded="false"><span class="ok">✓</span><span class="t">${name}<span class="pfeil" aria-hidden="true">▾</span><span class="info">${info}</span></span></li>`
       : `<li class="zu"><span class="ok">?</span><span class="t">???<small>${tipp}</small></span></li>`).join("");
   }
   function fund(id){
@@ -2364,7 +2369,9 @@ window.Eier = (function(){
   const auf = () => { zeichnen(); o.classList.add("on"); toast.classList.remove("on"); };
   btn.addEventListener("click", auf);
   toast.addEventListener("click", auf);
-  o.addEventListener("click", e=>{ if(e.target === o || e.target.closest(".pl-zu")){ o.classList.remove("on"); frisch = null; } });
+  o.addEventListener("click", e=>{ if(e.target === o || e.target.closest(".pl-zu")){ o.classList.remove("on"); frisch = null; return; }
+    const li = e.target.closest("li.gefunden"); if(li){ const auf = !li.classList.contains("offen"); li.classList.toggle("offen", auf); li.setAttribute("aria-expanded", auf); } });
+  o.addEventListener("keydown", e=>{ const li = e.target.closest && e.target.closest("li.gefunden"); if(li && (e.key === "Enter" || e.key === " ")){ e.preventDefault(); li.click(); } });
   zeichnen();
   return { fund, liste: () => gefunden.slice() };
 })();
