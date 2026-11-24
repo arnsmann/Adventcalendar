@@ -107,6 +107,9 @@ h1{font-family:var(--f-display);font-weight:600;font-size:clamp(1.6rem,4.6vw,2.3
 /* Nikolaus (6. Dezember): gefüllter Stiefel an der Tür */
 .stiefel{position:absolute;z-index:2;pointer-events:none;display:none}
 /* Abreißkalender: Datum des Tages, den sie gerade ansieht */
+/* im Raum lässt sich nichts markieren (Safari markiert sonst bei schnellem Doppelklick das Datum farbig) */
+.globe,.globe *{-webkit-user-select:none;user-select:none;-webkit-touch-callout:none}
+.globe ::selection{background:transparent}
 .kal,.kal-flug{position:absolute;z-index:2;pointer-events:none;overflow:visible}
 .kal text,.kal-flug text{font-family:"Libre Baskerville",Georgia,"Times New Roman",serif;font-weight:700;fill:#3b2a1e;text-anchor:middle}
 .kal .km,.kal-flug .km{font-size:21px;letter-spacing:-.4px}
