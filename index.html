@@ -139,6 +139,29 @@ html.raum-hoch .spot.schluessel,html.raum-hoch .spot.haustuer{display:none}
 /* Spieleschrank unter der Treppe: Tür auf und zu (eigenes Bild für den breiten und den hohen Raum) */
 .schrank-auf{position:absolute;z-index:2;pointer-events:none;display:none}
 .globe.schrank-offen .schrank-auf{display:block}
+.spot.schachknopf{display:none}
+.globe.schrank-offen .spot.schachknopf{display:block}
+/* Schachrätsel: Weiß setzt in 2 Zügen matt */
+.schach{position:fixed;inset:0;z-index:60;display:flex;align-items:center;justify-content:center;padding:14px;background:rgba(20,12,8,.6);opacity:0;pointer-events:none;transition:opacity .3s}
+.schach.on{opacity:1;pointer-events:auto}
+.sch-karte{position:relative;width:min(560px,100%,calc(100dvh - 150px));max-height:calc(100dvh - 28px);display:flex;flex-direction:column;gap:8px;color:#3d2a1c;font-family:var(--f-hand);font-size:1.1rem;-webkit-text-stroke:.03em currentColor;paint-order:stroke fill}
+.sch-kopf{display:flex;align-items:flex-end;justify-content:space-between;gap:10px;color:#fff8f1}
+.sch-kopf h3{margin:0;font-family:var(--f-titel);font-weight:400;font-size:1.8rem;color:#fff8f1;-webkit-text-stroke:0;text-shadow:0 2px 8px rgba(0,0,0,.5)}
+.sch-kopf small{display:block;color:#f3e3cf;font-size:1rem;text-shadow:0 1px 4px rgba(0,0,0,.6)}
+.sch-zu{border:0;background:rgba(255,248,241,.15);color:#fff8f1;width:34px;height:34px;border-radius:50%;font-size:1rem;cursor:pointer;flex:none;-webkit-text-stroke:0}
+.sch-brett{position:relative;width:100%;aspect-ratio:1;background:center/100% 100% no-repeat;border-radius:6px;box-shadow:0 18px 40px rgba(0,0,0,.55);touch-action:manipulation;user-select:none;-webkit-user-select:none}
+.sch-feld{position:absolute;width:11.42%;height:11.42%;transition:left .45s ease,top .45s ease,opacity .3s}
+.sch-feld img{position:absolute;left:50%;bottom:6%;transform:translateX(-50%);pointer-events:none;filter:drop-shadow(0 3px 2px rgba(0,0,0,.35))}
+.sch-feld.weg{opacity:0}
+.sch-mark{position:absolute;width:11.42%;height:11.42%;box-sizing:border-box;border-radius:4px;pointer-events:none;box-shadow:inset 0 0 0 3px rgba(255,214,90,.95),inset 0 0 18px rgba(255,214,90,.55);display:none}
+.sch-mark.zeigen{display:block}
+.sch-mark.ziel{box-shadow:inset 0 0 0 3px rgba(255,248,241,.6)}
+.sch-brett.wackelt{animation:schWackel .35s ease}
+@keyframes schWackel{25%{transform:translateX(-5px)}75%{transform:translateX(5px)}}
+.sch-info{min-height:2.6em;text-align:center;color:#fff8f1;text-shadow:0 1px 5px rgba(0,0,0,.7);font-size:1.15rem;line-height:1.3}
+.sch-info b{font-family:var(--f-titel);font-weight:400;font-size:1.6rem;color:#ffd66a;-webkit-text-stroke:0}
+.sch-knoepfe{display:flex;justify-content:center;gap:10px}
+.sch-knoepfe button{border:0;border-radius:999px;padding:8px 16px;cursor:pointer;background:rgba(255,248,241,.92);color:#8e2a2a;font-family:var(--f-hand);font-size:1.05rem}
 .globe-wrap.zoomed .spots .spot,.globe-wrap.zoomed .spots .kerl{pointer-events:auto}
 .spot{position:absolute;border:0;background:none;padding:0;cursor:pointer;-webkit-tap-highlight-color:transparent;border-radius:30%}
 .spot:focus-visible{outline:2px solid #ffe2a8}
@@ -676,6 +699,7 @@ footer{font-size:1rem;margin-top:-6px}
       <button type="button" class="spot uhrknopf" data-s="uhr" aria-label="Uhr"></button>
       <button type="button" class="spot kalknopf" data-s="kalknopf" aria-label="Abreißkalender"></button>
       <button type="button" class="spot schrankknopf" data-s="schrankknopf" aria-label="Schranktür"></button>
+      <button type="button" class="spot schachknopf" data-s="schachknopf" aria-label="Schachbrett"></button>
       <button type="button" class="spot haustuer" data-s="haustuer" aria-label="Tür auf oder zu"></button>
       <div class="kerlbahn" data-s="kerl"><button type="button" class="kerl" aria-label="Fuyu"><img src="bilder/kerl.webp" alt="" draggable="false"><img class="puff" alt="" draggable="false"><span class="piep">Huch!</span></button></div>
       <button type="button" class="sitzer" data-s="sitz" aria-label="Fuyu"><img alt="" draggable="false"></button>
@@ -976,8 +1000,8 @@ const HOT_H = {1:[1002,1256,1066,1365],2:[1157,1170,1221,1275],3:[846,1340,908,1
 const grid = document.getElementById("grid");
 // Klickbare Stellen im Raum [x0,y0,x1,y1] in Bildpixeln
 const SPOTS = {
-  quer: {schrank: [802, 879, 1131, 1349], schrankknopf: [880, 885, 1125, 1345], uhr: [1746.5, 390, 1866.5, 510], kal: [1788, 584, 1840, 638], kalknopf: [1768, 547, 1853, 661], schalter: [1735, 670, 1815, 770], laterne: [1600, 190, 1700, 340], baum: [690, 330, 1010, 800], sitz: [1790, 1186, 2063, 1364], sitz2: [778, 724, 996, 866], schlaf: [814, 757, 961, 853], stiefel: [1967, 1117, 2181, 1363], tuerauf: [2189, 252, 2388, 1341], schluessel: [2310, 1075, 2445, 1165], nikolaus: [395, 920, 545, 1175], haustuer: [2200, 290, 2385, 1060], kerl: [596, 1080, 2240, 1418]},
-  hoch: {schrank: [457, 1976, 811, 2574], schrankknopf: [470, 1980, 800, 2490], uhr: [1434, 1422, 1546, 1534], kal: [1472.8, 1602.9, 1521.1, 1653.2], kalknopf: [1454, 1568, 1533, 1675], schalter: [1420, 1750, 1500, 1860], laterne: [1280, 1230, 1370, 1370], baum: [360, 1420, 650, 1880], sitz: [560, 2296, 860, 2492], sitz2: [357, 1809, 597, 1966], schlaf: [396, 1846, 558, 1951], stiefel: [1385, 2146, 1548, 2334], tuerauf: [0, 0, 0, 0], schluessel: [0, 0, 0, 0], nikolaus: [0, 2010, 190, 2290], haustuer: [0, 0, 0, 0], kerl: [236, 2305, 1923, 2545]}
+  quer: {schachknopf: [850, 930, 995, 1010], schrank: [802, 879, 1131, 1349], schrankknopf: [880, 885, 1125, 1345], uhr: [1746.5, 390, 1866.5, 510], kal: [1788, 584, 1840, 638], kalknopf: [1768, 547, 1853, 661], schalter: [1735, 670, 1815, 770], laterne: [1600, 190, 1700, 340], baum: [690, 330, 1010, 800], sitz: [1790, 1186, 2063, 1364], sitz2: [778, 724, 996, 866], schlaf: [814, 757, 961, 853], stiefel: [1967, 1117, 2181, 1363], tuerauf: [2189, 252, 2388, 1341], schluessel: [2310, 1075, 2445, 1165], nikolaus: [395, 920, 545, 1175], haustuer: [2200, 290, 2385, 1060], kerl: [596, 1080, 2240, 1418]},
+  hoch: {schachknopf: [515, 2025, 685, 2115], schrank: [457, 1976, 811, 2574], schrankknopf: [470, 1980, 800, 2490], uhr: [1434, 1422, 1546, 1534], kal: [1472.8, 1602.9, 1521.1, 1653.2], kalknopf: [1454, 1568, 1533, 1675], schalter: [1420, 1750, 1500, 1860], laterne: [1280, 1230, 1370, 1370], baum: [360, 1420, 650, 1880], sitz: [560, 2296, 860, 2492], sitz2: [357, 1809, 597, 1966], schlaf: [396, 1846, 558, 1951], stiefel: [1385, 2146, 1548, 2334], tuerauf: [0, 0, 0, 0], schluessel: [0, 0, 0, 0], nikolaus: [0, 2010, 190, 2290], haustuer: [0, 0, 0, 0], kerl: [236, 2305, 1923, 2545]}
 };
 const RAUM = { quer: {lichter: "bilder/flurb-licht-7c37f5a9.webp", fenster: {links: [0, 140, 410, 862], mitte: [1460, 410, 1666, 710], tuer: [2222, 325, 2352, 785], offen: [2189, 252, 2388, 1341]}, bild: "bilder/flurb-cbc86009.webp", hot: HOT, w: 2576, h: 1438, mitte: .555},
                // fenster: wo die Fenster im Raumbild liegen (in Pixeln), damit jedes pro Tür einen eigenen Ausschnitt zeigen kann
@@ -2353,6 +2377,7 @@ window.Eier = (function(){
     ["uhr", "Zeitreise", "Die Uhr im Flur tickt ein bisschen anders.", "Tipp links auf die Uhr und du reist einen Tag zurück, rechts einen Tag vor. Die Welt draußen wechselt mit, aber weiter als bis heute geht es nicht."],
     ["kalender", "Abreißkalender", "Unter der Uhr hängt noch etwas.", "Reiß ein Blatt ab und es geht einen Tag weiter, zusammen mit der Welt draußen. Weiter als bis heute geht es natürlich nicht."],
     ["schrank", "Spieleschrank", "Was steckt wohl im Schrank unter der Treppe?", "Tipp die Schranktür unter der Treppe an und sie knarrt auf: drinnen warten Monopoly, Catan, Schach und noch mehr Spiele. Nochmal tippen macht sie wieder zu."],
+    ["schach", "Schachmatt", "Im Spieleschrank wartet eine Herausforderung.", "Im Spieleschrank liegt ein Schachbrett. Tipp es an: Du spielst Weiß und musst in 2 Zügen matt setzen. Gezählt wird es, wenn du es gelöst hast."],
     ["stiefel", "Nikolausstiefel", "Schau am 6. Dezember mal genau hin.", "Am Nikolaustag steht ein gefüllter Stiefel an der Tür."]
   ];
   let gefunden = [];
@@ -2392,6 +2417,73 @@ window.Eier = (function(){
   o.addEventListener("keydown", e=>{ const li = e.target.closest && e.target.closest("li.gefunden"); if(li && (e.key === "Enter" || e.key === " ")){ e.preventDefault(); li.click(); } });
   zeichnen();
   return { fund, liste: () => gefunden.slice() };
+})();
+
+/* Schachrätsel im Spieleschrank: Weiß setzt in 2 Zügen matt (mit python-chess geprüft: nur 1.Tb8+ gewinnt).
+   Schwarz antwortet selbst (mal Lxb8, mal Ld8). Falsche, aber erlaubte Züge werden zurückgenommen. */
+window.Schach = (function(){
+  const B = "bilder/schach/", BRETT = B + "brett-a0498f3c.webp";
+  const HOEHE = {K: 178, Q: 161, R: 120, N: 135, P: 111, B: 144};
+  const START = {g1: "wK", d2: "wQ", b2: "wR", e3: "wN", f2: "wP", g2: "wP", h2: "wP", g8: "bK", c7: "bB", f7: "bP", g7: "bP", h7: "bP"};
+  const LEGAL0 = "b2a2 b2b1 b2b3 b2b4 b2b5 b2b6 b2b7 b2b8 b2c2 d2a5 d2b4 d2c1 d2c2 d2c3 d2d1 d2d3 d2d4 d2d5 d2d6 d2d7 d2d8 d2e1 d2e2 e3c2 e3c4 e3d1 e3d5 e3f1 e3f5 e3g4 f2f3 f2f4 g1f1 g1h1 g2g3 g2g4 h2h3 h2h4".split(" ");
+  const ZWEIGE = {
+    c7b8: {legal: "d2a2 d2a5 d2b2 d2b4 d2c1 d2c2 d2c3 d2d1 d2d3 d2d4 d2d5 d2d6 d2d7 d2d8 d2e1 d2e2 e3c2 e3c4 e3d1 e3d5 e3f1 e3f5 e3g4 f2f3 f2f4 g1f1 g1h1 g2g3 g2g4 h2h3 h2h4".split(" "), matt: ["d2d8"]},
+    c7d8: {legal: "b8a8 b8b1 b8b2 b8b3 b8b4 b8b5 b8b6 b8b7 b8c8 b8d8 d2a2 d2a5 d2b2 d2b4 d2c1 d2c2 d2c3 d2d1 d2d3 d2d4 d2d5 d2d6 d2d7 d2d8 d2e1 d2e2 e3c2 e3c4 e3d1 e3d5 e3f1 e3f5 e3g4 f2f3 f2f4 g1f1 g1h1 g2g3 g2g4 h2h3 h2h4".split(" "), matt: ["b8d8", "d2d8"]}
+  };
+  const o = document.createElement("div"); o.className = "schach"; o.setAttribute("role", "dialog"); o.setAttribute("aria-label", "Schachrätsel");
+  o.innerHTML = `<div class="sch-karte"><div class="sch-kopf"><div><h3>Schachrätsel</h3><small>Du spielst Weiß und setzt in 2 Zügen matt.</small></div><button type="button" class="sch-zu" aria-label="Schließen">✕</button></div>
+    <div class="sch-brett" style="background-image:url('${BRETT}')"><div class="sch-mark"></div></div>
+    <div class="sch-info">Tipp eine weiße Figur an und dann das Feld, auf das sie ziehen soll.</div>
+    <div class="sch-knoepfe"><button type="button" class="sch-neu">Von vorne</button></div></div>`;
+  document.body.appendChild(o);
+  const brett = o.querySelector(".sch-brett"), mark = o.querySelector(".sch-mark"), info = o.querySelector(".sch-info");
+  const FX = 42 / 1024 * 100, FY = 44 / 1024 * 100, FW = 116.9 / 1024 * 100;
+  const pos = sq => ({left: FX + (sq.charCodeAt(0) - 97) * FW + "%", top: FY + (8 - +sq[1]) * FW + "%"});
+  let stand = {}, phase = 0, zweig = null, gewaehlt = null, sperre = false;
+  function figur(sq, code){ const d = document.createElement("div"); d.className = "sch-feld"; d.dataset.sq = sq; const p = pos(sq); d.style.left = p.left; d.style.top = p.top; d.style.zIndex = 20 - +sq[1];
+    const img = document.createElement("img"); img.src = B + code + ".webp"; img.alt = ""; img.style.height = HOEHE[code[1]] / 180 * 150 + "%"; d.appendChild(img); brett.appendChild(d); return d; }
+  function aufbauen(){ brett.querySelectorAll(".sch-feld").forEach(e=>e.remove()); stand = {};
+    for(const sq in START) stand[sq] = {code: START[sq], el: figur(sq, START[sq])};
+    phase = 0; zweig = null; gewaehlt = null; sperre = false; markieren(null);
+    info.textContent = "Tipp eine weiße Figur an und dann das Feld, auf das sie ziehen soll."; }
+  function markieren(sq){ if(!sq){ mark.classList.remove("zeigen"); return; } const p = pos(sq); mark.style.left = p.left; mark.style.top = p.top; mark.classList.add("zeigen"); }
+  function ziehen(von, nach){ const f = stand[von]; if(!f) return; const weg = stand[nach];
+    if(weg){ weg.el.classList.add("weg"); setTimeout(()=>weg.el.remove(), 320); }
+    delete stand[von]; stand[nach] = f; const p = pos(nach); f.el.style.left = p.left; f.el.style.top = p.top; f.el.style.zIndex = 20 - +nach[1]; f.el.dataset.sq = nach;
+    try{ RAUMTON.tick(); }catch(e){} }
+  function zurueck(zuege){ // macht Züge rückgängig: [[von, nach, geschlagenerCode], ...] rückwärts
+    zuege.slice().reverse().forEach(([von, nach, ges])=>{ const f = stand[nach]; delete stand[nach]; stand[von] = f; const p = pos(von); f.el.style.left = p.left; f.el.style.top = p.top; f.el.style.zIndex = 20 - +von[1];
+      if(ges) stand[nach] = {code: ges, el: figur(nach, ges)}; }); }
+  function feldVon(e){ const r = brett.getBoundingClientRect(), x = (e.clientX - r.left) / r.width * 100, y = (e.clientY - r.top) / r.height * 100;
+    const f = Math.floor((x - FX) / FW), rg = Math.floor((y - FY) / FW); if(f < 0 || f > 7 || rg < 0 || rg > 7) return null; return String.fromCharCode(97 + f) + (8 - rg); }
+  function nein(){ brett.classList.remove("wackelt"); void brett.offsetWidth; brett.classList.add("wackelt"); }
+  brett.addEventListener("click", e=>{ if(sperre || phase > 1) return; const sq = feldVon(e); if(!sq) return;
+    const f = stand[sq];
+    if(f && f.code[0] === "w"){ gewaehlt = sq; markieren(sq); return; }
+    if(!gewaehlt) return;
+    const zug = gewaehlt + sq, legal = phase === 0 ? LEGAL0 : ZWEIGE[zweig].legal;
+    if(!legal.includes(zug)){ nein(); info.textContent = "So kann die Figur nicht ziehen."; return; }
+    const ges = stand[sq] ? stand[sq].code : null; gewaehlt = null; markieren(null); ziehen(zug.slice(0,2), sq); sperre = true;
+    if(phase === 0){
+      if(zug !== "b2b8"){ info.textContent = "Hmm, danach kann sich Schwarz noch retten. Versuch's nochmal!"; setTimeout(()=>{ zurueck([[zug.slice(0,2), sq, ges]]); sperre = false; }, 1100); return; }
+      info.textContent = "Schach! Mal sehen, was Schwarz macht …";
+      setTimeout(()=>{ zweig = Math.random() < .6 ? "c7b8" : "c7d8"; ziehen("c7", zweig.slice(2)); phase = 1; sperre = false;
+        info.textContent = zweig === "c7b8" ? "Schwarz schlägt deinen Turm! Und jetzt?" : "Schwarz stellt den Läufer dazwischen. Und jetzt?"; }, 900);
+      return; }
+    if(ZWEIGE[zweig].matt.includes(zug)){ phase = 2;
+      info.innerHTML = "<b>Schachmatt!</b><br>Du bist ja ein Schachgenie ♡";
+      try{ TON("glocken", .6); }catch(e){} window.Eier && Eier.fund("schach"); sperre = false; return; }
+    info.textContent = "Fast! Aber das ist noch kein Matt. Versuch's nochmal!";
+    setTimeout(()=>{ zurueck([[zug.slice(0,2), sq, ges]]); sperre = false; }, 1100);
+  });
+  const zu = () => o.classList.remove("on");
+  o.querySelector(".sch-zu").addEventListener("click", zu);
+  o.addEventListener("click", e=>{ if(e.target === o) zu(); });
+  o.querySelector(".sch-neu").addEventListener("click", aufbauen);
+  const knopf = document.querySelector(".spot.schachknopf");
+  if(knopf) knopf.addEventListener("click", e=>{ e.stopPropagation(); if(phase !== 1 || !Object.keys(stand).length) aufbauen(); o.classList.add("on"); });
+  aufbauen();
+  return { auf: () => { aufbauen(); o.classList.add("on"); } };
 })();
 
 window.Playlist = (function(){
