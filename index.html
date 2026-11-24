@@ -12,6 +12,7 @@
 <meta name="theme-color" content="#2b211d">
 <title>Adventskalender für dich</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Libre+Baskerville:wght@700&display=swap&text=0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Caveat:wght@500;700&family=Dancing+Script:wght@500;700&family=Fredoka:wght@400;500;600&family=Gochi+Hand&family=Nunito:wght@400;600;700&display=swap">
 <style>
 @font-face{font-family:"ArneFueller";src:url("schrift/fueller.woff2") format("woff2");font-display:swap}
@@ -105,6 +106,18 @@ h1{font-family:var(--f-display);font-weight:600;font-size:clamp(1.6rem,4.6vw,2.3
 .spots{position:absolute;inset:0;z-index:5;pointer-events:none}
 /* Nikolaus (6. Dezember): gefüllter Stiefel an der Tür */
 .stiefel{position:absolute;z-index:2;pointer-events:none;display:none}
+/* Abreißkalender: Datum des Tages, den sie gerade ansieht */
+.kal,.kal-flug{position:absolute;z-index:2;pointer-events:none;overflow:visible}
+.kal text,.kal-flug text{font-family:"Libre Baskerville",Georgia,"Times New Roman",serif;font-weight:700;fill:#3b2a1e;text-anchor:middle}
+.kal .km,.kal-flug .km{font-size:21px;letter-spacing:-.4px}
+.kal .kt,.kal-flug .kt{font-size:78px}
+.kal{filter:blur(.2px)}
+.kal-flug{opacity:0;transform-origin:50% 14%}
+.kal-flug img,.kal-flug svg{position:absolute;inset:0;width:100%;height:100%}
+.kal-flug.reisst{animation:kalReiss 1s cubic-bezier(.4,.1,.6,1) forwards}
+@keyframes kalReiss{0%{opacity:1;transform:none}25%{opacity:1;transform:rotate(-7deg) translate(-4%,-3%)}100%{opacity:0;transform:rotate(38deg) translate(45%,190%)}}
+.kal.wackelt{animation:kalWackel .5s ease}
+@keyframes kalWackel{30%{transform:translateY(-2%) rotate(-2deg)}60%{transform:translateY(1%) rotate(1deg)}}
 /* Zeiger der Wanduhr: zeigen die echte Uhrzeit, wie mit Tinte gezeichnet */
 .uhr{position:absolute;z-index:2;pointer-events:none;overflow:visible;filter:blur(.25px)}
 .uhr line{stroke:#3a2418;stroke-linecap:round;transform-origin:0 0}
@@ -626,7 +639,7 @@ footer{font-size:1rem;margin-top:-6px}
   <div class="globe-wrap" id="globeWrap">
     <img class="globe-img" src="bilder/kugel-d332569e.webp" alt="Schneekugel mit unserem Treppenhaus" draggable="false">
     <div class="globe" id="globe">
-    <img class="flur-rand" src="bilder/flurb-351cbee0.webp" alt="" aria-hidden="true" draggable="false">
+    <img class="flur-rand" src="bilder/flurb-cbc86009.webp" alt="" aria-hidden="true" draggable="false">
     <main class="scene"><div class="stage">
     <div class="view" aria-hidden="true" style="left:0;top:0;width:100%;height:100%"><div class="layer"></div><div class="layer"></div></div>
     <div class="view fen" data-f="links" aria-hidden="true"><div class="layer"></div><div class="layer"></div></div>
@@ -634,10 +647,12 @@ footer{font-size:1rem;margin-top:-6px}
     <div class="view fen" data-f="tuer" aria-hidden="true"><div class="layer"></div><div class="layer"></div></div>
     <div class="view fen" data-f="oben" aria-hidden="true"><div class="layer"></div><div class="layer"></div></div>
     <div class="view fen" data-f="spiegel" aria-hidden="true"><div class="layer"></div><div class="layer"></div></div>
-    <img class="flur" src="bilder/flurb-351cbee0.webp" alt="Unser Treppenhaus mit 24 Tüten" draggable="false">
+    <img class="flur" src="bilder/flurb-cbc86009.webp" alt="Unser Treppenhaus mit 24 Tüten" draggable="false">
     <div class="view fen offen" data-f="offen" aria-hidden="true"><div class="layer"></div><div class="layer"></div></div>
     <img class="tuer-auf" data-s="tuerauf" alt="" aria-hidden="true" draggable="false">
     <div class="tuer-nacht" data-s="tuerauf" aria-hidden="true"></div>
+    <svg class="kal" data-s="kal" viewBox="293 944 153 159" aria-hidden="true"><text class="km" x="366.5" y="995">DECEMBER</text><text class="kt" x="367.5" y="1060">1</text></svg>
+    <div class="kal-flug" data-s="kal" aria-hidden="true"><img src="bilder/kal-blatt-8d7e432a.webp" alt=""><svg viewBox="293 944 153 159"><text class="km" x="366.5" y="995"></text><text class="kt" x="367.5" y="1060"></text></svg></div>
     <svg class="uhr" data-s="uhr" viewBox="-60 -60 120 120" aria-hidden="true"><line class="std" x1="0" y1="6" x2="0" y2="-27"/><line class="min" x1="0" y1="8" x2="0" y2="-43"/><circle r="3.6"/></svg>
     <img class="stiefel" data-s="stiefel" src="" alt="" aria-hidden="true" draggable="false">
     <div class="lichter" aria-hidden="true"></div>
@@ -650,6 +665,7 @@ footer{font-size:1rem;margin-top:-6px}
       <button type="button" class="spot schluessel" data-s="schluessel" aria-label="Schlüssel"></button>
       <button type="button" class="spot nikolaus" data-s="nikolaus" aria-label="Nikolaus"></button>
       <button type="button" class="spot uhrknopf" data-s="uhr" aria-label="Uhr"></button>
+      <button type="button" class="spot kalknopf" data-s="kalknopf" aria-label="Abreißkalender"></button>
       <button type="button" class="spot haustuer" data-s="haustuer" aria-label="Tür auf oder zu"></button>
       <div class="kerlbahn" data-s="kerl"><button type="button" class="kerl" aria-label="Fuyu"><img src="bilder/kerl.webp" alt="" draggable="false"><img class="puff" alt="" draggable="false"><span class="piep">Huch!</span></button></div>
       <button type="button" class="sitzer" data-s="sitz" aria-label="Fuyu"><img alt="" draggable="false"></button>
@@ -950,13 +966,13 @@ const HOT_H = {1:[1002,1256,1066,1365],2:[1157,1170,1221,1275],3:[846,1340,908,1
 const grid = document.getElementById("grid");
 // Klickbare Stellen im Raum [x0,y0,x1,y1] in Bildpixeln
 const SPOTS = {
-  quer: {uhr: [1746.5, 390, 1866.5, 510], schalter: [1735, 670, 1815, 770], laterne: [1600, 190, 1700, 340], baum: [690, 330, 1010, 800], sitz: [1790, 1186, 2063, 1364], sitz2: [778, 724, 996, 866], schlaf: [814, 757, 961, 853], stiefel: [1967, 1117, 2181, 1363], tuerauf: [2189, 252, 2388, 1341], schluessel: [2310, 1075, 2445, 1165], nikolaus: [395, 920, 545, 1175], haustuer: [2200, 290, 2385, 1060], kerl: [596, 1080, 2240, 1418]},
-  hoch: {uhr: [1434, 1422, 1546, 1534], schalter: [1420, 1750, 1500, 1860], laterne: [1280, 1230, 1370, 1370], baum: [360, 1420, 650, 1880], sitz: [560, 2296, 860, 2492], sitz2: [357, 1809, 597, 1966], schlaf: [396, 1846, 558, 1951], stiefel: [1385, 2146, 1548, 2334], tuerauf: [0, 0, 0, 0], schluessel: [0, 0, 0, 0], nikolaus: [0, 2010, 190, 2290], haustuer: [0, 0, 0, 0], kerl: [236, 2305, 1923, 2545]}
+  quer: {uhr: [1746.5, 390, 1866.5, 510], kal: [1788, 584, 1840, 638], kalknopf: [1768, 547, 1853, 661], schalter: [1735, 670, 1815, 770], laterne: [1600, 190, 1700, 340], baum: [690, 330, 1010, 800], sitz: [1790, 1186, 2063, 1364], sitz2: [778, 724, 996, 866], schlaf: [814, 757, 961, 853], stiefel: [1967, 1117, 2181, 1363], tuerauf: [2189, 252, 2388, 1341], schluessel: [2310, 1075, 2445, 1165], nikolaus: [395, 920, 545, 1175], haustuer: [2200, 290, 2385, 1060], kerl: [596, 1080, 2240, 1418]},
+  hoch: {uhr: [1434, 1422, 1546, 1534], kal: [1472.8, 1602.9, 1521.1, 1653.2], kalknopf: [1454, 1568, 1533, 1675], schalter: [1420, 1750, 1500, 1860], laterne: [1280, 1230, 1370, 1370], baum: [360, 1420, 650, 1880], sitz: [560, 2296, 860, 2492], sitz2: [357, 1809, 597, 1966], schlaf: [396, 1846, 558, 1951], stiefel: [1385, 2146, 1548, 2334], tuerauf: [0, 0, 0, 0], schluessel: [0, 0, 0, 0], nikolaus: [0, 2010, 190, 2290], haustuer: [0, 0, 0, 0], kerl: [236, 2305, 1923, 2545]}
 };
-const RAUM = { quer: {lichter: "bilder/flurb-licht-7c37f5a9.webp", fenster: {links: [0, 140, 410, 862], mitte: [1460, 410, 1666, 710], tuer: [2222, 325, 2352, 785], offen: [2189, 252, 2388, 1341]}, bild: "bilder/flurb-351cbee0.webp", hot: HOT, w: 2576, h: 1438, mitte: .555},
+const RAUM = { quer: {lichter: "bilder/flurb-licht-7c37f5a9.webp", fenster: {links: [0, 140, 410, 862], mitte: [1460, 410, 1666, 710], tuer: [2222, 325, 2352, 785], offen: [2189, 252, 2388, 1341]}, bild: "bilder/flurb-cbc86009.webp", hot: HOT, w: 2576, h: 1438, mitte: .555},
                // fenster: wo die Fenster im Raumbild liegen (in Pixeln), damit jedes pro Tür einen eigenen Ausschnitt zeigen kann
                // Pro Tür: aus: {links, mitte, tuer} fürs breite Bild, aushoch: {oben, links, mitte, spiegel} fürs Handy, jeweils [x0,y0,x1,y1] im Hintergrundbild
-  hoch: {lichter: "bilder/flurh-licht-392a252d.webp", fenster: {oben: [0, 0, 206, 299], links: [0, 1288, 59, 1932], mitte: [1150, 1468, 1342, 1800], spiegel: [1794, 1475, 1896, 1848]}, bild: "bilder/flurh-aabb9da2.webp", hot: HOT_H, w: 1923, h: 2576, mitte: .42} };
+  hoch: {lichter: "bilder/flurh-licht-392a252d.webp", fenster: {oben: [0, 0, 206, 299], links: [0, 1288, 59, 1932], mitte: [1150, 1468, 1342, 1800], spiegel: [1794, 1475, 1896, 1848]}, bild: "bilder/flurh-3ff7b996.webp", hot: HOT_H, w: 1923, h: 2576, mitte: .42} };
 Object.keys(HOT).forEach(n=>{
   const b = document.createElement("button");
   b.className = "door";
@@ -985,6 +1001,39 @@ function setzeRaum(){
 setzeRaum();
 addEventListener("resize", setzeRaum);
 // Wanduhr: Stunden und Minutenzeiger nach der echten Uhrzeit auf ihrem Gerät
+/* Angesehener Tag: Uhr (Zeitreise) und Abreißkalender zeigen und ändern denselben Tag.
+   Höchstens bis heute (bzw. bis 24), nie in die Zukunft. Vor Dezember: das echte Datum, nichts zu blättern. */
+const Ansicht = (function(){
+  const MONATE = ["JANUARY","FEBRUARY","MARCH","APRIL","MAY","JUNE","JULY","AUGUST","SEPTEMBER","OCTOBER","NOVEMBER","DECEMBER"];
+  const maxTag = () => { if(PREVIEW) return 24; const t = berlinNow(); if(t.year > JAHR) return 24; return (t.year === JAHR && t.month === 12) ? Math.min(t.day, 24) : 0; };
+  const bildFuer = d => { for(let i = d; i >= 1; i--){ const bi = (TUERCHEN[i] || {}).bild; if(bi) return bi; } return START_BILD; };
+  const A = { tag: maxTag() };
+  A.geht = d => A.tag > 0 && d >= 1 && d <= maxTag();
+  A.text = d => { if(d > 0) return ["DECEMBER", String(d)]; const t = berlinNow(); return [MONATE[t.month - 1], String(t.day)]; };
+  A.zeichnen = () => { const [m, n] = A.text(A.tag); const k = document.querySelector(".kal"); if(!k) return; k.querySelector(".km").textContent = m; k.querySelector(".kt").textContent = n; };
+  A.setzen = d => { A.tag = d; bgPicked = true; setBg(bildFuer(d)); A.zeichnen(); setTimeout(()=>{ try{ alignViews(); }catch(er){} }, 700); };
+  A.folgen = d => { A.tag = d; A.zeichnen(); };          // wenn sie ein Türchen öffnet: Kalender zeigt diesen Tag
+  A.neuerTag = () => { if(!bgPicked){ A.tag = maxTag(); } A.zeichnen(); }; // um Mitternacht
+  return A;
+})();
+Ansicht.zeichnen();
+/* Abreißkalender antippen: Blatt abreißen, ein Tag weiter (nur bis heute). Sonst hebt sich das Blatt kurz und fällt zurück. */
+(function(){
+  const knopf = document.querySelector(".spot.kalknopf"), kal = document.querySelector(".kal"), flug = document.querySelector(".kal-flug");
+  if(!knopf || !kal || !flug) return;
+  let laeuft = false;
+  knopf.addEventListener("click", e=>{ e.stopPropagation(); if(laeuft) return;
+    window.Eier && Eier.fund("kalender");
+    const ziel = Ansicht.tag + 1;
+    if(!Ansicht.geht(ziel)){ kal.classList.remove("wackelt"); void kal.offsetWidth; kal.classList.add("wackelt"); try{ RAUMTON.papier(.35); }catch(er){} return; }
+    laeuft = true;
+    const [m, n] = Ansicht.text(Ansicht.tag); flug.querySelector(".km").textContent = m; flug.querySelector(".kt").textContent = n;
+    flug.classList.remove("reisst"); void flug.offsetWidth; flug.classList.add("reisst");
+    try{ RAUMTON.papier(1); }catch(er){}
+    Ansicht.setzen(ziel);
+    setTimeout(()=>{ flug.classList.remove("reisst"); laeuft = false; }, 1050);
+  });
+})();
 function uhrWinkel(){ const d = new Date(), m = d.getMinutes() + d.getSeconds() / 60; return {std: (d.getHours() % 12 + m / 60) * 30, min: m * 6}; }
 (function(){ const u = document.querySelector(".uhr"); if(!u) return;
   const std = u.querySelector(".std"), min = u.querySelector(".min");
@@ -994,17 +1043,14 @@ function uhrWinkel(){ const d = new Date(), m = d.getMinutes() + d.getSeconds() 
   stellen(); setInterval(stellen, 15000); document.addEventListener("visibilitychange", stellen);
   // Easter Egg Zeitreise: linke Hälfte der Uhr einen Tag zurück, rechte Hälfte einen Tag vor.
   // Die Zeiger drehen dabei immer schneller einen ganzen Tag (vor oder zurück) und bremsen wieder ab,
-  // und die Welt draußen (Hintergrund, Kugel, Fenster, Wetter) wechselt zu dem Tag.
-  // Es geht nur durch Tage, die schon offen sind und ein eigenes Bild haben. Weiter als heute geht es nie,
+  // und die Welt draußen (Hintergrund, Kugel, Fenster, Wetter) wechselt zu dem Tag. Weiter als heute geht es nie,
   // dann wackeln die Zeiger nur kurz. Das echte Datum bleibt gleich, es geht also keine Tür früher auf.
   const knopf = document.querySelector(".spot.uhrknopf");
   const weich = x => x < .5 ? 4 * x * x * x : 1 - Math.pow(-2 * x + 2, 3) / 2; // langsam, immer schneller, dann abbremsen
-  const bildTage = () => Object.keys(TUERCHEN).map(Number).filter(d => TUERCHEN[d].bild && isOpenable(d)).sort((a, b) => a - b);
   if(knopf) knopf.addEventListener("click", e=>{ e.stopPropagation(); if(dreht) return; dreht = true;
     window.Eier && Eier.fund("uhr");
     const r = knopf.getBoundingClientRect(), richtung = (e.clientX && e.clientX < r.left + r.width / 2) ? -1 : 1;
-    const T = bildTage(), i = T.findIndex(d => TUERCHEN[d].bild === bgCurrent), ziel = i + richtung;
-    const geht = T.length && ziel >= 0 && ziel < T.length && !(i < 0 && richtung < 0);
+    const ziel = Ansicht.tag + richtung, geht = Ansicht.geht(ziel);
     const w = uhrWinkel(), t0 = performance.now();
     if(!geht){ // weiter geht es nicht: Zeiger wackeln kurz in die Richtung und federn zurück
       try{ RAUMTON.tick(); }catch(er){}
@@ -1015,7 +1061,7 @@ function uhrWinkel(){ const d = new Date(), m = d.getMinutes() + d.getSeconds() 
     const schritt = now => { const x = Math.min(1, (now - t0) / DAUER), k = weich(x);
       setzen(w.std + 720 * k * richtung, w.min + 8640 * k * richtung); // ein Tag: Stundenzeiger 2 Runden, Minutenzeiger 24 Runden
       const stunde = Math.floor(24 * k); if(stunde > letzt){ letzt = stunde; try{ RAUMTON.tick(); }catch(er){} }
-      if(!gewechselt && k >= .5){ gewechselt = true; bgPicked = true; setBg(TUERCHEN[T[ziel]].bild); setTimeout(()=>{ try{ alignViews(); }catch(er){} }, 700); }
+      if(!gewechselt && k >= .5){ gewechselt = true; Ansicht.setzen(ziel); }
       if(x < 1) requestAnimationFrame(schritt); else { dreht = false; stellen(); } };
     requestAnimationFrame(schritt); });
 })();
@@ -1086,6 +1132,15 @@ const RAUMTON = (function(){
       n.connect(hp).connect(g).connect(c.destination); n.start(t0 + d);
     });
   }
+  // Papier abreißen: kurzes, raschelndes Reißen
+  function papier(v){
+    const c = ctx(), t0 = c.currentTime, dauer = .32 * (v < 1 ? .5 : 1), n = rauschen(c, dauer), bp = c.createBiquadFilter(), g = c.createGain();
+    bp.type = "bandpass"; bp.Q.value = .9; bp.frequency.setValueAtTime(1800, t0); bp.frequency.linearRampToValueAtTime(4200, t0 + dauer);
+    g.gain.setValueAtTime(0, t0);
+    for(let i = 0; i < 9; i++){ const t = t0 + i * dauer / 9; g.gain.linearRampToValueAtTime((.18 + Math.random() * .22) * v, t + .01); g.gain.linearRampToValueAtTime(.05 * v, t + dauer / 9); }
+    g.gain.linearRampToValueAtTime(0, t0 + dauer + .02);
+    n.connect(bp).connect(g).connect(c.destination); n.start(t0);
+  }
   // leises Uhr Ticken
   function tick(){
     const c = ctx(), t0 = c.currentTime, n = rauschen(c, .02), bp = c.createBiquadFilter(), g = c.createGain();
@@ -1127,7 +1182,7 @@ const RAUMTON = (function(){
     g.gain.setValueAtTime(0, t0); g.gain.linearRampToValueAtTime(1, t0 + .08); g.gain.setValueAtTime(1, t0 + .7); g.gain.exponentialRampToValueAtTime(.001, t0 + .95);
     o.connect(bp).connect(g).connect(out); o.start(t0); lfo.start(t0); o.stop(t0 + 1); lfo.stop(t0 + 1);
   }
-  return { glocken, klick, tick, zzzp, schluessel, knarren };
+  return { glocken, klick, tick, papier, zzzp, schluessel, knarren };
 })();
 
 /* Nikolaus antippen: Ho ho ho */
@@ -1351,7 +1406,7 @@ function showCard(n){
   const note = document.getElementById("card-note");
   note.textContent = item.text || "";
   note.hidden = !item.text;
-  if(item.bild){ setBg(item.bild); bgPicked = true; }
+  if(item.bild){ setBg(item.bild); bgPicked = true; if(window.Ansicht && n <= 24) Ansicht.folgen(n); }
   scrim.hidden = false;
   document.getElementById("close").focus();
 }
@@ -2048,6 +2103,12 @@ renderStatus(); refreshDoors(); setBg(homeBg());
         x.strokeStyle = x.fillStyle = istDunkel ? "#120f17" : "#3a2418"; x.lineCap = "round";
         [[w.std, 5, 6, -27], [w.min, 3.2, 8, -43]].forEach(([g, b, y1, y2])=>{ x.save(); x.rotate(g * Math.PI / 180); x.lineWidth = b; x.beginPath(); x.moveTo(0, y1); x.lineTo(0, y2); x.stroke(); x.restore(); });
         x.beginPath(); x.arc(0, 0, 3.6, 0, Math.PI * 2); x.fill();
+        // Datum auf dem Abreißkalender ebenfalls
+        const kb = SPOTS[art].kal; if(kb && window.Ansicht){ const [m, n] = Ansicht.text(Ansicht.tag), sk = (kb[2] - kb[0]) / 153 * k;
+          x.setTransform(1, 0, 0, 1, 0, 0); x.translate(kb[0] * k, kb[1] * k); x.scale(sk, sk); x.translate(-293, -944);
+          x.fillStyle = istDunkel ? "#120f17" : "#3b2a1e"; x.textAlign = "center";
+          x.font = '700 21px "Libre Baskerville", Georgia, serif'; x.fillText(m, 366.5, 995);
+          x.font = '700 78px "Libre Baskerville", Georgia, serif'; x.fillText(n, 367.5, 1060); }
         c.naturalWidth = W; c.naturalHeight = H; return c;
       }catch(e){ return hall; }
     }
@@ -2248,7 +2309,7 @@ document.querySelector(".scene").addEventListener("scroll", alignViews, {passive
   const b = grid.querySelector(`.door[data-n="${t}"]`);
   return;
   if(b) setTimeout(()=>b.scrollIntoView({behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block:"center", inline:"center"}), 700); })();
-setInterval(()=>{ renderStatus(); refreshDoors(); if(!bgPicked) setBg(homeBg()); }, 60000);
+setInterval(()=>{ renderStatus(); refreshDoors(); if(!bgPicked) setBg(homeBg()); try{ Ansicht.neuerTag(); }catch(e){} }, 60000);
 addEventListener("hashchange", ()=>location.reload());
 </script>
 <script>
@@ -2267,6 +2328,7 @@ window.Eier = (function(){
     ["tuer", "Tür auf", "Wo hängt eigentlich der Schlüssel?"],
     ["schnee", "Schneesturm", "Was macht man mit einer Schneekugel?"],
     ["uhr", "Zeitreise", "Die Uhr im Flur tickt ein bisschen anders."],
+    ["kalender", "Abreißkalender", "Unter der Uhr hängt noch etwas."],
     ["stiefel", "Nikolausstiefel", "Schau am 6. Dezember mal genau hin."]
   ];
   let gefunden = [];
