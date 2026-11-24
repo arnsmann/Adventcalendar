@@ -265,6 +265,10 @@ html.raum-hoch .kerl{height:48%}
 /* gemaltes Treppenhaus */
 .flur{position:absolute;inset:0;width:100%;height:100%;display:block;z-index:2;pointer-events:none;user-select:none;-webkit-user-select:none}
 .stage .view{z-index:1}
+.fw{position:absolute;inset:0;z-index:5;background:#0b0d1e;opacity:0;transition:opacity 1.2s ease;pointer-events:none}
+.fw.an{opacity:1;transition:opacity .6s ease}
+.stage .view.fen:not(.offen) .fw,.globe.tuer-offen .stage .view.fen.offen .fw{visibility:visible} /* die Fenster Ebenen sind sonst unsichtbar */
+.fw video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;mix-blend-mode:screen}
 .door{filter:none!important;animation:none!important;transform:none!important;background:none;border-radius:.5cqw}
 .door::after{content:"";position:absolute;inset:-12% -14%;border-radius:1cqw;opacity:0;transition:opacity .25s;pointer-events:none;
   box-shadow:0 0 0 .18cqw rgba(255,240,205,.95),0 0 1.6cqw .4cqw rgba(255,210,130,.75)}
@@ -1307,6 +1311,7 @@ document.querySelector(".spot.schrankknopf").addEventListener("click", e=>{
 /* Licht an und aus: Lichtschalter, Laterne oder Weihnachtsbaum antippen, jeweils mit eigenem Geräusch */
 document.querySelectorAll(".spot.licht").forEach(b=>b.addEventListener("click", ()=>{
   try{ ({schalter: RAUMTON.klick, laterne: RAUMTON.zzzp, baum: ()=>TON("glocken")})[b.dataset.s](); }catch(e){}
+  if(b.dataset.s === "laterne") window.Feuerwerk && Feuerwerk.laterne();
   window.Eier && Eier.fund(({schalter: "licht", laterne: "laterne", baum: "baum"})[b.dataset.s]);
   document.getElementById("globe").classList.toggle("licht-aus");
 }));
@@ -2439,6 +2444,7 @@ window.Eier = (function(){
     ["schach", "Schachmatt", "Im Spieleschrank wartet eine Herausforderung.", "Im Spieleschrank liegt ein Schachbrett mit 10 Rätseln. Tipp es an: Du spielst Weiß und setzt Schwarz matt, erst in 1 Zug, später in 2 Zügen. Gezählt wird es, sobald du eins gelöst hast."],
     ["catan", "Siedlerin", "Im Spieleschrank liegt noch mehr als nur Schach.", "Tipp im offenen Spieleschrank auf die Catan Schachtel: In 5 Runden suchst du den besten Platz für deine Siedlung. Gezählt wird es, sobald du eine Runde gelöst hast."],
     ["monopoly", "Würfelglück", "Im Spieleschrank wird auch gewürfelt.", "Tipp im offenen Spieleschrank auf Monopoly: Würfel, lass Fuyu übers Brett hüpfen und sammel auf den Feldern alle Erinnerungen als Polaroid."],
+    ["feuerwerk", "Feuerwerk", "Manchmal muss man einfach öfter Licht machen.", "Tipp die Laterne dreimal schnell hintereinander an, dann wird der Himmel dunkel und draußen geht ein Feuerwerk los."],
     ["stiefel", "Nikolausstiefel", "Schau am 6. Dezember mal genau hin.", "Am Nikolaustag steht ein gefüllter Stiefel an der Tür."]
   ];
   let gefunden = [];
@@ -2757,6 +2763,22 @@ window.Mono = (function(){
   const knopf = document.querySelector(".spot.monoknopf");
   if(knopf) knopf.addEventListener("click", e=>{ e.stopPropagation(); o.classList.add("on"); });
   return { auf: () => o.classList.add("on") };
+})();
+
+/* Feuerwerk: Laterne dreimal schnell hintereinander antippen. In allen Fenstern wird der Himmel dunkel
+   und draußen geht ein Feuerwerk los (Video mit schwarzem Hintergrund, "screen" lässt nur die Funken sichtbar). */
+window.Feuerwerk = (function(){
+  let tipps = [], laeuft = false;
+  function zuenden(){ if(laeuft) return; laeuft = true; window.Eier && Eier.fund("feuerwerk");
+    const fen = [...document.querySelectorAll(".stage .view.fen")];
+    fen.forEach(v => { const d = document.createElement("div"); d.className = "fw";
+      d.innerHTML = `<video src="videos/feuerwerk.mp4" muted playsinline preload="auto"></video>`; v.appendChild(d);
+      const vid = d.querySelector("video"); vid.play().catch(()=>{});
+      requestAnimationFrame(()=>d.classList.add("an")); });
+    setTimeout(()=>{ document.querySelectorAll(".stage .fw").forEach(d => d.classList.remove("an")); }, 4300);
+    setTimeout(()=>{ document.querySelectorAll(".stage .fw").forEach(d => d.remove()); laeuft = false; }, 5600);
+  }
+  return { laterne(){ const t = Date.now(); tipps = tipps.filter(x => t - x < 1800); tipps.push(t); if(tipps.length >= 3){ tipps = []; zuenden(); } }, zuenden };
 })();
 
 window.Playlist = (function(){
