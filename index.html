@@ -149,7 +149,7 @@ html.raum-hoch .spot.schluessel,html.raum-hoch .spot.haustuer{display:none}
 @keyframes moHopp{50%{transform:translate(-50%,-95%)}}
 .mo-feld{position:absolute;transform:translate(-50%,-50%);border-radius:4px;pointer-events:none}
 .mo-feld.besucht::after{content:"✓";position:absolute;right:6%;bottom:2%;font-family:"Nunito",system-ui,sans-serif;font-weight:800;font-size:clamp(8px,1.4vw,13px);color:rgba(90,60,30,.55)}
-.mo-mitte{position:absolute;left:20%;top:20%;width:60%;height:60%;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4%;color:#3d2a1c}
+.mo-mitte{position:absolute;left:20%;top:20%;width:60%;height:60%;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3%;color:#3d2a1c}
 .mo-wuerfel-reihe{display:flex;gap:10px}
 .mo-wuerfel{width:clamp(30px,8vw,52px);aspect-ratio:1;background:#fffaf0;border:2px solid #3a2418;border-radius:18%;display:grid;grid-template:repeat(3,1fr)/repeat(3,1fr);padding:9%;box-sizing:border-box;box-shadow:0 3px 0 #c9b38f}
 .mo-wuerfel i{width:70%;height:70%;margin:auto;border-radius:50%}
@@ -165,9 +165,16 @@ html.raum-hoch .spot.schluessel,html.raum-hoch .spot.haustuer{display:none}
 .mo-karte .vorne{background:#fffaf0;border:2px solid #3a2418;padding:.6em .8em;text-align:center;font-size:clamp(.8rem,2.3vw,1.05rem);line-height:1.25;box-shadow:0 4px 10px rgba(0,0,0,.2)}
 .mo-karte .vorne b{display:block;font-family:var(--f-titel);font-weight:400;font-size:1.3em;color:#8e2a2a;-webkit-text-stroke:0;margin-bottom:.15em}
 .mo-karte .hinten{position:absolute;inset:0;transform:rotateY(180deg);background:center/contain no-repeat}
+.mo-pola{--dreh:-2deg;border:0;cursor:zoom-in;display:block;width:min(58%,190px);background:#fdfbf5;padding:5% 5% 3%;box-shadow:0 8px 18px rgba(0,0,0,.35);transform:rotate(var(--dreh));transition:transform .35s ease,width .35s ease;font-family:var(--f-hand);color:#3d2a1c}
+.mo-pola img{display:block;width:100%;aspect-ratio:1;object-fit:cover;background:#e9e1d0}
+.mo-pola span{display:block;min-height:1.4em;padding-top:.25em;font-size:clamp(.8rem,2.4vw,1.1rem);text-align:center}
+.mo-pola.neu{animation:moPola .5s cubic-bezier(.2,1.3,.4,1)}
+@keyframes moPola{from{transform:rotate(calc(var(--dreh) - 12deg)) scale(.4);opacity:0}}
+.mo-pola.gross{position:fixed;left:50%;top:50%;width:min(86vw,74vh,560px);z-index:95;cursor:zoom-out;transform:translate(-50%,-50%) rotate(var(--dreh));box-shadow:0 20px 60px rgba(0,0,0,.6)}
+.mo-pola.gross span{font-size:1.4rem}
 .mo-stand{font-size:clamp(.75rem,2vw,.95rem);color:#6b4c30;text-align:center}
 .spot.catanknopf{display:none}
-body:has(.schach.on) .globe-back,body:has(.eier.on) .globe-back{opacity:0;pointer-events:none}
+body:has(.schach.on) :is(.globe-back,.motion-btn,.eier-btn,.pl-btn,.hilfe-btn,.ueb-btn,.peek-btn),body:has(.eier.on) .globe-back{opacity:0;pointer-events:none}
 .spot.catanknopf::after{content:"";position:absolute;inset:-45% -8%} /* etwas größere Tippfläche fürs Handy */
 /* Catan Rätsel: wo baust du deine Siedlung? (Brett als SVG, Felder sind Arnes Bilder) */
 .cat-brett{position:relative;width:100%;aspect-ratio:1;border-radius:10px;overflow:hidden;box-shadow:0 18px 40px rgba(0,0,0,.55);touch-action:manipulation;user-select:none;-webkit-user-select:none}
@@ -2424,7 +2431,7 @@ window.Eier = (function(){
     ["schrank", "Spieleschrank", "Was steckt wohl im Schrank unter der Treppe?", "Tipp die Schranktür unter der Treppe an und sie knarrt auf: drinnen warten Monopoly, Catan, Schach und noch mehr Spiele. Nochmal tippen macht sie wieder zu."],
     ["schach", "Schachmatt", "Im Spieleschrank wartet eine Herausforderung.", "Im Spieleschrank liegt ein Schachbrett mit 10 Rätseln. Tipp es an: Du spielst Weiß und setzt Schwarz matt, erst in 1 Zug, später in 2 Zügen. Gezählt wird es, sobald du eins gelöst hast."],
     ["catan", "Siedlerin", "Im Spieleschrank liegt noch mehr als nur Schach.", "Tipp im offenen Spieleschrank auf die Catan Schachtel: In 5 Runden suchst du den besten Platz für deine Siedlung. Gezählt wird es, sobald du eine Runde gelöst hast."],
-    ["monopoly", "Würfelglück", "Im Spieleschrank wird auch gewürfelt.", "Tipp im offenen Spieleschrank auf Monopoly: Würfel, lass Fuyu übers Brett hüpfen und entdecke alle 32 Felder. Bei jeder Runde über Los schuldet dir Arne eine Umarmung."],
+    ["monopoly", "Würfelglück", "Im Spieleschrank wird auch gewürfelt.", "Tipp im offenen Spieleschrank auf Monopoly: Würfel, lass Fuyu übers Brett hüpfen und sammel auf den Feldern alle Erinnerungen als Polaroid."],
     ["stiefel", "Nikolausstiefel", "Schau am 6. Dezember mal genau hin.", "Am Nikolaustag steht ein gefüllter Stiefel an der Tür."]
   ];
   let gefunden = [];
@@ -2641,67 +2648,57 @@ window.Mono = (function(){
   POS.push([E1, E2]); for(let k = 7; k >= 1; k--) POS.push([E1, S(k)]);
   POS.push([E1, E1]); for(let k = 1; k <= 7; k++) POS.push([S(k), E1]);
   POS.push([E2, E1]); for(let k = 1; k <= 7; k++) POS.push([E2, S(k)]);
-  const ORTE = [
-    ["Plätzchen backen", "Wer am meisten Teig nascht, muss abwaschen."],
-    ["Schlittenhang", "Erst rauf stapfen, dann mit Gebrüll runter."],
-    ["Weihnachtsmarkt", "Einmal Kinderpunsch bitte. Oder zwei."],
-    ["Schneeballschlacht", "Pass auf, Arne zielt gut."],
-    ["Spieleabend", "Wer verliert, räumt auf. Fuyu verliert immer."],
-    ["Adventskranz", "Noch eine Kerze mehr, dann ist fast schon Weihnachten."],
-    ["Geschenke einpacken", "Zu viel Klebeband gibt es nicht."],
-    ["Baum schmücken", "Die schönste Kugel kommt ganz nach vorne."],
-    ["Eislaufen", "Hinfallen zählt als Tanzeinlage."],
-    ["Wichteln", "Was wohl in dem kleinen Paket ist?"],
-    ["Lebkuchenhaus", "Die Hälfte wird gebaut, die andere Hälfte gegessen."],
-    ["Winterspaziergang", "Kalte Nase, warmes Herz."],
-    ["Plätzchendose", "Leer. Fuyu war schneller."],
-    ["Weihnachtslieder", "Laut und schief ist auch schön."],
-    ["Kuscheldecke", "Bitte nie wieder aufstehen müssen."],
-    ["Bratäpfel", "Mit Vanillesoße, natürlich."],
-    ["Lichterkette", "Erst eine Stunde entwirren, dann leuchtet alles."],
-    ["Wunschzettel", "Ganz oben steht: noch mehr Zeit zusammen."],
-    ["Schneemann bauen", "Die Karotte hat Fuyu schon gegessen."],
-    ["Bescherung", "Endlich! Das schönste Feld auf dem ganzen Brett."]
+  // Erinnerungen: auf jedem normalen Feld taucht ein Polaroid auf (erst die noch nicht gesehenen). text = Beschriftung unten (optional)
+  const FOTOS = [
+    {bild: "foto-80f57d2d", text: ""}, {bild: "foto-8baba7b1", text: ""}, {bild: "foto-56101ec4", text: ""},
+    {bild: "foto-7bb089bf", text: ""}, {bild: "foto-bf7ea6ce", text: ""}, {bild: "foto-99004cd8", text: ""},
+    {bild: "foto-b4eeffae", text: ""}, {bild: "foto-731cc56c", text: ""}, {bild: "foto-44a7b1d2", text: ""}
   ];
-  const ECKEN = {0: ["Los", "Jedes Mal, wenn du hier vorbeikommst, schuldet dir Arne eine Umarmung."], 8: ["Nur zu Besuch", "Du besuchst Fuyu in seinem Versteck unter der Treppe. Er freut sich riesig!"],
-    16: ["Kakaopause", "Decke, Kakao und einfach mal nichts tun."], 24: ["Ab ins Bett!", "Fuyu schläft schon. Du gehst direkt zu Nur zu Besuch."]};
-  const ROT = [["Du hast Fuyu beim Naschen erwischt. Rücke 3 Felder vor.", 3], ["Die Lichterkette ist verknotet. Gehe 2 Felder zurück.", -2], ["Rücke vor bis Los. Arne schuldet dir eine Umarmung.", "ziel0"],
-    ["Schneesturm! Gehe direkt zur Kakaopause.", "ziel16"], ["Du gewinnst beim Wichteln eine Tafel Schokolade.", 0], ["Arne hat 24 Lieder für dich gespielt. Ziehe sie alle ein ♡", 0]];
-  const GRUEN = [["Glückstag: Du darfst dir von Arne einen Film aussuchen.", 0], ["Gutschein: Arne macht dir einen Kakao.", 0], ["Du findest ein Geschenk unterm Baum. Rücke vor zur Bescherung.", "ziel31"],
-    ["Fuyu klaut deine Socke. Gehe 1 Feld zurück.", -1], ["Einmal Rücken kraulen, einzulösen bei Arne.", 0], ["Hör dir heute ein Lied aus dem Kalender nochmal an.", 0]];
+  const ECKEN = {0: ["Los", "Eine Runde geschafft!"], 8: ["Nur zu Besuch", "Fuyu wohnt hier und freut sich über deinen Besuch."],
+    16: ["Frei parken", "Kurz durchatmen."], 24: ["Ab ins Bett!", "Gehe direkt zu Nur zu Besuch."]};
+  const ROT = [["Rücke 3 Felder vor.", 3], ["Gehe 2 Felder zurück.", -2], ["Rücke vor bis Los.", "ziel0"], ["Gehe direkt zu Frei parken.", "ziel16"]];
+  const GRUEN = [["Rücke 1 Feld vor.", 1], ["Gehe 3 Felder zurück.", -3], ["Rücke 5 Felder vor.", 5], ["Gehe direkt zu Nur zu Besuch.", "ziel8"]];
   const FELD = []; let ort = 0;
   for(let i = 0; i < 32; i++){ const s = i % 8;
     if(ECKEN[i]) FELD[i] = {typ: "ecke", t: ECKEN[i]};
-    else if(s === 2) FELD[i] = {typ: "gruen"}; else if(s === 4) FELD[i] = {typ: "rot"}; else FELD[i] = {typ: "ort", t: ORTE[ort++]}; }
-  let st = {pos: 0, besucht: [0], runden: 0};
+    else if(s === 2) FELD[i] = {typ: "gruen"}; else if(s === 4) FELD[i] = {typ: "rot"}; else FELD[i] = {typ: "foto"}; }
+  let st = {pos: 0, besucht: [0], fotos: []};
   try{ Object.assign(st, JSON.parse(localStorage.getItem("advent-mono") || "{}")); }catch(e){}
   const speichern = () => { try{ localStorage.setItem("advent-mono", JSON.stringify(st)); }catch(e){} };
   const o = document.createElement("div"); o.className = "schach"; o.setAttribute("role", "dialog"); o.setAttribute("aria-label", "Monopoly");
-  o.innerHTML = `<div class="sch-karte"><div class="sch-kopf"><div><h3>Monopoly</h3><small>Würfel und schau, wo Fuyu landet.</small></div><button type="button" class="sch-zu" aria-label="Schließen">✕</button></div>
+  o.innerHTML = `<div class="sch-karte"><div class="sch-kopf"><div><h3>Monopoly</h3><small>Würfel und sammel alle Erinnerungen.</small></div><button type="button" class="sch-zu" aria-label="Schließen">✕</button></div>
     <div class="mo-brett">${POS.map((p, i)=>`<div class="mo-feld" data-i="${i}" style="left:${p[0]}%;top:${p[1]}%;width:${i % 8 ? 8.8 : 14.3}%;height:${i % 8 ? 8.8 : 14.3}%"></div>`).join("")}
       <img class="mo-fuyu" src="bilder/fuyu-still-3b96ad30.webp" alt="Fuyu">
       <div class="mo-mitte"><div class="mo-wuerfel-reihe"><div class="mo-wuerfel"></div><div class="mo-wuerfel"></div></div>
         <button type="button" class="mo-los">Würfeln</button>
         <div class="mo-karte"><div class="innen"><div class="vorne"></div><div class="hinten"></div></div></div>
+        <button type="button" class="mo-pola" hidden aria-label="Foto groß ansehen"><img alt=""><span></span></button>
         <div class="mo-stand"></div></div></div></div>`;
   document.body.appendChild(o);
   const fuyu = o.querySelector(".mo-fuyu"), los = o.querySelector(".mo-los"), karte = o.querySelector(".mo-karte"), vorne = karte.querySelector(".vorne"), hinten = karte.querySelector(".hinten"), stand = o.querySelector(".mo-stand"), wue = [...o.querySelectorAll(".mo-wuerfel")];
   const MUSTER = {1:[4], 2:[0,8], 3:[0,4,8], 4:[0,2,6,8], 5:[0,2,4,6,8], 6:[0,2,3,5,6,8]};
   const zeigeWuerfel = (el, n) => { el.innerHTML = [...Array(9)].map((_, i) => `<i class="${MUSTER[n].includes(i) ? "an" : ""}"></i>`).join(""); };
   const setzeFuyu = i => { fuyu.style.left = POS[i][0] + "%"; fuyu.style.top = POS[i][1] + "%"; };
+  const pola = o.querySelector(".mo-pola");
   function standZeigen(){ o.querySelectorAll(".mo-feld").forEach(f => f.classList.toggle("besucht", st.besucht.includes(+f.dataset.i)));
-    stand.textContent = `${new Set(st.besucht).size} von 32 Feldern entdeckt · Umarmungen gut: ${st.runden}`; }
-  function zeigeKarte(titel, text, rueckseite){
+    stand.textContent = `${new Set(st.fotos).size} von ${FOTOS.length} Erinnerungen gesammelt`; }
+  function zeigeFoto(i){ const f = FOTOS[i]; karte.hidden = true; pola.hidden = false; pola.classList.remove("gross");
+    pola.querySelector("img").src = "bilder/mono/" + f.bild + ".webp"; pola.querySelector("span").textContent = f.text || "";
+    pola.style.setProperty("--dreh", (Math.random() * 6 - 3).toFixed(1) + "deg"); pola.classList.remove("neu"); void pola.offsetWidth; pola.classList.add("neu"); }
+  pola.addEventListener("click", ()=>pola.classList.toggle("gross"));
+  function zeigeKarte(titel, text, rueckseite){ karte.hidden = false; pola.hidden = true;
     vorne.innerHTML = `<b>${titel}</b>${text}`;
     if(rueckseite){ hinten.style.backgroundImage = `url("bilder/mono/${rueckseite}.webp")`; karte.classList.add("zu"); void karte.offsetWidth; setTimeout(()=>karte.classList.remove("zu"), 350); }
     else karte.classList.remove("zu"); }
   const warte = ms => new Promise(r => setTimeout(r, ms));
   async function laufen(schritte){ const r = schritte < 0 ? -1 : 1;
-    for(let k = 0; k < Math.abs(schritte); k++){ st.pos = (st.pos + r + 32) % 32; if(r > 0 && st.pos === 0) st.runden++;
+    for(let k = 0; k < Math.abs(schritte); k++){ st.pos = (st.pos + r + 32) % 32;
       setzeFuyu(st.pos); fuyu.classList.remove("hopp"); void fuyu.offsetWidth; fuyu.classList.add("hopp"); try{ TON("schachzug", .5); }catch(e){} await warte(200); } }
   async function springen(ziel){ await warte(700); const vor = (ziel - st.pos + 32) % 32; await laufen(vor); }
   async function landen(){ const f = FELD[st.pos]; if(!st.besucht.includes(st.pos)) st.besucht.push(st.pos);
-    if(f.typ === "ort" || f.typ === "ecke"){ zeigeKarte(f.t[0], f.t[1]);
+    if(f.typ === "foto"){ const neu = FOTOS.map((_, i) => i).filter(i => !st.fotos.includes(i)), i = neu.length ? neu[0] : Math.floor(Math.random() * FOTOS.length);
+      if(!st.fotos.includes(i)) st.fotos.push(i); zeigeFoto(i); return; }
+    if(f.typ === "ecke"){ zeigeKarte(f.t[0], f.t[1]);
       if(st.pos === 24){ await warte(1600); st.pos = 8; setzeFuyu(8); try{ TON("schachzug", .7); }catch(e){} if(!st.besucht.includes(8)) st.besucht.push(8); } return; }
     const stapel = f.typ === "rot" ? ROT : GRUEN, [text, wirkung] = stapel[Math.floor(Math.random() * stapel.length)];
     zeigeKarte(f.typ === "rot" ? "Ereigniskarte" : "Weihnachtskarte", text, f.typ === "rot" ? "karte-rot" : "karte-gruen");
@@ -2717,7 +2714,8 @@ window.Mono = (function(){
   o.querySelector(".sch-zu").addEventListener("click", zu);
   o.addEventListener("click", e=>{ if(e.target === o) zu(); });
   zeigeWuerfel(wue[0], 6); zeigeWuerfel(wue[1], 6); setzeFuyu(st.pos);
-  const f0 = FELD[st.pos]; zeigeKarte(f0.t ? f0.t[0] : "Monopoly", f0.t ? f0.t[1] : "Würfel weiter!"); standZeigen();
+  zeigeKarte("Monopoly", "Auf jedem Feld wartet eine Erinnerung. Würfel los!"); standZeigen();
+  if(!Array.isArray(st.fotos)) st.fotos = [];
   const knopf = document.querySelector(".spot.monoknopf");
   if(knopf) knopf.addEventListener("click", e=>{ e.stopPropagation(); o.classList.add("on"); });
   return { auf: () => o.classList.add("on") };
