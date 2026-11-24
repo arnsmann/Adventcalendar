@@ -1412,7 +1412,9 @@ function showCard(n){
   const note = document.getElementById("card-note");
   note.textContent = item.text || "";
   note.hidden = !item.text;
-  if(item.bild){ setBg(item.bild); bgPicked = true; if(window.Ansicht && n <= 24) Ansicht.folgen(n); }
+  // Türchen geöffnet: Welt draußen und Abreißkalender springen auf diesen Tag (zum Zurücksetzen einfach neu laden)
+  if(+n >= 1 && +n <= 24) Ansicht.setzen(+n);
+  else if(item.bild){ setBg(item.bild); bgPicked = true; }
   scrim.hidden = false;
   document.getElementById("close").focus();
 }
@@ -2110,7 +2112,7 @@ renderStatus(); refreshDoors(); setBg(homeBg());
         [[w.std, 5, 6, -27], [w.min, 3.2, 8, -43]].forEach(([g, b, y1, y2])=>{ x.save(); x.rotate(g * Math.PI / 180); x.lineWidth = b; x.beginPath(); x.moveTo(0, y1); x.lineTo(0, y2); x.stroke(); x.restore(); });
         x.beginPath(); x.arc(0, 0, 3.6, 0, Math.PI * 2); x.fill();
         // Datum auf dem Abreißkalender ebenfalls
-        const kb = SPOTS[art].kal; if(kb && window.Ansicht){ const [m, n] = Ansicht.text(Ansicht.tag), sk = (kb[2] - kb[0]) / 153 * k;
+        const kb = SPOTS[art].kal; if(kb && typeof Ansicht !== "undefined"){ const [m, n] = Ansicht.text(Ansicht.tag), sk = (kb[2] - kb[0]) / 153 * k;
           x.setTransform(1, 0, 0, 1, 0, 0); x.translate(kb[0] * k, kb[1] * k); x.scale(sk, sk); x.translate(-293, -944);
           x.fillStyle = istDunkel ? "#120f17" : "#3b2a1e"; x.textAlign = "center";
           x.font = '700 21px "Libre Baskerville", Georgia, serif'; x.fillText(m, 366.5, 995);
