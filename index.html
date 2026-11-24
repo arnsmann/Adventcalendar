@@ -1882,10 +1882,29 @@ renderStatus(); refreshDoors(); setBg(homeBg());
         const ps = cs.backgroundPosition.split(" "), P = (t, free) => t.endsWith("%") ? free * parseFloat(t) / 100 : parseFloat(t);
         return {im, r:[P(ps[0] || "50%", vw - w), P(ps[1] || "50%", vh - h), w, h]}; });
     }
+    // Wenn das Licht aus ist: dieselbe Abdunklung wie auf der Seite (Lichter aus + Nachtblau), damit es beim Übergang nicht kurz hell wird
+    const dunkelCache = {};
+    function dunkel(hall){
+      const mu = (getComputedStyle(document.documentElement).getPropertyValue("--licht-maske") || "").match(/url\("?(.*?)"?\)/);
+      const key = hall.src + "|" + (mu ? mu[1] : "");
+      if(dunkelCache[key]) return dunkelCache[key];
+      return dunkelCache[key] = (mu ? bild(mu[1]) : Promise.resolve(null)).then(maske=>{
+        const k = Math.min(1, 2048 / Math.max(hall.naturalWidth, hall.naturalHeight));
+        const w = Math.round(hall.naturalWidth * k), h = Math.round(hall.naturalHeight * k);
+        const c = document.createElement("canvas"); c.width = w; c.height = h; const x = c.getContext("2d");
+        if(maske){ x.drawImage(maske, 0, 0, w, h); x.globalCompositeOperation = "source-in"; x.globalAlpha = .92; x.fillStyle = "#3b3631"; x.fillRect(0, 0, w, h); }
+        const l = document.createElement("canvas"); l.width = w; l.height = h; const y = l.getContext("2d");
+        y.drawImage(hall, 0, 0, w, h); y.drawImage(c, 0, 0);
+        y.globalCompositeOperation = "multiply"; y.globalAlpha = .82; y.fillStyle = "#232a52"; y.fillRect(0, 0, w, h);
+        y.globalAlpha = 1; y.globalCompositeOperation = "destination-in"; y.drawImage(hall, 0, 0, w, h); // Fenster bleiben durchsichtig
+        l.naturalWidth = w; l.naturalHeight = h; return l;
+      }).catch(()=>hall);
+    }
     function rect(el){ const r = el.getBoundingClientRect(); return [r.left, r.top, r.width, r.height]; }
     async function vorbereiten(zoomed){
       const B = await bgRect(); if(!B) return false;
-      const flur = document.querySelector(".globe .flur"), hall = await bild(flur.currentSrc || flur.src); if(!hall) return false;
+      const flur = document.querySelector(".globe .flur"); let hall = await bild(flur.currentSrc || flur.src); if(!hall) return false;
+      if(document.getElementById("globe").classList.contains("licht-aus")) hall = await dunkel(hall);
       const gi = document.querySelector(".globe-img"), fr = await bild(gi.currentSrc || gi.src);
       const d = Math.min(2, devicePixelRatio || 1);
       cv.width = Math.round(innerWidth * d); cv.height = Math.round(innerHeight * d); gl.viewport(0, 0, cv.width, cv.height);
@@ -1988,6 +2007,7 @@ renderStatus(); refreshDoors(); setBg(homeBg());
   }
   function leaveNow(){
     wrap.classList.remove("zoomed"); document.body.classList.remove("zoomed-on"); back.hidden = true;
+    document.getElementById("globe").classList.toggle("licht-aus", !!(window.istNacht && istNacht())); // draußen: Licht wieder passend zur Uhrzeit, nachts aus, tagsüber an
     { const sc = globe.querySelector(".scene"); sc.scrollLeft = 0; sc.scrollTop = 0; }
     // Kugel sofort an die richtige Stelle setzen, ohne Gleiten. Sonst sieht man kurz eine verschobene Kugel.
     wrap.classList.add("sofort");
@@ -1997,8 +2017,7 @@ renderStatus(); refreshDoors(); setBg(homeBg());
   }
   function leave(){
     if(wrap.classList.contains("zoomed") && !tauchen) TON("eintauchen", .6);
-    const g = document.getElementById("globe"); g.classList.remove("tuer-offen"); // beim Rausgehen Tür zu
-    g.classList.toggle("licht-aus", !!(window.istNacht && istNacht())); // Licht wieder so wie zur Uhrzeit passend: nachts aus, tagsüber an
+    document.getElementById("globe").classList.remove("tuer-offen"); // beim Rausgehen Tür zu
     if(WL && uebergang() !== "schlicht" && !tauchen){ tauchen = true; WL.raus(leaveNow).then(()=>{ tauchen = false; }); return; }
     if(!tauchen) leaveNow();
   }
