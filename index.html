@@ -1127,7 +1127,7 @@ Ansicht.zeichnen();
     laeuft = true;
     const [m, n] = Ansicht.text(Ansicht.tag); flug.querySelector(".km").textContent = m; flug.querySelector(".kt").textContent = n;
     flug.classList.remove("reisst"); void flug.offsetWidth; flug.classList.add("reisst");
-    try{ RAUMTON.papier(1); }catch(er){}
+    window.__riss = !window.__riss; TON(window.__riss ? "riss1" : "riss2", .9); // abwechselnd zwei echte Reißgeräusche
     Ansicht.setzen(ziel);
     setTimeout(()=>{ flug.classList.remove("reisst"); laeuft = false; }, 1050);
   });
@@ -1172,7 +1172,7 @@ function uhrWinkel(){ const d = new Date(), m = d.getMinutes() + d.getSeconds() 
 // Über Web Audio abgespielt: einmal beim ersten Antippen freigeschaltet, danach klappt es auf iPhone, iPad und Mac auch mit Verzögerung.
 // Auf neueren iPhones zählt es als Wiedergabe, damit es nicht vom Stummschalter geschluckt wird.
 const TON = (function(){
-  const NAMEN = ["schneesturm","glocken","schluessel","tuer","tuer-zu","hohoho","eintauchen","quiek1","quiek2","quiek3","quiek4","quiek5","schrank-auf","schrank-zu","schachzug","wuerfel"];
+  const NAMEN = ["schneesturm","glocken","schluessel","tuer","tuer-zu","hohoho","eintauchen","quiek1","quiek2","quiek3","quiek4","quiek5","schrank-auf","schrank-zu","schachzug","wuerfel","riss1","riss2"];
   let ac = null; const buf = {}, laedt = {};
   function ctx(){
     if(!ac){ const C = window.AudioContext || window.webkitAudioContext; if(!C) return null; ac = new C(); window._tonCtx = ac; }
