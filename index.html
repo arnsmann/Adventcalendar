@@ -2566,7 +2566,7 @@ window.Schach = (function(){
    Regeln je Runde: andere Siedlungen (Abstandsregel), Räuber blockiert ein Feld, bestimmte Rohstoffe gebraucht.
    Mit Python erzeugt und geprüft: jede Runde hat genau eine beste Ecke. */
 window.Catan = (function(){
-  const B = "bilder/catan/", DATEI = B + "raetsel-ddc680f5.json";
+  const B = "bilder/catan/", DATEI = B + "raetsel-3fb806d0.json";
   const PIPS = {2:1,3:2,4:3,5:4,6:5,8:5,9:4,10:3,11:2,12:1};
   const NAME = {holz:"Holz", lehm:"Lehm", schaf:"Wolle", weizen:"Getreide", erz:"Erz"};
   const AUFGABE = {
@@ -2589,7 +2589,13 @@ window.Catan = (function(){
   const R3 = Math.sqrt(3);
   const haus = (x, y, farbe, extra) => `<g class="haus" ${extra || ""} transform="translate(${x} ${y}) scale(.3)"><path d="M-.55 .45 L-.55 -.15 L0 -.6 L.55 -.15 L.55 .45 Z" fill="${farbe}" stroke="#2a1a10" stroke-width=".12" stroke-linejoin="round"/></g>`;
   function zeichnen(){
-    const G = D.geo; let h = `<svg viewBox="-5.3 -5.3 10.6 10.6" xmlns="http://www.w3.org/2000/svg"><defs>
+    const G = D.geo;
+    if(R.bild){ // gemaltes Brett (Arnes Bild); Ecken werden über die gemessene Lage der Felder darauf gelegt
+      const [w, hh, sx, sy, cx, cy] = R.fit; let h = `<svg viewBox="0 0 ${w} ${hh}" xmlns="http://www.w3.org/2000/svg"><image href="${B + R.bild}" width="${w}" height="${hh}"/>`;
+      const P = ([x, y]) => [x * sx + cx, y * sy + cy];
+      G.verts.forEach((v, i)=>{ const [x, y] = P(v); h += `<circle class="ecke" data-v="${i}" cx="${x}" cy="${y}" r="${.27 * sx}" style="stroke-width:${.03 * sx}"/>`; });
+      brett.innerHTML = h + `<g class="anna" data-s="${sx}"></g></svg>`; return; }
+    let h = `<svg viewBox="-5.3 -5.3 10.6 10.6" xmlns="http://www.w3.org/2000/svg"><defs>
       <clipPath id="catHex" clipPathUnits="objectBoundingBox"><polygon points=".5,0 1,.25 1,.75 .5,1 0,.75 0,.25"/></clipPath>
       <radialGradient id="catMeer" cx=".5" cy=".5" r=".75"><stop offset="0" stop-color="#4b8db3"/><stop offset="1" stop-color="#25587d"/></radialGradient>
       <pattern id="catWelle" width="1.2" height=".6" patternUnits="userSpaceOnUse"><path d="M0 .3 Q.3 .15 .6 .3 T1.2 .3" fill="none" stroke="rgba(220,240,250,.35)" stroke-width=".035"/></pattern></defs>
@@ -2616,7 +2622,9 @@ window.Catan = (function(){
     const a = AUFGABE[R.typ]; o.querySelector(".sch-auf").textContent = typeof a === "function" ? a(R) : a;
     info.textContent = "Tipp auf eine Ecke, an der du bauen willst."; zeichnen(); punkteZeichnen(); }
   const nein = () => { brett.classList.remove("wackelt"); void brett.offsetWidth; brett.classList.add("wackelt"); };
-  function setzen(v, farbe){ const [x, y] = D.geo.verts[v]; brett.querySelector(".anna").innerHTML = haus(x, y, farbe); }
+  function setzen(v, farbe){ let [x, y] = D.geo.verts[v]; const g = brett.querySelector(".anna");
+    if(R.bild){ const [, , sx, sy, cx, cy] = R.fit; g.innerHTML = `<g transform="translate(${x * sx + cx} ${y * sy + cy}) scale(${sx})">${haus(0, 0, farbe)}</g>`; return; }
+    g.innerHTML = haus(x, y, farbe); }
   brett.addEventListener("click", e=>{ const c = e.target.closest(".ecke"); if(!c || fertig) return; const v = +c.dataset.v, G = D.geo;
     const belegt = new Set(R.belegt);
     if(belegt.has(v) || G.nb[v].some(n => belegt.has(n))){ nein(); info.textContent = belegt.has(v) ? "Da steht schon eine Siedlung." : "Zu nah dran! Direkt neben einer anderen Siedlung darf man nicht bauen."; return; }
