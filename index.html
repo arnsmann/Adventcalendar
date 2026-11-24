@@ -140,10 +140,35 @@ html.raum-hoch .spot.schluessel,html.raum-hoch .spot.haustuer{display:none}
 .schrank-auf{position:absolute;z-index:2;pointer-events:none;display:none}
 .globe.schrank-offen .schrank-auf{display:block}
 .spot.schachknopf{display:none}
-.globe.schrank-offen .spot.schachknopf,.globe.schrank-offen .spot.catanknopf{display:block}
+.globe.schrank-offen .spot.schachknopf,.globe.schrank-offen .spot.catanknopf,.globe.schrank-offen .spot.monoknopf{display:block}
+.spot.monoknopf{display:none}
+/* Monopoly: würfeln, Fuyu hüpft übers Brett, Felder und Karten erzählen etwas */
+.mo-brett{position:relative;width:100%;aspect-ratio:1;background:url("bilder/mono/brett.webp") center/100% 100% no-repeat;border-radius:6px;box-shadow:0 18px 40px rgba(0,0,0,.55);user-select:none;-webkit-user-select:none}
+.mo-fuyu{position:absolute;width:9%;transform:translate(-50%,-70%);transition:left .18s ease,top .18s ease;filter:drop-shadow(0 3px 2px rgba(0,0,0,.4));pointer-events:none;z-index:3}
+.mo-fuyu.hopp{animation:moHopp .18s ease}
+@keyframes moHopp{50%{transform:translate(-50%,-95%)}}
+.mo-feld{position:absolute;transform:translate(-50%,-50%);border-radius:4px;pointer-events:none}
+.mo-feld.besucht::after{content:"✓";position:absolute;right:6%;bottom:2%;font-family:"Nunito",system-ui,sans-serif;font-weight:800;font-size:clamp(8px,1.4vw,13px);color:rgba(90,60,30,.55)}
+.mo-mitte{position:absolute;left:20%;top:20%;width:60%;height:60%;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4%;color:#3d2a1c}
+.mo-wuerfel-reihe{display:flex;gap:10px}
+.mo-wuerfel{width:clamp(30px,8vw,52px);aspect-ratio:1;background:#fffaf0;border:2px solid #3a2418;border-radius:18%;display:grid;grid-template:repeat(3,1fr)/repeat(3,1fr);padding:9%;box-sizing:border-box;box-shadow:0 3px 0 #c9b38f}
+.mo-wuerfel i{width:70%;height:70%;margin:auto;border-radius:50%}
+.mo-wuerfel i.an{background:#3a2418}
+.mo-wuerfel.rollt{animation:moRoll .12s linear infinite}
+@keyframes moRoll{50%{transform:rotate(14deg) translateY(-3px)}}
+.mo-los{border:0;border-radius:999px;padding:.45em 1.2em;background:#8e2a2a;color:#fff8f1;font-family:var(--f-hand);font-size:clamp(.95rem,2.6vw,1.2rem);cursor:pointer;box-shadow:0 3px 0 #5e1717}
+.mo-los:disabled{opacity:.5;cursor:default}
+.mo-karte{position:relative;width:min(100%,260px);min-height:38%;perspective:800px}
+.mo-karte .innen{position:relative;width:100%;min-height:100%;transition:transform .6s;transform-style:preserve-3d}
+.mo-karte.zu .innen{transform:rotateY(180deg)}
+.mo-karte .vorne,.mo-karte .hinten{backface-visibility:hidden;-webkit-backface-visibility:hidden;border-radius:10px}
+.mo-karte .vorne{background:#fffaf0;border:2px solid #3a2418;padding:.6em .8em;text-align:center;font-size:clamp(.8rem,2.3vw,1.05rem);line-height:1.25;box-shadow:0 4px 10px rgba(0,0,0,.2)}
+.mo-karte .vorne b{display:block;font-family:var(--f-titel);font-weight:400;font-size:1.3em;color:#8e2a2a;-webkit-text-stroke:0;margin-bottom:.15em}
+.mo-karte .hinten{position:absolute;inset:0;transform:rotateY(180deg);background:center/contain no-repeat}
+.mo-stand{font-size:clamp(.75rem,2vw,.95rem);color:#6b4c30;text-align:center}
 .spot.catanknopf{display:none}
 body:has(.schach.on) .globe-back,body:has(.eier.on) .globe-back{opacity:0;pointer-events:none}
-.spot.catanknopf::after,.spot.schachknopf::after{content:"";position:absolute;inset:-45% -8%} /* etwas größere Tippfläche fürs Handy */
+.spot.catanknopf::after{content:"";position:absolute;inset:-45% -8%} /* etwas größere Tippfläche fürs Handy */
 /* Catan Rätsel: wo baust du deine Siedlung? (Brett als SVG, Felder sind Arnes Bilder) */
 .cat-brett{position:relative;width:100%;aspect-ratio:1;border-radius:10px;overflow:hidden;box-shadow:0 18px 40px rgba(0,0,0,.55);touch-action:manipulation;user-select:none;-webkit-user-select:none}
 .cat-brett svg{display:block;width:100%;height:100%}
@@ -718,6 +743,7 @@ footer{font-size:1rem;margin-top:-6px}
       <button type="button" class="spot schrankknopf" data-s="schrankknopf" aria-label="Schranktür"></button>
       <button type="button" class="spot schachknopf" data-s="schachknopf" aria-label="Schachbrett"></button>
       <button type="button" class="spot catanknopf" data-s="catanknopf" aria-label="Catan"></button>
+      <button type="button" class="spot monoknopf" data-s="monoknopf" aria-label="Monopoly"></button>
       <button type="button" class="spot haustuer" data-s="haustuer" aria-label="Tür auf oder zu"></button>
       <div class="kerlbahn" data-s="kerl"><button type="button" class="kerl" aria-label="Fuyu"><img src="bilder/kerl.webp" alt="" draggable="false"><img class="puff" alt="" draggable="false"><span class="piep">Huch!</span></button></div>
       <button type="button" class="sitzer" data-s="sitz" aria-label="Fuyu"><img alt="" draggable="false"></button>
@@ -1018,8 +1044,8 @@ const HOT_H = {1:[1002,1256,1066,1365],2:[1157,1170,1221,1275],3:[846,1340,908,1
 const grid = document.getElementById("grid");
 // Klickbare Stellen im Raum [x0,y0,x1,y1] in Bildpixeln
 const SPOTS = {
-  quer: {catanknopf: [840, 1228, 1018, 1282], schachknopf: [850, 930, 995, 1010], schrank: [784, 853, 1169, 1389], schrankknopf: [880, 885, 1125, 1345], uhr: [1746.5, 390, 1866.5, 510], kal: [1788, 584, 1840, 638], kalknopf: [1768, 547, 1853, 661], schalter: [1735, 670, 1815, 770], laterne: [1600, 190, 1700, 340], baum: [690, 330, 1010, 800], sitz: [1790, 1186, 2063, 1364], sitz2: [778, 724, 996, 866], schlaf: [814, 757, 961, 853], stiefel: [1967, 1117, 2181, 1363], tuerauf: [2189, 252, 2388, 1341], schluessel: [2310, 1075, 2445, 1165], nikolaus: [395, 920, 545, 1175], haustuer: [2200, 290, 2385, 1060], kerl: [596, 1080, 2240, 1418]},
-  hoch: {catanknopf: [500, 2356, 690, 2416], schachknopf: [515, 2025, 685, 2115], schrank: [457, 1976, 811, 2574], schrankknopf: [470, 1980, 800, 2490], uhr: [1434, 1422, 1546, 1534], kal: [1472.8, 1602.9, 1521.1, 1653.2], kalknopf: [1454, 1568, 1533, 1675], schalter: [1420, 1750, 1500, 1860], laterne: [1280, 1230, 1370, 1370], baum: [360, 1420, 650, 1880], sitz: [560, 2296, 860, 2492], sitz2: [357, 1809, 597, 1966], schlaf: [396, 1846, 558, 1951], stiefel: [1385, 2146, 1548, 2334], tuerauf: [0, 0, 0, 0], schluessel: [0, 0, 0, 0], nikolaus: [0, 2010, 190, 2290], haustuer: [0, 0, 0, 0], kerl: [236, 2305, 1923, 2545]}
+  quer: {monoknopf: [840, 995, 1015, 1036], catanknopf: [840, 1228, 1018, 1282], schachknopf: [855, 935, 1000, 992], schrank: [784, 853, 1169, 1389], schrankknopf: [880, 885, 1125, 1345], uhr: [1746.5, 390, 1866.5, 510], kal: [1788, 584, 1840, 638], kalknopf: [1768, 547, 1853, 661], schalter: [1735, 670, 1815, 770], laterne: [1600, 190, 1700, 340], baum: [690, 330, 1010, 800], sitz: [1790, 1186, 2063, 1364], sitz2: [778, 724, 996, 866], schlaf: [814, 757, 961, 853], stiefel: [1967, 1117, 2181, 1363], tuerauf: [2189, 252, 2388, 1341], schluessel: [2310, 1075, 2445, 1165], nikolaus: [395, 920, 545, 1175], haustuer: [2200, 290, 2385, 1060], kerl: [596, 1080, 2240, 1418]},
+  hoch: {monoknopf: [500, 2100, 690, 2158], catanknopf: [500, 2356, 690, 2416], schachknopf: [515, 2025, 685, 2098], schrank: [457, 1976, 811, 2574], schrankknopf: [470, 1980, 800, 2490], uhr: [1434, 1422, 1546, 1534], kal: [1472.8, 1602.9, 1521.1, 1653.2], kalknopf: [1454, 1568, 1533, 1675], schalter: [1420, 1750, 1500, 1860], laterne: [1280, 1230, 1370, 1370], baum: [360, 1420, 650, 1880], sitz: [560, 2296, 860, 2492], sitz2: [357, 1809, 597, 1966], schlaf: [396, 1846, 558, 1951], stiefel: [1385, 2146, 1548, 2334], tuerauf: [0, 0, 0, 0], schluessel: [0, 0, 0, 0], nikolaus: [0, 2010, 190, 2290], haustuer: [0, 0, 0, 0], kerl: [236, 2305, 1923, 2545]}
 };
 const RAUM = { quer: {lichter: "bilder/flurb-licht-7c37f5a9.webp", fenster: {links: [0, 140, 410, 862], mitte: [1460, 410, 1666, 710], tuer: [2222, 325, 2352, 785], offen: [2189, 252, 2388, 1341]}, bild: "bilder/flurb-cbc86009.webp", hot: HOT, w: 2576, h: 1438, mitte: .555},
                // fenster: wo die Fenster im Raumbild liegen (in Pixeln), damit jedes pro Tür einen eigenen Ausschnitt zeigen kann
@@ -2398,6 +2424,7 @@ window.Eier = (function(){
     ["schrank", "Spieleschrank", "Was steckt wohl im Schrank unter der Treppe?", "Tipp die Schranktür unter der Treppe an und sie knarrt auf: drinnen warten Monopoly, Catan, Schach und noch mehr Spiele. Nochmal tippen macht sie wieder zu."],
     ["schach", "Schachmatt", "Im Spieleschrank wartet eine Herausforderung.", "Im Spieleschrank liegt ein Schachbrett mit 10 Rätseln. Tipp es an: Du spielst Weiß und setzt Schwarz matt, erst in 1 Zug, später in 2 Zügen. Gezählt wird es, sobald du eins gelöst hast."],
     ["catan", "Siedlerin", "Im Spieleschrank liegt noch mehr als nur Schach.", "Tipp im offenen Spieleschrank auf die Catan Schachtel: In 5 Runden suchst du den besten Platz für deine Siedlung. Gezählt wird es, sobald du eine Runde gelöst hast."],
+    ["monopoly", "Würfelglück", "Im Spieleschrank wird auch gewürfelt.", "Tipp im offenen Spieleschrank auf Monopoly: Würfel, lass Fuyu übers Brett hüpfen und entdecke alle 32 Felder. Bei jeder Runde über Los schuldet dir Arne eine Umarmung."],
     ["stiefel", "Nikolausstiefel", "Schau am 6. Dezember mal genau hin.", "Am Nikolaustag steht ein gefüllter Stiefel an der Tür."]
   ];
   let gefunden = [];
@@ -2601,6 +2628,99 @@ window.Catan = (function(){
   const knopf = document.querySelector(".spot.catanknopf");
   if(knopf) knopf.addEventListener("click", e=>{ e.stopPropagation(); laden().then(()=>{ const i = D.raetsel.findIndex((_, i) => !geloest.includes(i)); aufbauen(i >= 0 ? i : 0); o.classList.add("on"); }).catch(()=>{}); });
   return { auf: i => laden().then(()=>{ aufbauen(i || 0); o.classList.add("on"); }) };
+})();
+
+/* Monopoly im Spieleschrank: kein Rätsel, einfach würfeln und entdecken.
+   32 Felder (4 Ecken, je Seite 7), Fuyu ist die Spielfigur. Rote Ereigniskarten und grüne Weihnachtskarten.
+   Stand (Position, besuchte Felder, Runden) wird auf ihrem Gerät gespeichert. */
+window.Mono = (function(){
+  const L = [48, 195, 286, 376, 467, 557, 647, 738, 827, 976].map(v => v / 1024 * 100), E1 = (L[0] + L[1]) / 2, E2 = (L[8] + L[9]) / 2;
+  const S = k => (L[k] + L[k + 1]) / 2; // Mitte des k ten Seitenfelds von links/oben (k = 1..7)
+  const POS = [];
+  POS[0] = [E2, E2]; for(let k = 7; k >= 1; k--) POS.push([S(k), E2]);
+  POS.push([E1, E2]); for(let k = 7; k >= 1; k--) POS.push([E1, S(k)]);
+  POS.push([E1, E1]); for(let k = 1; k <= 7; k++) POS.push([S(k), E1]);
+  POS.push([E2, E1]); for(let k = 1; k <= 7; k++) POS.push([E2, S(k)]);
+  const ORTE = [
+    ["Plätzchen backen", "Wer am meisten Teig nascht, muss abwaschen."],
+    ["Schlittenhang", "Erst rauf stapfen, dann mit Gebrüll runter."],
+    ["Weihnachtsmarkt", "Einmal Kinderpunsch bitte. Oder zwei."],
+    ["Schneeballschlacht", "Pass auf, Arne zielt gut."],
+    ["Spieleabend", "Wer verliert, räumt auf. Fuyu verliert immer."],
+    ["Adventskranz", "Noch eine Kerze mehr, dann ist fast schon Weihnachten."],
+    ["Geschenke einpacken", "Zu viel Klebeband gibt es nicht."],
+    ["Baum schmücken", "Die schönste Kugel kommt ganz nach vorne."],
+    ["Eislaufen", "Hinfallen zählt als Tanzeinlage."],
+    ["Wichteln", "Was wohl in dem kleinen Paket ist?"],
+    ["Lebkuchenhaus", "Die Hälfte wird gebaut, die andere Hälfte gegessen."],
+    ["Winterspaziergang", "Kalte Nase, warmes Herz."],
+    ["Plätzchendose", "Leer. Fuyu war schneller."],
+    ["Weihnachtslieder", "Laut und schief ist auch schön."],
+    ["Kuscheldecke", "Bitte nie wieder aufstehen müssen."],
+    ["Bratäpfel", "Mit Vanillesoße, natürlich."],
+    ["Lichterkette", "Erst eine Stunde entwirren, dann leuchtet alles."],
+    ["Wunschzettel", "Ganz oben steht: noch mehr Zeit zusammen."],
+    ["Schneemann bauen", "Die Karotte hat Fuyu schon gegessen."],
+    ["Bescherung", "Endlich! Das schönste Feld auf dem ganzen Brett."]
+  ];
+  const ECKEN = {0: ["Los", "Jedes Mal, wenn du hier vorbeikommst, schuldet dir Arne eine Umarmung."], 8: ["Nur zu Besuch", "Du besuchst Fuyu in seinem Versteck unter der Treppe. Er freut sich riesig!"],
+    16: ["Kakaopause", "Decke, Kakao und einfach mal nichts tun."], 24: ["Ab ins Bett!", "Fuyu schläft schon. Du gehst direkt zu Nur zu Besuch."]};
+  const ROT = [["Du hast Fuyu beim Naschen erwischt. Rücke 3 Felder vor.", 3], ["Die Lichterkette ist verknotet. Gehe 2 Felder zurück.", -2], ["Rücke vor bis Los. Arne schuldet dir eine Umarmung.", "ziel0"],
+    ["Schneesturm! Gehe direkt zur Kakaopause.", "ziel16"], ["Du gewinnst beim Wichteln eine Tafel Schokolade.", 0], ["Arne hat 24 Lieder für dich gespielt. Ziehe sie alle ein ♡", 0]];
+  const GRUEN = [["Glückstag: Du darfst dir von Arne einen Film aussuchen.", 0], ["Gutschein: Arne macht dir einen Kakao.", 0], ["Du findest ein Geschenk unterm Baum. Rücke vor zur Bescherung.", "ziel31"],
+    ["Fuyu klaut deine Socke. Gehe 1 Feld zurück.", -1], ["Einmal Rücken kraulen, einzulösen bei Arne.", 0], ["Hör dir heute ein Lied aus dem Kalender nochmal an.", 0]];
+  const FELD = []; let ort = 0;
+  for(let i = 0; i < 32; i++){ const s = i % 8;
+    if(ECKEN[i]) FELD[i] = {typ: "ecke", t: ECKEN[i]};
+    else if(s === 2) FELD[i] = {typ: "gruen"}; else if(s === 4) FELD[i] = {typ: "rot"}; else FELD[i] = {typ: "ort", t: ORTE[ort++]}; }
+  let st = {pos: 0, besucht: [0], runden: 0};
+  try{ Object.assign(st, JSON.parse(localStorage.getItem("advent-mono") || "{}")); }catch(e){}
+  const speichern = () => { try{ localStorage.setItem("advent-mono", JSON.stringify(st)); }catch(e){} };
+  const o = document.createElement("div"); o.className = "schach"; o.setAttribute("role", "dialog"); o.setAttribute("aria-label", "Monopoly");
+  o.innerHTML = `<div class="sch-karte"><div class="sch-kopf"><div><h3>Monopoly</h3><small>Würfel und schau, wo Fuyu landet.</small></div><button type="button" class="sch-zu" aria-label="Schließen">✕</button></div>
+    <div class="mo-brett">${POS.map((p, i)=>`<div class="mo-feld" data-i="${i}" style="left:${p[0]}%;top:${p[1]}%;width:${i % 8 ? 8.8 : 14.3}%;height:${i % 8 ? 8.8 : 14.3}%"></div>`).join("")}
+      <img class="mo-fuyu" src="bilder/fuyu-still-3b96ad30.webp" alt="Fuyu">
+      <div class="mo-mitte"><div class="mo-wuerfel-reihe"><div class="mo-wuerfel"></div><div class="mo-wuerfel"></div></div>
+        <button type="button" class="mo-los">Würfeln</button>
+        <div class="mo-karte"><div class="innen"><div class="vorne"></div><div class="hinten"></div></div></div>
+        <div class="mo-stand"></div></div></div></div>`;
+  document.body.appendChild(o);
+  const fuyu = o.querySelector(".mo-fuyu"), los = o.querySelector(".mo-los"), karte = o.querySelector(".mo-karte"), vorne = karte.querySelector(".vorne"), hinten = karte.querySelector(".hinten"), stand = o.querySelector(".mo-stand"), wue = [...o.querySelectorAll(".mo-wuerfel")];
+  const MUSTER = {1:[4], 2:[0,8], 3:[0,4,8], 4:[0,2,6,8], 5:[0,2,4,6,8], 6:[0,2,3,5,6,8]};
+  const zeigeWuerfel = (el, n) => { el.innerHTML = [...Array(9)].map((_, i) => `<i class="${MUSTER[n].includes(i) ? "an" : ""}"></i>`).join(""); };
+  const setzeFuyu = i => { fuyu.style.left = POS[i][0] + "%"; fuyu.style.top = POS[i][1] + "%"; };
+  function standZeigen(){ o.querySelectorAll(".mo-feld").forEach(f => f.classList.toggle("besucht", st.besucht.includes(+f.dataset.i)));
+    stand.textContent = `${new Set(st.besucht).size} von 32 Feldern entdeckt · Umarmungen gut: ${st.runden}`; }
+  function zeigeKarte(titel, text, rueckseite){
+    vorne.innerHTML = `<b>${titel}</b>${text}`;
+    if(rueckseite){ hinten.style.backgroundImage = `url("bilder/mono/${rueckseite}.webp")`; karte.classList.add("zu"); void karte.offsetWidth; setTimeout(()=>karte.classList.remove("zu"), 350); }
+    else karte.classList.remove("zu"); }
+  const warte = ms => new Promise(r => setTimeout(r, ms));
+  async function laufen(schritte){ const r = schritte < 0 ? -1 : 1;
+    for(let k = 0; k < Math.abs(schritte); k++){ st.pos = (st.pos + r + 32) % 32; if(r > 0 && st.pos === 0) st.runden++;
+      setzeFuyu(st.pos); fuyu.classList.remove("hopp"); void fuyu.offsetWidth; fuyu.classList.add("hopp"); try{ TON("schachzug", .5); }catch(e){} await warte(200); } }
+  async function springen(ziel){ await warte(700); const vor = (ziel - st.pos + 32) % 32; await laufen(vor); }
+  async function landen(){ const f = FELD[st.pos]; if(!st.besucht.includes(st.pos)) st.besucht.push(st.pos);
+    if(f.typ === "ort" || f.typ === "ecke"){ zeigeKarte(f.t[0], f.t[1]);
+      if(st.pos === 24){ await warte(1600); st.pos = 8; setzeFuyu(8); try{ TON("schachzug", .7); }catch(e){} if(!st.besucht.includes(8)) st.besucht.push(8); } return; }
+    const stapel = f.typ === "rot" ? ROT : GRUEN, [text, wirkung] = stapel[Math.floor(Math.random() * stapel.length)];
+    zeigeKarte(f.typ === "rot" ? "Ereigniskarte" : "Weihnachtskarte", text, f.typ === "rot" ? "karte-rot" : "karte-gruen");
+    if(typeof wirkung === "number" && wirkung){ await warte(1300); await laufen(wirkung); }
+    else if(typeof wirkung === "string"){ await springen(+wirkung.slice(4)); }
+    if(!st.besucht.includes(st.pos)) st.besucht.push(st.pos); }
+  los.addEventListener("click", async ()=>{ los.disabled = true; window.Eier && Eier.fund("monopoly");
+    wue.forEach(w => w.classList.add("rollt")); let a = 1, b = 1;
+    for(let t = 0; t < 8; t++){ a = 1 + Math.floor(Math.random() * 6); b = 1 + Math.floor(Math.random() * 6); zeigeWuerfel(wue[0], a); zeigeWuerfel(wue[1], b); await warte(80); }
+    wue.forEach(w => w.classList.remove("rollt")); try{ TON("schachzug", .8); }catch(e){}
+    await warte(250); await laufen(a + b); await landen(); speichern(); standZeigen(); los.disabled = false; });
+  const zu = () => o.classList.remove("on");
+  o.querySelector(".sch-zu").addEventListener("click", zu);
+  o.addEventListener("click", e=>{ if(e.target === o) zu(); });
+  zeigeWuerfel(wue[0], 6); zeigeWuerfel(wue[1], 6); setzeFuyu(st.pos);
+  const f0 = FELD[st.pos]; zeigeKarte(f0.t ? f0.t[0] : "Monopoly", f0.t ? f0.t[1] : "Würfel weiter!"); standZeigen();
+  const knopf = document.querySelector(".spot.monoknopf");
+  if(knopf) knopf.addEventListener("click", e=>{ e.stopPropagation(); o.classList.add("on"); });
+  return { auf: () => o.classList.add("on") };
 })();
 
 window.Playlist = (function(){
