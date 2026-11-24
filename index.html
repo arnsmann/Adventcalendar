@@ -1056,10 +1056,14 @@ document.querySelectorAll(".spot.licht").forEach(b=>b.addEventListener("click", 
   function istNacht(){ if(/nacht/.test(location.search)) return true; const d = new Date(), m = d.getHours() * 60 + d.getMinutes(); return m >= 21 * 60 + 30 || m < 6 * 60; }
   function nachtPruefen(){
     const n = istNacht();
-    if(n && !globeEl.classList.contains("nachtzeit")){ schl.querySelector("img").src = "bilder/fuyu-schlaeft.webp"; }
+    const vorher = globeEl.classList.contains("nachtzeit");
+    if(n && !vorher){ schl.querySelector("img").src = "bilder/fuyu-schlaeft.webp"; }
+    // Wenn Fuyu einschläft, geht das Licht aus; wenn er aufwacht, wieder an (antippen geht trotzdem jederzeit)
+    if(n !== vorher) globeEl.classList.toggle("licht-aus", n);
     globeEl.classList.toggle("nachtzeit", n);
   }
   nachtPruefen(); setInterval(nachtPruefen, 60000);
+  window.istNacht = istNacht;
   schl.addEventListener("click", e=>{ e.stopPropagation(); schl.classList.add("sagt"); clearTimeout(schl._t); schl._t = setTimeout(()=>schl.classList.remove("sagt"), 1600); });
   function plan(ms){ clearTimeout(t); t = setTimeout(()=> istNacht() ? plan(60000) : (Math.random() < .4 ? sitzen() : rennen()), ms); }
   // ab und zu: er erscheint, sitzt eine Weile, verschwindet wieder
@@ -1993,7 +1997,8 @@ renderStatus(); refreshDoors(); setBg(homeBg());
   }
   function leave(){
     if(wrap.classList.contains("zoomed") && !tauchen) TON("eintauchen", .6);
-    document.getElementById("globe").classList.remove("licht-aus", "tuer-offen"); // beim Rausgehen Licht wieder an, Tür zu
+    const g = document.getElementById("globe"); g.classList.remove("tuer-offen"); // beim Rausgehen Tür zu
+    g.classList.toggle("licht-aus", !!(window.istNacht && istNacht())); // Licht wieder so wie zur Uhrzeit passend: nachts aus, tagsüber an
     if(WL && uebergang() !== "schlicht" && !tauchen){ tauchen = true; WL.raus(leaveNow).then(()=>{ tauchen = false; }); return; }
     if(!tauchen) leaveNow();
   }
