@@ -419,6 +419,31 @@ body.zoomed-on .pl-btn,body.peek .pl-btn{opacity:0;pointer-events:none}
 @media (hover:none){.pl-laut{display:none}}
 .pl-zeit{height:4px;margin:0 22px;border-radius:2px;background:rgba(142,42,42,.15);overflow:hidden}
 .pl-zeit i{display:block;height:100%;width:0;background:#8e2a2a}
+/* Easter Eggs: Fuyus Liste, oben links */
+.eier-btn{position:fixed;z-index:12;left:calc(12px + env(safe-area-inset-left,0px));top:calc(12px + env(safe-area-inset-top,0px));height:34px;border:0;border-radius:999px;padding:0 12px 0 6px;cursor:pointer;display:flex;align-items:center;gap:6px;
+  background:rgba(20,12,8,.45);color:#fff8f1;font-family:var(--f-hand);font-size:1.05rem;-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px)}
+.eier-btn img{height:26px;width:auto;filter:drop-shadow(0 0 2px rgba(255,248,241,.5))}
+.eier-btn.neu{animation:eierHuepf .6s ease 3}
+@keyframes eierHuepf{50%{transform:translateY(-4px) scale(1.06)}}
+body.zoomed-on .eier-btn,body.peek .eier-btn{opacity:0;pointer-events:none}
+.eier{position:fixed;inset:0;z-index:60;display:flex;align-items:center;justify-content:center;padding:16px;background:rgba(20,12,8,.5);opacity:0;pointer-events:none;transition:opacity .3s}
+.eier.on{opacity:1;pointer-events:auto}
+.eier .pl-karte{width:min(460px,100%)}
+.ei-fuyu{display:flex;align-items:flex-end;gap:12px;padding:0 22px 12px}
+.ei-fuyu img{width:64px;height:auto;flex:none}
+.ei-blase{position:relative;background:rgba(142,42,42,.08);border-radius:16px 16px 16px 4px;padding:10px 14px;font-size:1.05rem;line-height:1.3}
+.ei-liste li{cursor:default;align-items:flex-start}
+.ei-liste li:hover{background:none}
+.ei-liste .ok{width:1.4em;flex:none;text-align:center;color:#8e2a2a;-webkit-text-stroke:0}
+.ei-liste .zu .ok{color:var(--soft)}
+.ei-liste .zu .t{color:var(--soft)}
+.ei-liste .t small{display:block;font-size:.9rem;color:var(--soft)}
+.ei-liste li.frisch{background:rgba(201,86,107,.16);border-radius:12px}
+.ei-toast{position:fixed;z-index:70;left:50%;bottom:calc(22px + env(safe-area-inset-bottom,0px));transform:translate(-50%,140%);display:flex;align-items:center;gap:10px;max-width:calc(100vw - 32px);
+  background:#fff8f1;color:var(--ink);border-radius:18px;padding:8px 16px 8px 8px;box-shadow:var(--shadow);font-family:var(--f-hand);font-size:1.1rem;line-height:1.2;-webkit-text-stroke:.03em currentColor;paint-order:stroke fill;cursor:pointer;transition:transform .5s cubic-bezier(.2,1.3,.4,1)}
+.ei-toast.on{transform:translate(-50%,0)}
+.ei-toast img{height:44px;width:auto}
+.ei-toast b{display:block;font-family:var(--f-titel);font-weight:400;color:#8e2a2a;font-size:1.25rem;-webkit-text-stroke:0}
 /* Hilfe: oben rechts, öffnet den Brief mit der Anleitung nochmal */
 .hilfe-btn{position:fixed;z-index:12;right:calc(12px + env(safe-area-inset-right,0px));top:calc(12px + env(safe-area-inset-top,0px));width:34px;height:34px;border:0;border-radius:50%;cursor:pointer;
   background:rgba(20,12,8,.45);color:#fff8f1;font-family:"Nunito",system-ui,sans-serif;font-weight:700;font-size:1.1rem;line-height:1;-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px)}
@@ -1044,7 +1069,7 @@ const RAUMTON = (function(){
 })();
 
 /* Nikolaus antippen: Ho ho ho */
-document.querySelector(".spot.nikolaus").addEventListener("click", e=>{ e.stopPropagation(); TON("hohoho", .75); });
+document.querySelector(".spot.nikolaus").addEventListener("click", e=>{ e.stopPropagation(); TON("hohoho", .75); window.Eier && Eier.fund("nikolaus"); });
 /* Schlüssel oder Tür antippen: Tür auf oder zu (Schlüssel klimpern nur beim Schlüssel) */
 document.querySelectorAll(".spot.schluessel,.spot.haustuer").forEach(b=>b.addEventListener("click", e=>{
   e.stopPropagation();
@@ -1054,12 +1079,14 @@ document.querySelectorAll(".spot.schluessel,.spot.haustuer").forEach(b=>b.addEve
   // Türgeräusch: Öffnen oder Schließen
   const mitSchluessel = b.classList.contains("schluessel");
   if(mitSchluessel) TON("schluessel");
+  window.Eier && Eier.fund("tuer");
   TON(auf ? "tuer" : "tuer-zu", .8, mitSchluessel ? (auf ? .45 : .35) : 0);
   g.classList.toggle("tuer-offen"); try{ alignViews(); }catch(er){}
 }));
 /* Licht an und aus: Lichtschalter, Laterne oder Weihnachtsbaum antippen, jeweils mit eigenem Geräusch */
 document.querySelectorAll(".spot.licht").forEach(b=>b.addEventListener("click", ()=>{
   try{ ({schalter: RAUMTON.klick, laterne: RAUMTON.zzzp, baum: ()=>TON("glocken")})[b.dataset.s](); }catch(e){}
+  window.Eier && Eier.fund(({schalter: "licht", laterne: "laterne", baum: "baum"})[b.dataset.s]);
   document.getElementById("globe").classList.toggle("licht-aus");
 }));
 
@@ -1081,7 +1108,7 @@ document.querySelectorAll(".spot.licht").forEach(b=>b.addEventListener("click", 
   }
   nachtPruefen(); setInterval(nachtPruefen, 60000);
   window.istNacht = istNacht;
-  schl.addEventListener("click", e=>{ e.stopPropagation(); schl.classList.add("sagt"); clearTimeout(schl._t); schl._t = setTimeout(()=>schl.classList.remove("sagt"), 1600); });
+  schl.addEventListener("click", e=>{ e.stopPropagation(); window.Eier && Eier.fund("schlaf"); schl.classList.add("sagt"); clearTimeout(schl._t); schl._t = setTimeout(()=>schl.classList.remove("sagt"), 1600); });
   function plan(ms){ clearTimeout(t); t = setTimeout(()=> istNacht() ? plan(60000) : (Math.random() < .4 ? sitzen() : rennen()), ms); }
   // ab und zu: er erscheint, sitzt eine Weile, verschwindet wieder
   const sz = document.querySelector(".sitzer"), szImg = sz.querySelector("img"), KOMMT = "bilder/fuyu-sitzt.webp", GEHT = "bilder/fuyu-geht.webp";
@@ -1105,7 +1132,7 @@ document.querySelectorAll(".spot.licht").forEach(b=>b.addEventListener("click", 
     pre.onload = ()=>{ szImg.src = pre.src; szT = setTimeout(weg, 3000); };
     pre.src = GEHT + "?" + Date.now();
   }
-  sz.addEventListener("click", e=>{ e.stopPropagation(); if(!sitzt || !sz.classList.contains("da")) return; quietsch(); gehen(); });
+  sz.addEventListener("click", e=>{ e.stopPropagation(); if(!sitzt || !sz.classList.contains("da")) return; window.Eier && Eier.fund("fuyu"); quietsch(); gehen(); });
   function rennen(){
     if(!drin() || anim || sitzt){ plan(4000); return; }
     // er kommt hinter der Heizung hervor, rennt nach rechts und verschwindet hinter dem Schränkchen an der Tür, Tempo immer gleich
@@ -1135,7 +1162,7 @@ document.querySelectorAll(".spot.licht").forEach(b=>b.addEventListener("click", 
   new Image().src = PUFF;
   let flieht = false;
   k.addEventListener("click", e=>{
-    e.stopPropagation(); if(!anim || flieht) return; flieht = true;
+    e.stopPropagation(); if(!anim || flieht) return; flieht = true; window.Eier && Eier.fund("fuyu");
     anim.pause();
     puff.src = PUFF + "?" + Date.now(); k.classList.add("puffen");
     quietsch();
@@ -1736,7 +1763,7 @@ renderStatus(); refreshDoors(); setBg(homeBg());
     requestAnimationFrame(tick);
   }
   if(!reduce) requestAnimationFrame(tick);
-  document.getElementById("shakeBtn").addEventListener("click", shake);
+  document.getElementById("shakeBtn").addEventListener("click", ()=>{ shake(); window.Eier && Eier.fund("schnee"); });
 
   /* Handy schütteln = Kugel schütteln */
   const motionBtn = document.getElementById("motionBtn");
@@ -1749,7 +1776,7 @@ renderStatus(); refreshDoors(); setBg(homeBg());
     else { const g = e.accelerationIncludingGravity || {}; mag = Math.abs(Math.hypot(g.x||0, g.y||0, g.z||0) - 9.81); }
     const now = Date.now();
     if(mag > 13 && now - lastShake > 900 && !wrap.classList.contains("zoomed") && scrim.hidden){
-      lastShake = now; shake();
+      lastShake = now; shake(); window.Eier && Eier.fund("schnee");
       try{ navigator.vibrate && navigator.vibrate(30); }catch(err){}
     }
   }
@@ -2045,6 +2072,7 @@ renderStatus(); refreshDoors(); setBg(homeBg());
   })();
   function enter(){
     if(!wrap.classList.contains("zoomed") && !tauchen) TON("schneesturm", .7);
+    if(document.getElementById("globe").classList.contains("nikolaustag")) setTimeout(()=>{ if(wrap.classList.contains("zoomed")) window.Eier && Eier.fund("stiefel"); }, 3000);
     document.documentElement.classList.toggle("ueb-schlicht", uebergang() === "schlicht");
     if(WL && uebergang() !== "schlicht" && !tauchen && !wrap.classList.contains("zoomed")){
       tauchen = true;
@@ -2164,6 +2192,57 @@ addEventListener("hashchange", ()=>location.reload());
 <script>
 /* Playlist: alle Songs der Türchen, die sie schon selbst geöffnet hat, hintereinander.
    Doppelt gesichert: nur was sie geöffnet hat UND was laut Datum schon offen sein darf. In der Vorschau alle offenen. */
+/* Easter Eggs: Fuyu schreibt auf, was sie im Kalender schon entdeckt hat (gespeichert auf ihrem Gerät) */
+window.Eier = (function(){
+  const FUYU = "bilder/fuyu-still-3b96ad30.webp";
+  const LISTE = [
+    ["fuyu", "Fuyu erwischt", "Ab und zu huscht hier jemand vorbei. Schnell sein!"],
+    ["schlaf", "Fuyu beim Schlafen gestört", "Wer schläft hier eigentlich nachts?"],
+    ["nikolaus", "Ho ho ho", "Auf der Heizung steht jemand ganz still."],
+    ["licht", "Licht aus", "Irgendwo im Treppenhaus ist ein Schalter."],
+    ["laterne", "Die Laterne", "Die Laterne hängt nicht nur zur Deko da."],
+    ["baum", "Glöckchen", "Klingelt da was am Weihnachtsbaum?"],
+    ["tuer", "Tür auf", "Wo hängt eigentlich der Schlüssel?"],
+    ["schnee", "Schneesturm", "Was macht man mit einer Schneekugel?"],
+    ["stiefel", "Nikolausstiefel", "Schau am 6. Dezember mal genau hin."]
+  ];
+  let gefunden = [];
+  try{ gefunden = JSON.parse(localStorage.getItem("advent-eier") || "[]").filter(id => LISTE.some(e => e[0] === id)); }catch(e){}
+  const btn = document.createElement("button"); btn.type = "button"; btn.className = "eier-btn"; btn.setAttribute("aria-label", "Easter Eggs");
+  btn.innerHTML = `<img src="${FUYU}" alt=""><span></span>`; document.body.appendChild(btn);
+  const o = document.createElement("div"); o.className = "eier"; o.setAttribute("role", "dialog"); o.setAttribute("aria-label", "Easter Eggs");
+  o.innerHTML = `<div class="pl-karte"><div class="pl-kopf"><h3>Easter Eggs</h3><small></small><button type="button" class="pl-zu" aria-label="Schließen">✕</button></div>
+    <div class="ei-fuyu"><img src="${FUYU}" alt="Fuyu"><div class="ei-blase">Psst, ich bin Fuyu! Im Kalender sind kleine Geheimnisse versteckt. Jedes Mal, wenn du eins entdeckst, schreibe ich es hier für dich auf.</div></div>
+    <ul class="pl-liste ei-liste"></ul><div style="height:14px"></div></div>`;
+  document.body.appendChild(o);
+  const toast = document.createElement("div"); toast.className = "ei-toast"; toast.setAttribute("role", "status"); document.body.appendChild(toast);
+  let frisch = null, toastT = null;
+  function zeichnen(){
+    const n = gefunden.length, alle = LISTE.length;
+    btn.querySelector("span").textContent = `${n}/${alle}`;
+    o.querySelector(".pl-kopf small").textContent = n === alle ? `Alle ${alle} gefunden! Du bist unglaublich ♡` : `${n} von ${alle} entdeckt`;
+    o.querySelector(".ei-liste").innerHTML = LISTE.map(([id, name, tipp]) => gefunden.includes(id)
+      ? `<li class="${id === frisch ? "frisch" : ""}"><span class="ok">✓</span><span class="t">${name}</span></li>`
+      : `<li class="zu"><span class="ok">?</span><span class="t">???<small>${tipp}</small></span></li>`).join("");
+  }
+  function fund(id){
+    if(!id || gefunden.includes(id) || !LISTE.some(e => e[0] === id)) return;
+    gefunden.push(id); frisch = id;
+    try{ localStorage.setItem("advent-eier", JSON.stringify(gefunden)); }catch(e){}
+    zeichnen();
+    const name = LISTE.find(e => e[0] === id)[1];
+    toast.innerHTML = `<img src="${FUYU}" alt=""><span><b>Easter Egg gefunden!</b>${name} · ${gefunden.length} von ${LISTE.length}</span>`;
+    toast.classList.add("on"); clearTimeout(toastT); toastT = setTimeout(()=>toast.classList.remove("on"), 4200);
+    btn.classList.remove("neu"); void btn.offsetWidth; btn.classList.add("neu");
+  }
+  const auf = () => { zeichnen(); o.classList.add("on"); toast.classList.remove("on"); };
+  btn.addEventListener("click", auf);
+  toast.addEventListener("click", auf);
+  o.addEventListener("click", e=>{ if(e.target === o || e.target.closest(".pl-zu")){ o.classList.remove("on"); frisch = null; } });
+  zeichnen();
+  return { fund, liste: () => gefunden.slice() };
+})();
+
 window.Playlist = (function(){
   const btn = document.createElement("button"); btn.type = "button"; btn.className = "pl-btn"; btn.innerHTML = "♫<span>Playlist</span>"; btn.setAttribute("aria-label", "Playlist");
   const o = document.createElement("div"); o.className = "playlist"; o.setAttribute("role", "dialog"); o.setAttribute("aria-modal", "true");
