@@ -992,17 +992,30 @@ function uhrWinkel(){ const d = new Date(), m = d.getMinutes() + d.getSeconds() 
   let dreht = false;
   const stellen = () => { if(dreht) return; const w = uhrWinkel(); setzen(w.std, w.min); };
   stellen(); setInterval(stellen, 15000); document.addEventListener("visibilitychange", stellen);
-  // Easter Egg: Uhr antippen, die Zeiger drehen immer schneller einen ganzen Tag weiter und bremsen wieder ab.
-  // Nur die Zeiger drehen sich, das echte Datum bleibt gleich, es geht also keine Tür früher auf.
+  // Easter Egg Zeitreise: linke Hälfte der Uhr einen Tag zurück, rechte Hälfte einen Tag vor.
+  // Die Zeiger drehen dabei immer schneller einen ganzen Tag (vor oder zurück) und bremsen wieder ab,
+  // und die Welt draußen (Hintergrund, Kugel, Fenster, Wetter) wechselt zu dem Tag.
+  // Es geht nur durch Tage, die schon offen sind und ein eigenes Bild haben. Weiter als heute geht es nie,
+  // dann wackeln die Zeiger nur kurz. Das echte Datum bleibt gleich, es geht also keine Tür früher auf.
   const knopf = document.querySelector(".spot.uhrknopf");
+  const weich = x => x < .5 ? 4 * x * x * x : 1 - Math.pow(-2 * x + 2, 3) / 2; // langsam, immer schneller, dann abbremsen
+  const bildTage = () => Object.keys(TUERCHEN).map(Number).filter(d => TUERCHEN[d].bild && isOpenable(d)).sort((a, b) => a - b);
   if(knopf) knopf.addEventListener("click", e=>{ e.stopPropagation(); if(dreht) return; dreht = true;
     window.Eier && Eier.fund("uhr");
-    const w = uhrWinkel(), DAUER = 5200, t0 = performance.now();
-    const weich = x => x < .5 ? 4 * x * x * x : 1 - Math.pow(-2 * x + 2, 3) / 2; // langsam, immer schneller, dann abbremsen
-    let letzt = 0;
+    const r = knopf.getBoundingClientRect(), richtung = (e.clientX && e.clientX < r.left + r.width / 2) ? -1 : 1;
+    const T = bildTage(), i = T.findIndex(d => TUERCHEN[d].bild === bgCurrent), ziel = i + richtung;
+    const geht = T.length && ziel >= 0 && ziel < T.length && !(i < 0 && richtung < 0);
+    const w = uhrWinkel(), t0 = performance.now();
+    if(!geht){ // weiter geht es nicht: Zeiger wackeln kurz in die Richtung und federn zurück
+      try{ RAUMTON.tick(); }catch(er){}
+      const wack = now => { const x = Math.min(1, (now - t0) / 650), a = Math.sin(x * Math.PI * 3) * (1 - x) * 14 * richtung;
+        setzen(w.std + a * .3, w.min + a); if(x < 1) requestAnimationFrame(wack); else { dreht = false; stellen(); } };
+      requestAnimationFrame(wack); return; }
+    const DAUER = 5200; let letzt = 0, gewechselt = false;
     const schritt = now => { const x = Math.min(1, (now - t0) / DAUER), k = weich(x);
-      setzen(w.std + 720 * k, w.min + 8640 * k); // ein Tag: Stundenzeiger 2 Runden, Minutenzeiger 24 Runden
+      setzen(w.std + 720 * k * richtung, w.min + 8640 * k * richtung); // ein Tag: Stundenzeiger 2 Runden, Minutenzeiger 24 Runden
       const stunde = Math.floor(24 * k); if(stunde > letzt){ letzt = stunde; try{ RAUMTON.tick(); }catch(er){} }
+      if(!gewechselt && k >= .5){ gewechselt = true; bgPicked = true; setBg(TUERCHEN[T[ziel]].bild); setTimeout(()=>{ try{ alignViews(); }catch(er){} }, 700); }
       if(x < 1) requestAnimationFrame(schritt); else { dreht = false; stellen(); } };
     requestAnimationFrame(schritt); });
 })();
