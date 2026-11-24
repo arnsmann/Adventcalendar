@@ -126,6 +126,8 @@ html.raum-hoch .spot.schluessel,html.raum-hoch .spot.haustuer{display:none}
 .globe-wrap.zoomed .spots .spot,.globe-wrap.zoomed .spots .kerl{pointer-events:auto}
 .spot{position:absolute;border:0;background:none;padding:0;cursor:pointer;-webkit-tap-highlight-color:transparent;border-radius:30%}
 .spot:focus-visible{outline:2px solid #ffe2a8}
+.spot.uhrknopf{border-radius:50%}
+.spot.uhrknopf::after{content:"";position:absolute;inset:-30%;border-radius:50%} /* etwas größere Tippfläche, die Uhr ist auf dem Handy klein */
 .kerlbahn{position:absolute;pointer-events:none;overflow:hidden}
 .kerl{transform-origin:50% 100%;overflow:visible}
 .kerl .puff{position:absolute;left:15.3%;bottom:-3.2%;height:115.7%;width:auto;display:none}
@@ -647,6 +649,7 @@ footer{font-size:1rem;margin-top:-6px}
       <button type="button" class="spot licht" data-s="baum" aria-label="Licht an oder aus"></button>
       <button type="button" class="spot schluessel" data-s="schluessel" aria-label="Schlüssel"></button>
       <button type="button" class="spot nikolaus" data-s="nikolaus" aria-label="Nikolaus"></button>
+      <button type="button" class="spot uhrknopf" data-s="uhr" aria-label="Uhr"></button>
       <button type="button" class="spot haustuer" data-s="haustuer" aria-label="Tür auf oder zu"></button>
       <div class="kerlbahn" data-s="kerl"><button type="button" class="kerl" aria-label="Fuyu"><img src="bilder/kerl.webp" alt="" draggable="false"><img class="puff" alt="" draggable="false"><span class="piep">Huch!</span></button></div>
       <button type="button" class="sitzer" data-s="sitz" aria-label="Fuyu"><img alt="" draggable="false"></button>
@@ -984,8 +987,25 @@ addEventListener("resize", setzeRaum);
 // Wanduhr: Stunden und Minutenzeiger nach der echten Uhrzeit auf ihrem Gerät
 function uhrWinkel(){ const d = new Date(), m = d.getMinutes() + d.getSeconds() / 60; return {std: (d.getHours() % 12 + m / 60) * 30, min: m * 6}; }
 (function(){ const u = document.querySelector(".uhr"); if(!u) return;
-  const stellen = () => { const w = uhrWinkel(); u.querySelector(".std").setAttribute("transform", `rotate(${w.std})`); u.querySelector(".min").setAttribute("transform", `rotate(${w.min})`); };
-  stellen(); setInterval(stellen, 15000); document.addEventListener("visibilitychange", stellen); })();
+  const std = u.querySelector(".std"), min = u.querySelector(".min");
+  const setzen = (a, b) => { std.setAttribute("transform", `rotate(${a})`); min.setAttribute("transform", `rotate(${b})`); };
+  let dreht = false;
+  const stellen = () => { if(dreht) return; const w = uhrWinkel(); setzen(w.std, w.min); };
+  stellen(); setInterval(stellen, 15000); document.addEventListener("visibilitychange", stellen);
+  // Easter Egg: Uhr antippen, die Zeiger drehen immer schneller einen ganzen Tag weiter und bremsen wieder ab.
+  // Nur die Zeiger drehen sich, das echte Datum bleibt gleich, es geht also keine Tür früher auf.
+  const knopf = document.querySelector(".spot.uhrknopf");
+  if(knopf) knopf.addEventListener("click", e=>{ e.stopPropagation(); if(dreht) return; dreht = true;
+    window.Eier && Eier.fund("uhr");
+    const w = uhrWinkel(), DAUER = 5200, t0 = performance.now();
+    const weich = x => x < .5 ? 4 * x * x * x : 1 - Math.pow(-2 * x + 2, 3) / 2; // langsam, immer schneller, dann abbremsen
+    let letzt = 0;
+    const schritt = now => { const x = Math.min(1, (now - t0) / DAUER), k = weich(x);
+      setzen(w.std + 720 * k, w.min + 8640 * k); // ein Tag: Stundenzeiger 2 Runden, Minutenzeiger 24 Runden
+      const stunde = Math.floor(24 * k); if(stunde > letzt){ letzt = stunde; try{ RAUMTON.tick(); }catch(er){} }
+      if(x < 1) requestAnimationFrame(schritt); else { dreht = false; stellen(); } };
+    requestAnimationFrame(schritt); });
+})();
 // Am 6. Dezember steht ein gefüllter Stiefel an der Tür (zum Testen: ?nikolaus)
 (function(){ const d = new Date();
   if(/nikolaus/.test(location.search) || (d.getMonth() === 11 && d.getDate() === 6)){
@@ -1053,6 +1073,13 @@ const RAUMTON = (function(){
       n.connect(hp).connect(g).connect(c.destination); n.start(t0 + d);
     });
   }
+  // leises Uhr Ticken
+  function tick(){
+    const c = ctx(), t0 = c.currentTime, n = rauschen(c, .02), bp = c.createBiquadFilter(), g = c.createGain();
+    bp.type = "bandpass"; bp.frequency.value = 3800; bp.Q.value = 2.5;
+    g.gain.setValueAtTime(.22, t0); g.gain.exponentialRampToValueAtTime(.001, t0 + .018);
+    n.connect(bp).connect(g).connect(c.destination); n.start(t0);
+  }
   // altes Licht: kurzes elektrisches Zzzzp
   function zzzp(){
     const c = ctx(), t0 = c.currentTime, out = c.createGain(); out.gain.value = .14; out.connect(c.destination);
@@ -1087,7 +1114,7 @@ const RAUMTON = (function(){
     g.gain.setValueAtTime(0, t0); g.gain.linearRampToValueAtTime(1, t0 + .08); g.gain.setValueAtTime(1, t0 + .7); g.gain.exponentialRampToValueAtTime(.001, t0 + .95);
     o.connect(bp).connect(g).connect(out); o.start(t0); lfo.start(t0); o.stop(t0 + 1); lfo.stop(t0 + 1);
   }
-  return { glocken, klick, zzzp, schluessel, knarren };
+  return { glocken, klick, tick, zzzp, schluessel, knarren };
 })();
 
 /* Nikolaus antippen: Ho ho ho */
@@ -2226,6 +2253,7 @@ window.Eier = (function(){
     ["baum", "Glöckchen", "Klingelt da was am Weihnachtsbaum?"],
     ["tuer", "Tür auf", "Wo hängt eigentlich der Schlüssel?"],
     ["schnee", "Schneesturm", "Was macht man mit einer Schneekugel?"],
+    ["uhr", "Zeitreise", "Die Uhr im Flur tickt ein bisschen anders."],
     ["stiefel", "Nikolausstiefel", "Schau am 6. Dezember mal genau hin."]
   ];
   let gefunden = [];
