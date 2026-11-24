@@ -241,7 +241,7 @@ footer{font-family:var(--f-hand);font-size:1.1rem;color:#fff8f1;text-shadow:0 1p
 .clip::after{content:"";position:absolute;inset:0;pointer-events:none;box-shadow:inset 0 0 50px 18px rgba(30,20,19,.55);border-radius:inherit;z-index:2}
 .clip .cover{position:absolute;inset:0;z-index:1;background:var(--inside);opacity:1;transition:opacity .3s}
 .song.clip-on .clip .cover{opacity:0;transition:opacity 1.2s}
-.clip .intro{position:absolute;inset:0;z-index:3;opacity:0;transition:opacity .8s ease;pointer-events:none;background:#000;overflow:hidden}
+.clip .intro{position:absolute;inset:0;z-index:3;opacity:0;transition:opacity .6s ease;pointer-events:none;background:#000;overflow:hidden}
 .clip .intro video{position:absolute;inset:0;width:100%;height:100%}
 .clip .intro .ib{object-fit:cover;filter:blur(18px) brightness(.55);transform:scale(1.15)}
 .clip .intro .iv{object-fit:contain}
@@ -1236,20 +1236,25 @@ function showCard(n){
       const vids = [...ib.querySelectorAll("video")], L = +item.intro.laenge || 0, box = au.closest(".song");
       box.dataset.vorspann = L;
       // YouTube Clip: lädt unsichtbar unter dem Vorspann an (Titel und Ladekreis verschwinden in der Zeit),
-      // springt genau beim Ende des Vorspanns auf den Anfang und ist sofort zu sehen
-      let ytVor = false, ytAn = false;
-      const ytSteuern = t => { if(!clipPlayer || !clipReady) return;
+      // springt kurz vor dem Ende des Vorspanns auf den Anfang. Der Vorspann bleibt auf seinem letzten Bild stehen,
+      // bis YouTube wirklich wieder Bilder zeigt (kein Schwarz, kein Ladekreis), und blendet dann weich über
+      let ytVor = false, ytAn = false, ytLaeuft = false, ytPruef = null;
+      const ytSteuern = t => { if(!clipPlayer || !clipReady){ if(t >= L) ytLaeuft = true; return; }
         try{
-          if(t < L - 4.5){ ytVor = ytAn = false; if(clipPlayer.getPlayerState() === 1) clipPlayer.pauseVideo(); return; }
+          if(t < L - 4.5){ ytVor = ytAn = ytLaeuft = false; clearInterval(ytPruef); if(clipPlayer.getPlayerState() === 1) clipPlayer.pauseVideo(); return; }
           if(au.paused) return;
           if(!ytVor){ ytVor = true; clipPlayer.mute(); clipPlayer.seekTo(0, true); clipPlayer.playVideo(); }
-          if(t >= L && !ytAn){ ytAn = true; clipPlayer.seekTo(0, true); clipPlayer.playVideo(); clearTimeout(clipShowT); box.classList.add("clip-on"); }
+          if(t >= L - .5 && !ytAn){ ytAn = true; clipPlayer.seekTo(0, true); clipPlayer.playVideo(); clearTimeout(clipShowT); box.classList.add("clip-on");
+            const seit = Date.now(); clearInterval(ytPruef);
+            ytPruef = setInterval(()=>{ let ok = false; try{ ok = clipPlayer.getPlayerState() === 1 && clipPlayer.getCurrentTime() > .35; }catch(e){}
+              if(ok || Date.now() - seit > 3500){ clearInterval(ytPruef); ytLaeuft = true; sync(); } }, 80); }
         }catch(e){} };
-      const sync = () => { const t = au.currentTime, drin = t < L - .05 && (!au.paused || t > 0);
+      const sync = () => { const t = au.currentTime, drin = (t < L - .05 || (t < L + 4 && ytAn && !ytLaeuft)) && (!au.paused || t > 0);
         ytSteuern(t);
         ib.classList.toggle("zeigen", drin);
         vids.forEach(v=>{
-          if(drin){ if(Math.abs(v.currentTime - t) > .3) v.currentTime = t; if(!au.paused && v.paused) v.play().catch(()=>{}); if(au.paused && !v.paused) v.pause(); }
+          if(drin && t >= L - .05){ if(!v.paused) v.pause(); } // letztes Bild stehen lassen, bis YouTube läuft
+          else if(drin){ if(Math.abs(v.currentTime - t) > .3) v.currentTime = t; if(!au.paused && v.paused) v.play().catch(()=>{}); if(au.paused && !v.paused) v.pause(); }
           else if(!v.paused) v.pause(); }); };
       ["play","playing","pause","seeked","timeupdate","ended"].forEach(e=>au.addEventListener(e, sync));
     }
