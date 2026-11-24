@@ -428,7 +428,27 @@ body.zoomed-on .pl-btn,body.peek .pl-btn{opacity:0;pointer-events:none}
 body.zoomed-on .eier-btn,body.peek .eier-btn{opacity:0;pointer-events:none}
 .eier{position:fixed;inset:0;z-index:60;display:flex;align-items:center;justify-content:center;padding:16px;background:rgba(20,12,8,.5);opacity:0;pointer-events:none;transition:opacity .3s}
 .eier.on{opacity:1;pointer-events:auto}
-.eier .pl-karte{width:min(460px,100%)}
+/* Die Liste sieht aus wie ein alter Wunschzettel: vergilbtes Papier, Linien, Klebeband und Stechpalme */
+.eier .pl-karte{width:min(460px,100%);border-radius:6px;transform:rotate(-.6deg);overflow:visible;color:#3d2a1c;
+  background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.8' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 .35 0 0 0 0 .25 0 0 0 0 .12 0 0 0 .09 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E"),
+    radial-gradient(ellipse at 50% 40%, rgba(255,250,235,0) 55%, rgba(120,80,30,.28) 100%),
+    linear-gradient(170deg,#f6ead0 0%,#efdfbd 60%,#e8d4ab 100%);
+  box-shadow:0 18px 40px rgba(0,0,0,.45),0 2px 0 rgba(120,80,30,.15) inset}
+.eier .pl-karte::before{content:"";position:absolute;left:50%;top:-14px;width:120px;height:30px;transform:translateX(-50%) rotate(-3deg);z-index:2;opacity:.88;pointer-events:none;
+  background:repeating-linear-gradient(45deg,#b8333a 0 9px,#f7efe3 9px 18px);box-shadow:0 2px 4px rgba(0,0,0,.25)}
+.eier .pl-karte::after{content:"";position:absolute;right:-10px;top:-12px;width:78px;height:70px;z-index:2;pointer-events:none;transform:rotate(12deg);
+  background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 78 70'%3E%3Cg stroke='%231f3d24' stroke-width='1.4' stroke-linejoin='round'%3E%3Cpath d='M38 34 C30 26 22 30 12 20 C16 26 10 28 14 34 C8 36 12 40 6 44 C18 44 26 42 38 34Z' fill='%232f6b3a'/%3E%3Cpath d='M40 34 C46 24 56 26 62 12 C60 20 66 20 64 27 C70 27 68 32 74 34 C62 40 52 40 40 34Z' fill='%233b7d46'/%3E%3Cpath d='M38 34 L18 32 M40 34 L62 22' stroke='%2318331d' fill='none'/%3E%3C/g%3E%3Ccircle cx='36' cy='40' r='6' fill='%23c0282f' stroke='%237a1418'/%3E%3Ccircle cx='45' cy='42' r='5.5' fill='%23d0333a' stroke='%237a1418'/%3E%3Ccircle cx='39' cy='48' r='5' fill='%23b32128' stroke='%237a1418'/%3E%3Ccircle cx='34' cy='38' r='1.6' fill='%23fff' opacity='.7'/%3E%3Ccircle cx='43' cy='40' r='1.4' fill='%23fff' opacity='.7'/%3E%3C/svg%3E") center/contain no-repeat;filter:drop-shadow(0 2px 2px rgba(0,0,0,.3))}
+.eier .pl-kopf{padding:24px 26px 8px 34px}
+.eier .pl-kopf h3{color:#9b1f26;font-size:1.9rem}
+.eier .pl-kopf small{color:#7a5a3a}
+.eier .pl-zu{color:#7a5a3a;left:10px;right:auto;top:8px}
+.eier .ei-liste{padding:0 18px 0 0;margin-left:18px;border-left:2px solid rgba(178,40,48,.35);border-top:1px solid rgba(80,110,160,.22)}
+.eier .ei-liste li{border-radius:0;min-height:42px;padding:9px 6px 9px 10px;box-sizing:border-box;border-bottom:1px solid rgba(80,110,160,.22)}
+.eier .ei-liste li.frisch{background:linear-gradient(90deg,rgba(255,214,90,.5),rgba(255,214,90,.08));border-radius:0}
+.eier .ei-liste .ok{color:#9b1f26;font-size:1.15rem}
+.eier .ei-liste .zu .t,.eier .ei-liste .zu .ok,.eier .ei-liste .t small{color:#8a7258}
+.eier .ei-blase{background:rgba(255,252,240,.55);border:1.5px dashed rgba(122,90,58,.45);color:#3d2a1c}
+.eier .ei-fuyu{padding:0 26px 14px 34px}
 .ei-fuyu{display:flex;align-items:flex-end;gap:12px;padding:0 22px 12px}
 .ei-fuyu img{width:64px;height:auto;flex:none}
 .ei-blase{position:relative;background:rgba(142,42,42,.08);border-radius:16px 16px 16px 4px;padding:10px 14px;font-size:1.05rem;line-height:1.3}
@@ -440,10 +460,10 @@ body.zoomed-on .eier-btn,body.peek .eier-btn{opacity:0;pointer-events:none}
 .ei-liste .t small{display:block;font-size:.9rem;color:var(--soft)}
 .ei-liste li.frisch{background:rgba(201,86,107,.16);border-radius:12px}
 .ei-toast{position:fixed;z-index:70;left:50%;bottom:calc(22px + env(safe-area-inset-bottom,0px));transform:translate(-50%,140%);display:flex;align-items:center;gap:10px;max-width:calc(100vw - 32px);
-  background:#fff8f1;color:var(--ink);border-radius:18px;padding:8px 16px 8px 8px;box-shadow:var(--shadow);font-family:var(--f-hand);font-size:1.1rem;line-height:1.2;-webkit-text-stroke:.03em currentColor;paint-order:stroke fill;cursor:pointer;transition:transform .5s cubic-bezier(.2,1.3,.4,1)}
+  background:linear-gradient(170deg,#f6ead0,#ead7b0);color:#3d2a1c;border-radius:8px;padding:8px 16px 8px 8px;box-shadow:var(--shadow);font-family:var(--f-hand);font-size:1.1rem;line-height:1.2;-webkit-text-stroke:.03em currentColor;paint-order:stroke fill;cursor:pointer;transition:transform .5s cubic-bezier(.2,1.3,.4,1)}
 .ei-toast.on{transform:translate(-50%,0)}
 .ei-toast img{height:44px;width:auto}
-.ei-toast b{display:block;font-family:var(--f-titel);font-weight:400;color:#8e2a2a;font-size:1.25rem;-webkit-text-stroke:0}
+.ei-toast b{display:block;font-family:var(--f-titel);font-weight:400;color:#9b1f26;font-size:1.25rem;-webkit-text-stroke:0}
 /* Hilfe: oben rechts, öffnet den Brief mit der Anleitung nochmal */
 .hilfe-btn{position:fixed;z-index:12;right:calc(12px + env(safe-area-inset-right,0px));top:calc(12px + env(safe-area-inset-top,0px));width:34px;height:34px;border:0;border-radius:50%;cursor:pointer;
   background:rgba(20,12,8,.45);color:#fff8f1;font-family:"Nunito",system-ui,sans-serif;font-weight:700;font-size:1.1rem;line-height:1;-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px)}
