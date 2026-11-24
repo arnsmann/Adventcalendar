@@ -136,6 +136,10 @@ h1{font-family:var(--f-display);font-weight:600;font-size:clamp(1.6rem,4.6vw,2.3
 .licht-aus .tuer-nacht{opacity:.82}
 .tuer-offen .tuer-auf{display:block}
 html.raum-hoch .spot.schluessel,html.raum-hoch .spot.haustuer{display:none}
+/* Spieleschrank unter der Treppe: Tür auf und zu (bisher nur im breiten Raum, fürs Handy gibt es noch kein Bild) */
+.schrank-auf{position:absolute;z-index:2;pointer-events:none;display:none}
+.globe.schrank-offen .schrank-auf{display:block}
+html.raum-hoch .spot.schrankknopf,html.raum-hoch .schrank-auf{display:none!important}
 .globe-wrap.zoomed .spots .spot,.globe-wrap.zoomed .spots .kerl{pointer-events:auto}
 .spot{position:absolute;border:0;background:none;padding:0;cursor:pointer;-webkit-tap-highlight-color:transparent;border-radius:30%}
 .spot:focus-visible{outline:2px solid #ffe2a8}
@@ -660,6 +664,7 @@ footer{font-size:1rem;margin-top:-6px}
     <div class="kal-flug" data-s="kal" aria-hidden="true"><img src="bilder/kal-blatt-8d7e432a.webp" alt=""><svg viewBox="293 944 153 159"><text class="km" x="366.5" y="995"></text><text class="kt" x="367.5" y="1060"></text></svg></div>
     <svg class="uhr" data-s="uhr" viewBox="-60 -60 120 120" aria-hidden="true"><line class="std" x1="0" y1="6" x2="0" y2="-27"/><line class="min" x1="0" y1="8" x2="0" y2="-43"/><circle r="3.6"/></svg>
     <img class="stiefel" data-s="stiefel" src="" alt="" aria-hidden="true" draggable="false">
+    <img class="schrank-auf" data-s="schrank" src="" alt="" aria-hidden="true" draggable="false">
     <div class="lichter" aria-hidden="true"></div>
     <div class="nacht" aria-hidden="true"></div>
     <div id="grid"></div>
@@ -671,6 +676,7 @@ footer{font-size:1rem;margin-top:-6px}
       <button type="button" class="spot nikolaus" data-s="nikolaus" aria-label="Nikolaus"></button>
       <button type="button" class="spot uhrknopf" data-s="uhr" aria-label="Uhr"></button>
       <button type="button" class="spot kalknopf" data-s="kalknopf" aria-label="Abreißkalender"></button>
+      <button type="button" class="spot schrankknopf" data-s="schrankknopf" aria-label="Schranktür"></button>
       <button type="button" class="spot haustuer" data-s="haustuer" aria-label="Tür auf oder zu"></button>
       <div class="kerlbahn" data-s="kerl"><button type="button" class="kerl" aria-label="Fuyu"><img src="bilder/kerl.webp" alt="" draggable="false"><img class="puff" alt="" draggable="false"><span class="piep">Huch!</span></button></div>
       <button type="button" class="sitzer" data-s="sitz" aria-label="Fuyu"><img alt="" draggable="false"></button>
@@ -971,8 +977,8 @@ const HOT_H = {1:[1002,1256,1066,1365],2:[1157,1170,1221,1275],3:[846,1340,908,1
 const grid = document.getElementById("grid");
 // Klickbare Stellen im Raum [x0,y0,x1,y1] in Bildpixeln
 const SPOTS = {
-  quer: {uhr: [1746.5, 390, 1866.5, 510], kal: [1788, 584, 1840, 638], kalknopf: [1768, 547, 1853, 661], schalter: [1735, 670, 1815, 770], laterne: [1600, 190, 1700, 340], baum: [690, 330, 1010, 800], sitz: [1790, 1186, 2063, 1364], sitz2: [778, 724, 996, 866], schlaf: [814, 757, 961, 853], stiefel: [1967, 1117, 2181, 1363], tuerauf: [2189, 252, 2388, 1341], schluessel: [2310, 1075, 2445, 1165], nikolaus: [395, 920, 545, 1175], haustuer: [2200, 290, 2385, 1060], kerl: [596, 1080, 2240, 1418]},
-  hoch: {uhr: [1434, 1422, 1546, 1534], kal: [1472.8, 1602.9, 1521.1, 1653.2], kalknopf: [1454, 1568, 1533, 1675], schalter: [1420, 1750, 1500, 1860], laterne: [1280, 1230, 1370, 1370], baum: [360, 1420, 650, 1880], sitz: [560, 2296, 860, 2492], sitz2: [357, 1809, 597, 1966], schlaf: [396, 1846, 558, 1951], stiefel: [1385, 2146, 1548, 2334], tuerauf: [0, 0, 0, 0], schluessel: [0, 0, 0, 0], nikolaus: [0, 2010, 190, 2290], haustuer: [0, 0, 0, 0], kerl: [236, 2305, 1923, 2545]}
+  quer: {schrank: [802, 879, 1131, 1349], schrankknopf: [880, 885, 1125, 1345], uhr: [1746.5, 390, 1866.5, 510], kal: [1788, 584, 1840, 638], kalknopf: [1768, 547, 1853, 661], schalter: [1735, 670, 1815, 770], laterne: [1600, 190, 1700, 340], baum: [690, 330, 1010, 800], sitz: [1790, 1186, 2063, 1364], sitz2: [778, 724, 996, 866], schlaf: [814, 757, 961, 853], stiefel: [1967, 1117, 2181, 1363], tuerauf: [2189, 252, 2388, 1341], schluessel: [2310, 1075, 2445, 1165], nikolaus: [395, 920, 545, 1175], haustuer: [2200, 290, 2385, 1060], kerl: [596, 1080, 2240, 1418]},
+  hoch: {schrank: [0, 0, 1, 1], schrankknopf: [0, 0, 1, 1], uhr: [1434, 1422, 1546, 1534], kal: [1472.8, 1602.9, 1521.1, 1653.2], kalknopf: [1454, 1568, 1533, 1675], schalter: [1420, 1750, 1500, 1860], laterne: [1280, 1230, 1370, 1370], baum: [360, 1420, 650, 1880], sitz: [560, 2296, 860, 2492], sitz2: [357, 1809, 597, 1966], schlaf: [396, 1846, 558, 1951], stiefel: [1385, 2146, 1548, 2334], tuerauf: [0, 0, 0, 0], schluessel: [0, 0, 0, 0], nikolaus: [0, 2010, 190, 2290], haustuer: [0, 0, 0, 0], kerl: [236, 2305, 1923, 2545]}
 };
 const RAUM = { quer: {lichter: "bilder/flurb-licht-7c37f5a9.webp", fenster: {links: [0, 140, 410, 862], mitte: [1460, 410, 1666, 710], tuer: [2222, 325, 2352, 785], offen: [2189, 252, 2388, 1341]}, bild: "bilder/flurb-cbc86009.webp", hot: HOT, w: 2576, h: 1438, mitte: .555},
                // fenster: wo die Fenster im Raumbild liegen (in Pixeln), damit jedes pro Tür einen eigenen Ausschnitt zeigen kann
@@ -1206,6 +1212,15 @@ document.querySelectorAll(".spot.schluessel,.spot.haustuer").forEach(b=>b.addEve
   TON(auf ? "tuer" : "tuer-zu", .8, mitSchluessel ? (auf ? .45 : .35) : 0);
   g.classList.toggle("tuer-offen"); try{ alignViews(); }catch(er){}
 }));
+/* Schranktür unter der Treppe antippen: knarrt auf und zu, drinnen stehen die Spiele */
+document.querySelector(".spot.schrankknopf").addEventListener("click", e=>{
+  e.stopPropagation();
+  const g = document.getElementById("globe"), img = document.querySelector(".schrank-auf");
+  if(!img.getAttribute("src")) img.src = "bilder/schrank-auf-5079f884.webp";
+  try{ RAUMTON.knarren(); }catch(er){}
+  g.classList.toggle("schrank-offen");
+  window.Eier && Eier.fund("schrank");
+});
 /* Licht an und aus: Lichtschalter, Laterne oder Weihnachtsbaum antippen, jeweils mit eigenem Geräusch */
 document.querySelectorAll(".spot.licht").forEach(b=>b.addEventListener("click", ()=>{
   try{ ({schalter: RAUMTON.klick, laterne: RAUMTON.zzzp, baum: ()=>TON("glocken")})[b.dataset.s](); }catch(e){}
@@ -2240,7 +2255,7 @@ renderStatus(); refreshDoors(); setBg(homeBg());
   }
   function leave(){
     if(wrap.classList.contains("zoomed") && !tauchen) TON("eintauchen", .6);
-    document.getElementById("globe").classList.remove("tuer-offen"); // beim Rausgehen Tür zu
+    document.getElementById("globe").classList.remove("tuer-offen", "schrank-offen"); // beim Rausgehen Türen zu
     if(WL && uebergang() !== "schlicht" && !tauchen){ tauchen = true; WL.raus(leaveNow).then(()=>{ tauchen = false; }); return; }
     if(!tauchen) leaveNow();
   }
@@ -2337,6 +2352,7 @@ window.Eier = (function(){
     ["schnee", "Schneesturm", "Was macht man mit einer Schneekugel?", "Schüttel dein Handy oder tipp auf den Sockel der Schneekugel, dann wirbelt der Schnee durcheinander."],
     ["uhr", "Zeitreise", "Die Uhr im Flur tickt ein bisschen anders.", "Tipp links auf die Uhr und du reist einen Tag zurück, rechts einen Tag vor. Die Welt draußen wechselt mit, aber weiter als bis heute geht es nicht."],
     ["kalender", "Abreißkalender", "Unter der Uhr hängt noch etwas.", "Reiß ein Blatt ab und es geht einen Tag weiter, zusammen mit der Welt draußen. Weiter als bis heute geht es natürlich nicht."],
+    ["schrank", "Spieleschrank", "Was steckt wohl im Schrank unter der Treppe?", "Tipp die Schranktür unter der Treppe an und sie knarrt auf: drinnen warten Monopoly, Catan, Schach und noch mehr Spiele. Nochmal tippen macht sie wieder zu."],
     ["stiefel", "Nikolausstiefel", "Schau am 6. Dezember mal genau hin.", "Am Nikolaustag steht ein gefüllter Stiefel an der Tür."]
   ];
   let gefunden = [];
