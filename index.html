@@ -147,8 +147,8 @@ html.raum-hoch .spot.schluessel,html.raum-hoch .spot.haustuer{display:none}
 .spot.monoknopf{display:none}
 /* Monopoly: würfeln, Fuyu hüpft übers Brett, Felder und Karten erzählen etwas */
 .mo-brett{position:relative;width:100%;aspect-ratio:1;background:url("bilder/mono/brett.webp") center/100% 100% no-repeat;border-radius:6px;box-shadow:0 18px 40px rgba(0,0,0,.55);user-select:none;-webkit-user-select:none}
-.mo-fuyu{position:absolute;width:9%;transform:translate(-50%,-70%);transition:left .18s ease,top .18s ease;filter:drop-shadow(0 3px 2px rgba(0,0,0,.4));pointer-events:none;z-index:3}
-.mo-fuyu.hopp{animation:moHopp .18s ease}
+.mo-fuyu{position:absolute;width:9%;transform:translate(-50%,-70%);transition:left .3s ease-in-out,top .3s ease-in-out;filter:drop-shadow(0 3px 2px rgba(0,0,0,.4));pointer-events:none;z-index:3}
+.mo-fuyu.hopp{animation:moHopp .3s ease-in-out}
 @keyframes moHopp{50%{transform:translate(-50%,-95%)}}
 .mo-feld{position:absolute;transform:translate(-50%,-50%);border-radius:4px;pointer-events:none}
 .mo-ecke{position:absolute;inset:3%;width:94%;height:94%;object-fit:cover;border-radius:2px}
@@ -1167,7 +1167,7 @@ function uhrWinkel(){ const d = new Date(), m = d.getMinutes() + d.getSeconds() 
 // Über Web Audio abgespielt: einmal beim ersten Antippen freigeschaltet, danach klappt es auf iPhone, iPad und Mac auch mit Verzögerung.
 // Auf neueren iPhones zählt es als Wiedergabe, damit es nicht vom Stummschalter geschluckt wird.
 const TON = (function(){
-  const NAMEN = ["schneesturm","glocken","schluessel","tuer","tuer-zu","hohoho","eintauchen","quiek1","quiek2","quiek3","quiek4","quiek5","schrank-auf","schrank-zu","schachzug"];
+  const NAMEN = ["schneesturm","glocken","schluessel","tuer","tuer-zu","hohoho","eintauchen","quiek1","quiek2","quiek3","quiek4","quiek5","schrank-auf","schrank-zu","schachzug","wuerfel"];
   let ac = null; const buf = {}, laedt = {};
   function ctx(){
     if(!ac){ const C = window.AudioContext || window.webkitAudioContext; if(!C) return null; ac = new C(); window._tonCtx = ac; }
@@ -2713,7 +2713,7 @@ window.Mono = (function(){
   const warte = ms => new Promise(r => setTimeout(r, ms));
   async function laufen(schritte){ const r = schritte < 0 ? -1 : 1;
     for(let k = 0; k < Math.abs(schritte); k++){ st.pos = (st.pos + r + 32) % 32;
-      setzeFuyu(st.pos); fuyu.classList.remove("hopp"); void fuyu.offsetWidth; fuyu.classList.add("hopp"); try{ TON("schachzug", .5); }catch(e){} await warte(200); } }
+      setzeFuyu(st.pos); fuyu.classList.remove("hopp"); void fuyu.offsetWidth; fuyu.classList.add("hopp"); try{ TON("schachzug", .5, .22); }catch(e){} await warte(400); } } // gemütlich von Feld zu Feld
   async function springen(ziel){ await warte(700); const vor = (ziel - st.pos + 32) % 32; await laufen(vor); }
   async function landen(){ const f = FELD[st.pos]; if(!st.besucht.includes(st.pos)) st.besucht.push(st.pos);
     if(f.typ === "foto"){ // jedes Feld behält sein Foto; ein neues Feld bekommt die nächste noch nicht gesehene Erinnerung
@@ -2729,9 +2729,10 @@ window.Mono = (function(){
     if(!st.besucht.includes(st.pos)) st.besucht.push(st.pos); }
   los.addEventListener("click", async ()=>{ los.disabled = true; window.Eier && Eier.fund("monopoly");
     wue.forEach(w => w.classList.add("rollt")); let a = 1, b = 1;
-    for(let t = 0; t < 8; t++){ a = 1 + Math.floor(Math.random() * 6); b = 1 + Math.floor(Math.random() * 6); zeigeWuerfel(wue[0], a); zeigeWuerfel(wue[1], b); await warte(80); }
-    wue.forEach(w => w.classList.remove("rollt")); try{ TON("schachzug", .8); }catch(e){}
-    await warte(250); await laufen(a + b); await landen(); speichern(); standZeigen(); los.disabled = false; });
+    try{ TON("wuerfel", .9); }catch(e){}
+    for(let t = 0; t < 12; t++){ a = 1 + Math.floor(Math.random() * 6); b = 1 + Math.floor(Math.random() * 6); zeigeWuerfel(wue[0], a); zeigeWuerfel(wue[1], b); await warte(80); }
+    wue.forEach(w => w.classList.remove("rollt"));
+    await warte(800); await laufen(a + b); // erst kurz das Ergebnis sehen lassen, dann losgehen await landen(); speichern(); standZeigen(); los.disabled = false; });
   const zu = () => o.classList.remove("on");
   o.querySelector(".sch-zu").addEventListener("click", zu);
   o.addEventListener("click", e=>{ if(e.target === o) zu(); });
