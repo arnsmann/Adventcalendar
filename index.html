@@ -135,10 +135,10 @@ html.raum-hoch .kerl{height:48%}
 .sitzer.da{display:block}
 .globe-wrap.zoomed .spots .sitzer{pointer-events:auto}
 .sitzer img{width:100%;height:100%;display:block;pointer-events:none;user-select:none;-webkit-user-select:none}
-.licht-aus .sitzer img{filter:brightness(.55) saturate(.7);transition:filter .9s}
 /* Fuyu ins Bild einfügen: warmes Licht vom Raum annehmen und einen weichen Schatten auf den Boden werfen */
-.kerl img,.sitzer img,.schlaefer img{filter:sepia(.5) saturate(1.25) hue-rotate(-8deg) brightness(.84) contrast(.9) blur(.35px) drop-shadow(-1px -1px 0 rgba(255,184,100,.32))}
-.licht-aus .kerl img,.licht-aus .sitzer img,.licht-aus .schlaefer img{filter:sepia(.5) saturate(.8) brightness(.48) contrast(.9) blur(.35px)}
+.kerl img,.sitzer img,.schlaefer img{filter:sepia(.5) saturate(1.25) hue-rotate(-8deg) brightness(.84) contrast(.9) blur(.35px) drop-shadow(-1px -1px 0 rgba(255,184,100,.32));transition:filter .9s ease}
+/* Licht aus: Fuyu so dunkel und bläulich wie der Raum selbst (gleiche Reihenfolge wie oben, damit es weich überblendet) */
+.licht-aus .kerl img,.licht-aus .sitzer img,.licht-aus .schlaefer img{filter:sepia(1) saturate(1) hue-rotate(-172deg) brightness(.21) contrast(.95) blur(.35px) drop-shadow(-1px -1px 0 rgba(255,184,100,0))}
 .kerl::before,.sitzer::before,.schlaefer::before{content:"";position:absolute;left:18%;right:18%;bottom:2%;height:16%;border-radius:50%;
   background:radial-gradient(closest-side,rgba(25,9,2,.85),rgba(25,9,2,.45) 55%,rgba(25,9,2,0));pointer-events:none}
 .sitzer::before{left:24%;right:14%;bottom:3%;height:15%}
@@ -156,8 +156,6 @@ html.raum-hoch .kerl{height:48%}
 @keyframes zz{0%{opacity:0;transform:translate(0,0)}20%{opacity:1}100%{opacity:0;transform:translate(1.6em,-2.6em)}}
 .schlaefer .piep{position:absolute;left:30%;bottom:95%;font-family:var(--f-hand);font-size:max(13px,1.1cqw);color:#3a2418;background:#fff8f1;border-radius:999px;padding:.1em .55em;white-space:nowrap;opacity:0;transform:translateY(20%) scale(.8);transition:opacity .2s,transform .2s;box-shadow:0 2px 6px rgba(0,0,0,.3);pointer-events:none}
 .schlaefer.sagt .piep{opacity:1;transform:none}
-.licht-aus .schlaefer img{filter:brightness(.55) saturate(.7);transition:filter .9s}
-.licht-aus .kerl img{filter:brightness(.55) saturate(.7);transition:filter .9s}
 
 /* gemaltes Treppenhaus */
 .flur{position:absolute;inset:0;width:100%;height:100%;display:block;z-index:2;pointer-events:none;user-select:none;-webkit-user-select:none}
