@@ -508,8 +508,8 @@ body.zoomed-on .eier-btn,body.peek .eier-btn{opacity:0;pointer-events:none}
 .ei-liste li.offen .info{max-height:8em;opacity:1;margin-top:4px}
 .ei-liste li.frisch{background:rgba(201,86,107,.16);border-radius:12px}
 .ei-toast{position:fixed;z-index:70;left:50%;bottom:calc(22px + env(safe-area-inset-bottom,0px));transform:translate(-50%,140%);display:flex;align-items:center;gap:10px;max-width:calc(100vw - 32px);
-  background:linear-gradient(170deg,#f6ead0,#ead7b0);color:#3d2a1c;border-radius:8px;padding:8px 16px 8px 8px;box-shadow:var(--shadow);font-family:var(--f-hand);font-size:1.1rem;line-height:1.2;-webkit-text-stroke:.03em currentColor;paint-order:stroke fill;cursor:pointer;transition:transform .5s cubic-bezier(.2,1.3,.4,1)}
-.ei-toast.on{transform:translate(-50%,0)}
+  background:linear-gradient(170deg,#f6ead0,#ead7b0);color:#3d2a1c;border-radius:8px;padding:8px 16px 8px 8px;box-shadow:var(--shadow);font-family:var(--f-hand);font-size:1.1rem;line-height:1.2;-webkit-text-stroke:.03em currentColor;paint-order:stroke fill;cursor:pointer;opacity:0;visibility:hidden;pointer-events:none;transition:transform .5s cubic-bezier(.2,1.3,.4,1),opacity .3s,visibility 0s .5s}
+.ei-toast.on{transform:translate(-50%,0);opacity:1;visibility:visible;pointer-events:auto;transition:transform .5s cubic-bezier(.2,1.3,.4,1),opacity .2s,visibility 0s}
 .ei-toast img{height:44px;width:auto}
 .ei-toast b{display:block;font-family:var(--f-titel);font-weight:400;color:#9b1f26;font-size:1.25rem;-webkit-text-stroke:0}
 /* Hilfe: oben rechts, öffnet den Brief mit der Anleitung nochmal */
