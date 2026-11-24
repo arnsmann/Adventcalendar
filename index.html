@@ -1006,7 +1006,7 @@ const HOT_H = {1:[1002,1256,1066,1365],2:[1157,1170,1221,1275],3:[846,1340,908,1
 const grid = document.getElementById("grid");
 // Klickbare Stellen im Raum [x0,y0,x1,y1] in Bildpixeln
 const SPOTS = {
-  quer: {schachknopf: [850, 930, 995, 1010], schrank: [801, 879, 1131, 1380], schrankknopf: [880, 885, 1125, 1345], uhr: [1746.5, 390, 1866.5, 510], kal: [1788, 584, 1840, 638], kalknopf: [1768, 547, 1853, 661], schalter: [1735, 670, 1815, 770], laterne: [1600, 190, 1700, 340], baum: [690, 330, 1010, 800], sitz: [1790, 1186, 2063, 1364], sitz2: [778, 724, 996, 866], schlaf: [814, 757, 961, 853], stiefel: [1967, 1117, 2181, 1363], tuerauf: [2189, 252, 2388, 1341], schluessel: [2310, 1075, 2445, 1165], nikolaus: [395, 920, 545, 1175], haustuer: [2200, 290, 2385, 1060], kerl: [596, 1080, 2240, 1418]},
+  quer: {schachknopf: [850, 930, 995, 1010], schrank: [784, 853, 1169, 1389], schrankknopf: [880, 885, 1125, 1345], uhr: [1746.5, 390, 1866.5, 510], kal: [1788, 584, 1840, 638], kalknopf: [1768, 547, 1853, 661], schalter: [1735, 670, 1815, 770], laterne: [1600, 190, 1700, 340], baum: [690, 330, 1010, 800], sitz: [1790, 1186, 2063, 1364], sitz2: [778, 724, 996, 866], schlaf: [814, 757, 961, 853], stiefel: [1967, 1117, 2181, 1363], tuerauf: [2189, 252, 2388, 1341], schluessel: [2310, 1075, 2445, 1165], nikolaus: [395, 920, 545, 1175], haustuer: [2200, 290, 2385, 1060], kerl: [596, 1080, 2240, 1418]},
   hoch: {schachknopf: [515, 2025, 685, 2115], schrank: [457, 1976, 811, 2574], schrankknopf: [470, 1980, 800, 2490], uhr: [1434, 1422, 1546, 1534], kal: [1472.8, 1602.9, 1521.1, 1653.2], kalknopf: [1454, 1568, 1533, 1675], schalter: [1420, 1750, 1500, 1860], laterne: [1280, 1230, 1370, 1370], baum: [360, 1420, 650, 1880], sitz: [560, 2296, 860, 2492], sitz2: [357, 1809, 597, 1966], schlaf: [396, 1846, 558, 1951], stiefel: [1385, 2146, 1548, 2334], tuerauf: [0, 0, 0, 0], schluessel: [0, 0, 0, 0], nikolaus: [0, 2010, 190, 2290], haustuer: [0, 0, 0, 0], kerl: [236, 2305, 1923, 2545]}
 };
 const RAUM = { quer: {lichter: "bilder/flurb-licht-7c37f5a9.webp", fenster: {links: [0, 140, 410, 862], mitte: [1460, 410, 1666, 710], tuer: [2222, 325, 2352, 785], offen: [2189, 252, 2388, 1341]}, bild: "bilder/flurb-cbc86009.webp", hot: HOT, w: 2576, h: 1438, mitte: .555},
@@ -1023,7 +1023,7 @@ let raumArt = "";
 function setzeRaum(){
   const art = matchMedia("(max-aspect-ratio: 4/5)").matches ? "hoch" : "quer";
   if(art === raumArt) return; raumArt = art;
-  { const si = document.querySelector(".schrank-auf"); if(si && si.getAttribute("src")) si.src = art === "hoch" ? "bilder/schrank-auf-h-dfe6af69.webp" : "bilder/schrank-auf-93f9f9dd.webp"; }
+  { const si = document.querySelector(".schrank-auf"); if(si && si.getAttribute("src")) si.src = art === "hoch" ? "bilder/schrank-auf-h-dfe6af69.webp" : "bilder/schrank-auf-52e549b4.webp"; }
   const R = RAUM[art];
   document.documentElement.classList.toggle("raum-hoch", art === "hoch");
   document.documentElement.style.setProperty("--ra", R.w + "/" + R.h);
@@ -1246,7 +1246,7 @@ document.querySelectorAll(".spot.schluessel,.spot.haustuer").forEach(b=>b.addEve
 document.querySelector(".spot.schrankknopf").addEventListener("click", e=>{
   e.stopPropagation();
   const g = document.getElementById("globe"), img = document.querySelector(".schrank-auf");
-  img.src = raumArt === "hoch" ? "bilder/schrank-auf-h-dfe6af69.webp" : "bilder/schrank-auf-93f9f9dd.webp";
+  img.src = raumArt === "hoch" ? "bilder/schrank-auf-h-dfe6af69.webp" : "bilder/schrank-auf-52e549b4.webp";
   const auf = !g.classList.contains("schrank-offen");
   TON(auf ? "schrank-auf" : "schrank-zu", .85);
   g.classList.toggle("schrank-offen");
