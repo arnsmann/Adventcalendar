@@ -2483,7 +2483,7 @@ window.Eier = (function(){
 window.Schach = (function(){
   const B = "bilder/schach/", BRETT = B + "brett-a0498f3c.webp";
   // die Rätsel (Stellungen und Zugbäume) liegen in einer eigenen Datei und werden erst beim ersten Öffnen geladen
-  let RAETSEL = null; const DATEI = B + "raetsel-0edd7a78.json";
+  let RAETSEL = null; const DATEI = B + "raetsel-7c79cd39.json";
   const laden = () => RAETSEL ? Promise.resolve() : fetch(DATEI).then(r=>r.json()).then(d=>{ RAETSEL = d; d.forEach(r=>{ (function fix(k){ k.l = k.l.split(" "); for(const m in k.w) if(k.w[m] !== 1) for(const r2 in k.w[m]) fix(k.w[m][r2]); })(r.baum); }); });
   const HOEHE = {K: 178, Q: 161, R: 120, N: 135, P: 111, B: 144};
   let geloest = [];
