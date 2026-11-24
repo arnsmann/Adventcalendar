@@ -1110,7 +1110,7 @@ function uhrWinkel(){ const d = new Date(), m = d.getMinutes() + d.getSeconds() 
 // Über Web Audio abgespielt: einmal beim ersten Antippen freigeschaltet, danach klappt es auf iPhone, iPad und Mac auch mit Verzögerung.
 // Auf neueren iPhones zählt es als Wiedergabe, damit es nicht vom Stummschalter geschluckt wird.
 const TON = (function(){
-  const NAMEN = ["schneesturm","glocken","schluessel","tuer","tuer-zu","hohoho","eintauchen","quiek1","quiek2","quiek3","quiek4","quiek5"];
+  const NAMEN = ["schneesturm","glocken","schluessel","tuer","tuer-zu","hohoho","eintauchen","quiek1","quiek2","quiek3","quiek4","quiek5","schrank-auf","schrank-zu"];
   let ac = null; const buf = {}, laedt = {};
   function ctx(){
     if(!ac){ const C = window.AudioContext || window.webkitAudioContext; if(!C) return null; ac = new C(); window._tonCtx = ac; }
@@ -1241,7 +1241,8 @@ document.querySelector(".spot.schrankknopf").addEventListener("click", e=>{
   e.stopPropagation();
   const g = document.getElementById("globe"), img = document.querySelector(".schrank-auf");
   img.src = raumArt === "hoch" ? "bilder/schrank-auf-h-dfe6af69.webp" : "bilder/schrank-auf-23442f88.webp";
-  try{ RAUMTON.knarren(); }catch(er){}
+  const auf = !g.classList.contains("schrank-offen");
+  TON(auf ? "schrank-auf" : "schrank-zu", .85);
   g.classList.toggle("schrank-offen");
   window.Eier && Eier.fund("schrank");
 });
