@@ -140,7 +140,18 @@ html.raum-hoch .spot.schluessel,html.raum-hoch .spot.haustuer{display:none}
 .schrank-auf{position:absolute;z-index:2;pointer-events:none;display:none}
 .globe.schrank-offen .schrank-auf{display:block}
 .spot.schachknopf{display:none}
-.globe.schrank-offen .spot.schachknopf{display:block}
+.globe.schrank-offen .spot.schachknopf,.globe.schrank-offen .spot.catanknopf{display:block}
+.spot.catanknopf{display:none}
+body:has(.schach.on) .globe-back,body:has(.eier.on) .globe-back{opacity:0;pointer-events:none}
+.spot.catanknopf::after,.spot.schachknopf::after{content:"";position:absolute;inset:-45% -8%} /* etwas größere Tippfläche fürs Handy */
+/* Catan Rätsel: wo baust du deine Siedlung? (Brett als SVG, Felder sind Arnes Bilder) */
+.cat-brett{position:relative;width:100%;aspect-ratio:1;border-radius:10px;overflow:hidden;box-shadow:0 18px 40px rgba(0,0,0,.55);touch-action:manipulation;user-select:none;-webkit-user-select:none}
+.cat-brett svg{display:block;width:100%;height:100%}
+.cat-brett .ecke{fill:transparent;cursor:pointer}
+@media (hover:hover){.cat-brett .ecke:hover{fill:rgba(255,248,241,.35);stroke:#fff8f1;stroke-width:.03}}
+.cat-brett.wackelt{animation:schWackel .35s ease}
+.cat-brett .haus{transition:opacity .4s}
+.cat-tipp{text-align:center;color:#f3e3cf;font-size:.95rem;line-height:1.25;text-shadow:0 1px 4px rgba(0,0,0,.7)}
 /* Schachrätsel: Weiß setzt in 2 Zügen matt */
 .schach{position:fixed;inset:0;z-index:80;display:flex;align-items:center;justify-content:center;padding:14px;background:rgba(20,12,8,.6);opacity:0;pointer-events:none;transition:opacity .3s}
 .schach.on{opacity:1;pointer-events:auto}
@@ -706,6 +717,7 @@ footer{font-size:1rem;margin-top:-6px}
       <button type="button" class="spot kalknopf" data-s="kalknopf" aria-label="Abreißkalender"></button>
       <button type="button" class="spot schrankknopf" data-s="schrankknopf" aria-label="Schranktür"></button>
       <button type="button" class="spot schachknopf" data-s="schachknopf" aria-label="Schachbrett"></button>
+      <button type="button" class="spot catanknopf" data-s="catanknopf" aria-label="Catan"></button>
       <button type="button" class="spot haustuer" data-s="haustuer" aria-label="Tür auf oder zu"></button>
       <div class="kerlbahn" data-s="kerl"><button type="button" class="kerl" aria-label="Fuyu"><img src="bilder/kerl.webp" alt="" draggable="false"><img class="puff" alt="" draggable="false"><span class="piep">Huch!</span></button></div>
       <button type="button" class="sitzer" data-s="sitz" aria-label="Fuyu"><img alt="" draggable="false"></button>
@@ -1006,8 +1018,8 @@ const HOT_H = {1:[1002,1256,1066,1365],2:[1157,1170,1221,1275],3:[846,1340,908,1
 const grid = document.getElementById("grid");
 // Klickbare Stellen im Raum [x0,y0,x1,y1] in Bildpixeln
 const SPOTS = {
-  quer: {schachknopf: [850, 930, 995, 1010], schrank: [784, 853, 1169, 1389], schrankknopf: [880, 885, 1125, 1345], uhr: [1746.5, 390, 1866.5, 510], kal: [1788, 584, 1840, 638], kalknopf: [1768, 547, 1853, 661], schalter: [1735, 670, 1815, 770], laterne: [1600, 190, 1700, 340], baum: [690, 330, 1010, 800], sitz: [1790, 1186, 2063, 1364], sitz2: [778, 724, 996, 866], schlaf: [814, 757, 961, 853], stiefel: [1967, 1117, 2181, 1363], tuerauf: [2189, 252, 2388, 1341], schluessel: [2310, 1075, 2445, 1165], nikolaus: [395, 920, 545, 1175], haustuer: [2200, 290, 2385, 1060], kerl: [596, 1080, 2240, 1418]},
-  hoch: {schachknopf: [515, 2025, 685, 2115], schrank: [457, 1976, 811, 2574], schrankknopf: [470, 1980, 800, 2490], uhr: [1434, 1422, 1546, 1534], kal: [1472.8, 1602.9, 1521.1, 1653.2], kalknopf: [1454, 1568, 1533, 1675], schalter: [1420, 1750, 1500, 1860], laterne: [1280, 1230, 1370, 1370], baum: [360, 1420, 650, 1880], sitz: [560, 2296, 860, 2492], sitz2: [357, 1809, 597, 1966], schlaf: [396, 1846, 558, 1951], stiefel: [1385, 2146, 1548, 2334], tuerauf: [0, 0, 0, 0], schluessel: [0, 0, 0, 0], nikolaus: [0, 2010, 190, 2290], haustuer: [0, 0, 0, 0], kerl: [236, 2305, 1923, 2545]}
+  quer: {catanknopf: [840, 1228, 1018, 1282], schachknopf: [850, 930, 995, 1010], schrank: [784, 853, 1169, 1389], schrankknopf: [880, 885, 1125, 1345], uhr: [1746.5, 390, 1866.5, 510], kal: [1788, 584, 1840, 638], kalknopf: [1768, 547, 1853, 661], schalter: [1735, 670, 1815, 770], laterne: [1600, 190, 1700, 340], baum: [690, 330, 1010, 800], sitz: [1790, 1186, 2063, 1364], sitz2: [778, 724, 996, 866], schlaf: [814, 757, 961, 853], stiefel: [1967, 1117, 2181, 1363], tuerauf: [2189, 252, 2388, 1341], schluessel: [2310, 1075, 2445, 1165], nikolaus: [395, 920, 545, 1175], haustuer: [2200, 290, 2385, 1060], kerl: [596, 1080, 2240, 1418]},
+  hoch: {catanknopf: [500, 2356, 690, 2416], schachknopf: [515, 2025, 685, 2115], schrank: [457, 1976, 811, 2574], schrankknopf: [470, 1980, 800, 2490], uhr: [1434, 1422, 1546, 1534], kal: [1472.8, 1602.9, 1521.1, 1653.2], kalknopf: [1454, 1568, 1533, 1675], schalter: [1420, 1750, 1500, 1860], laterne: [1280, 1230, 1370, 1370], baum: [360, 1420, 650, 1880], sitz: [560, 2296, 860, 2492], sitz2: [357, 1809, 597, 1966], schlaf: [396, 1846, 558, 1951], stiefel: [1385, 2146, 1548, 2334], tuerauf: [0, 0, 0, 0], schluessel: [0, 0, 0, 0], nikolaus: [0, 2010, 190, 2290], haustuer: [0, 0, 0, 0], kerl: [236, 2305, 1923, 2545]}
 };
 const RAUM = { quer: {lichter: "bilder/flurb-licht-7c37f5a9.webp", fenster: {links: [0, 140, 410, 862], mitte: [1460, 410, 1666, 710], tuer: [2222, 325, 2352, 785], offen: [2189, 252, 2388, 1341]}, bild: "bilder/flurb-cbc86009.webp", hot: HOT, w: 2576, h: 1438, mitte: .555},
                // fenster: wo die Fenster im Raumbild liegen (in Pixeln), damit jedes pro Tür einen eigenen Ausschnitt zeigen kann
@@ -2385,6 +2397,7 @@ window.Eier = (function(){
     ["kalender", "Abreißkalender", "Unter der Uhr hängt noch etwas.", "Reiß ein Blatt ab und es geht einen Tag weiter, zusammen mit der Welt draußen. Weiter als bis heute geht es natürlich nicht."],
     ["schrank", "Spieleschrank", "Was steckt wohl im Schrank unter der Treppe?", "Tipp die Schranktür unter der Treppe an und sie knarrt auf: drinnen warten Monopoly, Catan, Schach und noch mehr Spiele. Nochmal tippen macht sie wieder zu."],
     ["schach", "Schachmatt", "Im Spieleschrank wartet eine Herausforderung.", "Im Spieleschrank liegt ein Schachbrett mit 10 Rätseln. Tipp es an: Du spielst Weiß und setzt Schwarz matt, erst in 1 Zug, später in 2 Zügen. Gezählt wird es, sobald du eins gelöst hast."],
+    ["catan", "Siedlerin", "Im Spieleschrank liegt noch mehr als nur Schach.", "Tipp im offenen Spieleschrank auf die Catan Schachtel: In 5 Runden suchst du den besten Platz für deine Siedlung. Gezählt wird es, sobald du eine Runde gelöst hast."],
     ["stiefel", "Nikolausstiefel", "Schau am 6. Dezember mal genau hin.", "Am Nikolaustag steht ein gefüllter Stiefel an der Tür."]
   ];
   let gefunden = [];
@@ -2505,6 +2518,88 @@ window.Schach = (function(){
   const knopf = document.querySelector(".spot.schachknopf");
   // beim Öffnen: das erste noch ungelöste Rätsel (oder weiter, wo sie war, wenn sie mitten im Rätsel ist)
   if(knopf) knopf.addEventListener("click", e=>{ e.stopPropagation(); laden().then(()=>{ if(!R || phase !== 1){ const i = RAETSEL.findIndex((_, i) => !geloest.includes(i)); aufbauen(i >= 0 ? i : 0); } o.classList.add("on"); }).catch(()=>{}); });
+  return { auf: i => laden().then(()=>{ aufbauen(i || 0); o.classList.add("on"); }) };
+})();
+
+/* Catan Rätsel im Spieleschrank: 5 Runden "Wo baust du deine Siedlung?".
+   Wert einer Ecke = Summe der Würfel Punkte der angrenzenden Felder (6 und 8 = 5 Punkte ... 2 und 12 = 1 Punkt).
+   Regeln je Runde: andere Siedlungen (Abstandsregel), Räuber blockiert ein Feld, bestimmte Rohstoffe gebraucht.
+   Mit Python erzeugt und geprüft: jede Runde hat genau eine beste Ecke. */
+window.Catan = (function(){
+  const B = "bilder/catan/", DATEI = B + "raetsel-ddc680f5.json";
+  const PIPS = {2:1,3:2,4:3,5:4,6:5,8:5,9:4,10:3,11:2,12:1};
+  const NAME = {holz:"Holz", lehm:"Lehm", schaf:"Wolle", weizen:"Getreide", erz:"Erz"};
+  const AUFGABE = {
+    einfach: "Wo bekommst du am meisten Rohstoffe? Tipp die beste Ecke für deine erste Siedlung.",
+    blockiert: "Die anderen haben schon gebaut. Wo ist jetzt der beste freie Platz?",
+    raeuber: "Der Räuber steht auf einem Feld, das bringt gerade nichts. Wo baust du jetzt?",
+    brauch: r => `Du brauchst unbedingt ${NAME[r.brauch[0]]} und ${NAME[r.brauch[1]]}. Wo bekommst du beides und insgesamt am meisten?`,
+    mix: r => `Alles zusammen: andere Siedlungen, der Räuber, und du brauchst ${NAME[r.brauch[0]]} und ${NAME[r.brauch[1]]}. Wo baust du?`
+  };
+  const TIPP = "Die Punkte unter jeder Zahl zeigen, wie oft sie gewürfelt wird: 6 und 8 am häufigsten, 2 und 12 am seltensten. Direkt neben einer anderen Siedlung darf man nicht bauen.";
+  let D = null, nr = 0, R = null, fertig = false, geloest = [];
+  try{ geloest = JSON.parse(localStorage.getItem("advent-catan") || "[]"); }catch(e){}
+  const o = document.createElement("div"); o.className = "schach"; o.setAttribute("role", "dialog"); o.setAttribute("aria-label", "Catan Rätsel");
+  o.innerHTML = `<div class="sch-karte"><div class="sch-kopf"><div><h3>Catan Rätsel <span class="sch-nr"></span></h3><small class="sch-auf"></small></div><button type="button" class="sch-zu" aria-label="Schließen">✕</button></div>
+    <div class="sch-punkte"></div><div class="cat-brett"></div><div class="sch-info"></div><div class="cat-tipp">${TIPP}</div>
+    <div class="sch-knoepfe"><button type="button" class="sch-weiter" hidden>Nächste Runde ›</button></div></div>`;
+  document.body.appendChild(o);
+  const brett = o.querySelector(".cat-brett"), info = o.querySelector(".sch-info"), weiter = o.querySelector(".sch-weiter"), punkte = o.querySelector(".sch-punkte");
+  const laden = () => D ? Promise.resolve() : fetch(DATEI).then(r=>r.json()).then(d=>{ D = d; });
+  const R3 = Math.sqrt(3);
+  const haus = (x, y, farbe, extra) => `<g class="haus" ${extra || ""} transform="translate(${x} ${y}) scale(.3)"><path d="M-.55 .45 L-.55 -.15 L0 -.6 L.55 -.15 L.55 .45 Z" fill="${farbe}" stroke="#2a1a10" stroke-width=".12" stroke-linejoin="round"/></g>`;
+  function zeichnen(){
+    const G = D.geo; let h = `<svg viewBox="-5.3 -5.3 10.6 10.6" xmlns="http://www.w3.org/2000/svg"><defs>
+      <clipPath id="catHex" clipPathUnits="objectBoundingBox"><polygon points=".5,0 1,.25 1,.75 .5,1 0,.75 0,.25"/></clipPath>
+      <radialGradient id="catMeer" cx=".5" cy=".5" r=".75"><stop offset="0" stop-color="#4b8db3"/><stop offset="1" stop-color="#25587d"/></radialGradient>
+      <pattern id="catWelle" width="1.2" height=".6" patternUnits="userSpaceOnUse"><path d="M0 .3 Q.3 .15 .6 .3 T1.2 .3" fill="none" stroke="rgba(220,240,250,.35)" stroke-width=".035"/></pattern></defs>
+      <rect x="-5.3" y="-5.3" width="10.6" height="10.6" fill="url(#catMeer)"/><rect x="-5.3" y="-5.3" width="10.6" height="10.6" fill="url(#catWelle)"/>`;
+    const strand = [0,1,2,3,4,5].map(k=>{ const a = Math.PI / 3 * k; return (4.85 * Math.cos(a)).toFixed(3) + "," + (4.85 * Math.sin(a)).toFixed(3); }).join(" ");
+    h += `<polygon points="${strand}" fill="#e6cf9c" stroke="#3a2418" stroke-width=".05" stroke-linejoin="round"/>`;
+    G.hexes.forEach(([x, y], i)=>{ const pts = [0,1,2,3,4,5].map(k=>{ const a = Math.PI / 180 * (-90 + 60 * k); return (x + Math.cos(a)).toFixed(3) + "," + (y + Math.sin(a)).toFixed(3); }).join(" ");
+      h += `<image href="${B + R.art[i]}.webp" x="${x - R3 / 2}" y="${y - 1}" width="${R3}" height="2" preserveAspectRatio="none" clip-path="url(#catHex)"/><polygon points="${pts}" fill="none" stroke="#3a2418" stroke-width=".05" stroke-linejoin="round"/>`;
+      const z = R.zahl[i];
+      if(z){ const rot = z === 6 || z === 8, p = PIPS[z];
+        h += `<circle cx="${x}" cy="${y}" r=".4" fill="#f6ead0" stroke="#3a2418" stroke-width=".04"/><text x="${x}" y="${y + .08}" text-anchor="middle" font-family="Libre Baskerville, Georgia, serif" font-weight="700" font-size=".36" fill="${rot ? "#b3202a" : "#3a2418"}">${z}</text>`;
+        for(let k = 0; k < p; k++) h += `<circle cx="${x + (k - (p - 1) / 2) * .1}" cy="${y + .24}" r=".035" fill="${rot ? "#b3202a" : "#3a2418"}"/>`; }
+      if(i === R.raub){ const rx = z ? x + .45 : x, ry = z ? y - .05 : y;
+        h += `<g transform="translate(${rx} ${ry})"><ellipse cx="0" cy=".28" rx=".2" ry=".07" fill="rgba(0,0,0,.35)"/><path d="M-.15 .28 Q-.17 -.05 0 -.08 Q.17 -.05 .15 .28 Z" fill="#3b3340" stroke="#1a1418" stroke-width=".03"/><circle cy="-.17" r=".11" fill="#3b3340" stroke="#1a1418" stroke-width=".03"/></g>`; }
+    });
+    R.belegt.forEach((v, k)=>{ const [x, y] = G.verts[v]; h += haus(x, y, ["#3b6fb6", "#f4f1ea", "#e0a630"][k % 3]); });
+    G.verts.forEach(([x, y], v)=>{ h += `<circle class="ecke" data-v="${v}" cx="${x}" cy="${y}" r=".27"/>`; });
+    h += `<g class="anna"></g></svg>`;
+    brett.innerHTML = h;
+  }
+  function punkteZeichnen(){ punkte.innerHTML = D.raetsel.map((_, i) => `<button type="button" data-i="${i}" class="${i === nr ? "jetzt" : ""} ${geloest.includes(i) ? "ok" : ""}" aria-label="Runde ${i + 1}">${geloest.includes(i) ? "✓" : i + 1}</button>`).join(""); }
+  function aufbauen(i){ if(i != null) nr = i; R = D.raetsel[nr]; fertig = false; weiter.hidden = true;
+    o.querySelector(".sch-nr").textContent = `${nr + 1} von ${D.raetsel.length}`;
+    const a = AUFGABE[R.typ]; o.querySelector(".sch-auf").textContent = typeof a === "function" ? a(R) : a;
+    info.textContent = "Tipp auf eine Ecke, an der du bauen willst."; zeichnen(); punkteZeichnen(); }
+  const nein = () => { brett.classList.remove("wackelt"); void brett.offsetWidth; brett.classList.add("wackelt"); };
+  function setzen(v, farbe){ const [x, y] = D.geo.verts[v]; brett.querySelector(".anna").innerHTML = haus(x, y, farbe); }
+  brett.addEventListener("click", e=>{ const c = e.target.closest(".ecke"); if(!c || fertig) return; const v = +c.dataset.v, G = D.geo;
+    const belegt = new Set(R.belegt);
+    if(belegt.has(v) || G.nb[v].some(n => belegt.has(n))){ nein(); info.textContent = belegt.has(v) ? "Da steht schon eine Siedlung." : "Zu nah dran! Direkt neben einer anderen Siedlung darf man nicht bauen."; return; }
+    const felder = G.vtiles[v].filter(i => i !== R.raub && R.zahl[i]);
+    if(R.brauch && !R.brauch.every(b => felder.some(i => R.art[i] === b))){ nein(); info.textContent = `Hier bekommst du nicht ${NAME[R.brauch[0]]} und ${NAME[R.brauch[1]]} zusammen.`; return; }
+    const wert = felder.reduce((s, i) => s + PIPS[R.zahl[i]], 0);
+    try{ TON("schachzug", .7); }catch(er){}
+    if(v === R.loesung){ fertig = true; setzen(v, "#c0282f");
+      info.innerHTML = `<b>Perfekt!</b><br>${felder.map(i => R.zahl[i]).join(" + ")}: ${wert} Punkte, mehr geht hier nicht.`;
+      if(!geloest.includes(nr)){ geloest.push(nr); try{ localStorage.setItem("advent-catan", JSON.stringify(geloest)); }catch(er){} }
+      if(geloest.length >= D.raetsel.length) info.innerHTML += "<br>Alle Runden gelöst, du Siedlerin ♡";
+      const n2 = D.raetsel.findIndex((_, i) => i > nr && !geloest.includes(i)), n3 = D.raetsel.findIndex((_, i) => !geloest.includes(i)), ziel = n2 >= 0 ? n2 : n3;
+      weiter.hidden = ziel < 0; weiter.dataset.i = ziel; try{ TON("glocken", .6); }catch(er){} window.Eier && Eier.fund("catan"); punkteZeichnen(); return; }
+    setzen(v, "rgba(192,40,47,.55)");
+    info.textContent = `Nicht schlecht, ${wert} Punkte. Aber es gibt eine bessere Ecke!`;
+  });
+  const zu = () => o.classList.remove("on");
+  o.querySelector(".sch-zu").addEventListener("click", zu);
+  o.addEventListener("click", e=>{ if(e.target === o) zu(); });
+  weiter.addEventListener("click", ()=>aufbauen(+weiter.dataset.i));
+  punkte.addEventListener("click", e=>{ const b = e.target.closest("[data-i]"); if(b) aufbauen(+b.dataset.i); });
+  const knopf = document.querySelector(".spot.catanknopf");
+  if(knopf) knopf.addEventListener("click", e=>{ e.stopPropagation(); laden().then(()=>{ const i = D.raetsel.findIndex((_, i) => !geloest.includes(i)); aufbauen(i >= 0 ? i : 0); o.classList.add("on"); }).catch(()=>{}); });
   return { auf: i => laden().then(()=>{ aufbauen(i || 0); o.classList.add("on"); }) };
 })();
 
