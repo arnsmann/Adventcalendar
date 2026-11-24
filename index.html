@@ -1017,7 +1017,7 @@ let raumArt = "";
 function setzeRaum(){
   const art = matchMedia("(max-aspect-ratio: 4/5)").matches ? "hoch" : "quer";
   if(art === raumArt) return; raumArt = art;
-  { const si = document.querySelector(".schrank-auf"); if(si && si.getAttribute("src")) si.src = art === "hoch" ? "bilder/schrank-auf-h-dfe6af69.webp" : "bilder/schrank-auf-1aa3d8d3.webp"; }
+  { const si = document.querySelector(".schrank-auf"); if(si && si.getAttribute("src")) si.src = art === "hoch" ? "bilder/schrank-auf-h-dfe6af69.webp" : "bilder/schrank-auf-1cc53811.webp"; }
   const R = RAUM[art];
   document.documentElement.classList.toggle("raum-hoch", art === "hoch");
   document.documentElement.style.setProperty("--ra", R.w + "/" + R.h);
@@ -1240,7 +1240,7 @@ document.querySelectorAll(".spot.schluessel,.spot.haustuer").forEach(b=>b.addEve
 document.querySelector(".spot.schrankknopf").addEventListener("click", e=>{
   e.stopPropagation();
   const g = document.getElementById("globe"), img = document.querySelector(".schrank-auf");
-  img.src = raumArt === "hoch" ? "bilder/schrank-auf-h-dfe6af69.webp" : "bilder/schrank-auf-1aa3d8d3.webp";
+  img.src = raumArt === "hoch" ? "bilder/schrank-auf-h-dfe6af69.webp" : "bilder/schrank-auf-1cc53811.webp";
   const auf = !g.classList.contains("schrank-offen");
   TON(auf ? "schrank-auf" : "schrank-zu", .85);
   g.classList.toggle("schrank-offen");
