@@ -2732,6 +2732,14 @@ window.Mono = (function(){
     wue.forEach(w => w.classList.add("rollt")); let a = 1, b = 1;
     try{ TON("wuerfel", .9); }catch(e){}
     for(let t = 0; t < 12; t++){ a = 1 + Math.floor(Math.random() * 6); b = 1 + Math.floor(Math.random() * 6); zeigeWuerfel(wue[0], a); zeigeWuerfel(wue[1], b); await warte(80); }
+    // Würfel sind gezinkt: solange es noch neue Erinnerungen gibt, landet Fuyu immer auf einem Fotofeld,
+    // das noch kein Bild hat. So gibt es bei jedem Wurf direkt ein neues Polaroid.
+    const offen = FOTOS.some((_, i) => !st.fotos.includes(i));
+    const ziele = [];
+    for(let n = 2; n <= 12; n++){ const z = (st.pos + n) % 32; if(FELD[z].typ === "foto" && (!offen || st.feldFoto[z] == null)) ziele.push(n); }
+    if(ziele.length){ const n = ziele[Math.floor(Math.random() * ziele.length)];
+      const moeglich = []; for(let x = 1; x <= 6; x++){ const y = n - x; if(y >= 1 && y <= 6) moeglich.push([x, y]); }
+      [a, b] = moeglich[Math.floor(Math.random() * moeglich.length)]; zeigeWuerfel(wue[0], a); zeigeWuerfel(wue[1], b); }
     wue.forEach(w => w.classList.remove("rollt"));
     await warte(800); /* erst kurz das Ergebnis sehen lassen, dann losgehen */ await laufen(a + b); await landen(); speichern(); standZeigen(); los.disabled = false; });
   const zu = () => o.classList.remove("on");
