@@ -151,6 +151,9 @@ html.raum-hoch .spot.schluessel,html.raum-hoch .spot.haustuer{display:none}
 .mo-fuyu.hopp{animation:moHopp .18s ease}
 @keyframes moHopp{50%{transform:translate(-50%,-95%)}}
 .mo-feld{position:absolute;transform:translate(-50%,-50%);border-radius:4px;pointer-events:none}
+.mo-ecke{position:absolute;inset:3%;width:94%;height:94%;object-fit:cover;border-radius:2px}
+.mo-mini{position:absolute;left:50%;top:50%;width:84%;margin:-42% 0 0 -42%;aspect-ratio:1;object-fit:cover;border:clamp(1.5px,.35vw,3px) solid #fdfbf5;border-bottom-width:clamp(3px,.8vw,7px);box-shadow:0 2px 4px rgba(0,0,0,.35);animation:moMini .45s cubic-bezier(.2,1.3,.4,1)}
+@keyframes moMini{from{opacity:0;scale:.3}}
 .mo-feld.besucht::after{content:"✓";position:absolute;right:6%;bottom:2%;font-family:"Nunito",system-ui,sans-serif;font-weight:800;font-size:clamp(8px,1.4vw,13px);color:rgba(90,60,30,.55)}
 .mo-mitte{position:absolute;left:20%;top:20%;width:60%;height:60%;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3%;color:#3d2a1c}
 .mo-wuerfel-reihe{display:flex;gap:10px}
@@ -2665,7 +2668,7 @@ window.Mono = (function(){
   for(let i = 0; i < 32; i++){ const s = i % 8;
     if(ECKEN[i]) FELD[i] = {typ: "ecke", t: ECKEN[i]};
     else if(s === 2) FELD[i] = {typ: "gruen"}; else if(s === 4) FELD[i] = {typ: "rot"}; else FELD[i] = {typ: "foto"}; }
-  let st = {pos: 0, besucht: [0], fotos: []};
+  let st = {pos: 0, besucht: [0], fotos: [], feldFoto: {}};
   try{ Object.assign(st, JSON.parse(localStorage.getItem("advent-mono") || "{}")); }catch(e){}
   const speichern = () => { try{ localStorage.setItem("advent-mono", JSON.stringify(st)); }catch(e){} };
   const o = document.createElement("div"); o.className = "schach"; o.setAttribute("role", "dialog"); o.setAttribute("aria-label", "Monopoly");
@@ -2683,7 +2686,13 @@ window.Mono = (function(){
   const zeigeWuerfel = (el, n) => { el.innerHTML = [...Array(9)].map((_, i) => `<i class="${MUSTER[n].includes(i) ? "an" : ""}"></i>`).join(""); };
   const setzeFuyu = i => { fuyu.style.left = POS[i][0] + "%"; fuyu.style.top = POS[i][1] + "%"; };
   const pola = o.querySelector(".mo-pola");
-  function standZeigen(){ o.querySelectorAll(".mo-feld").forEach(f => f.classList.toggle("besucht", st.besucht.includes(+f.dataset.i)));
+  // gefundene Erinnerungen bleiben als kleines Bild auf ihrem Feld liegen: das Brett wird nach und nach zur Collage
+  function fotosAufBrett(){ o.querySelectorAll(".mo-feld").forEach(f => { if(FELD[+f.dataset.i].typ !== "foto") return; const i = st.feldFoto[+f.dataset.i];
+    if(i == null || !FOTOS[i]){ f.innerHTML = ""; return; }
+    if(f.dataset.foto == i) return; f.dataset.foto = i;
+    const dreh = ((+f.dataset.i * 37) % 13) - 6;
+    f.innerHTML = `<img class="mo-mini" src="bilder/mono/${FOTOS[i].bild}.webp" alt="" style="transform:rotate(${dreh}deg)">`; }); }
+  function standZeigen(){ o.querySelectorAll(".mo-feld").forEach(f => f.classList.toggle("besucht", st.besucht.includes(+f.dataset.i) && FELD[+f.dataset.i].typ !== "foto"));
     stand.textContent = `${new Set(st.fotos).size} von ${FOTOS.length} Erinnerungen gesammelt`; }
   function zeigeFoto(i){ const f = FOTOS[i]; karte.hidden = true; pola.hidden = false; pola.classList.remove("gross");
     pola.querySelector("img").src = "bilder/mono/" + f.bild + ".webp"; pola.querySelector("span").textContent = f.text || "";
@@ -2699,8 +2708,10 @@ window.Mono = (function(){
       setzeFuyu(st.pos); fuyu.classList.remove("hopp"); void fuyu.offsetWidth; fuyu.classList.add("hopp"); try{ TON("schachzug", .5); }catch(e){} await warte(200); } }
   async function springen(ziel){ await warte(700); const vor = (ziel - st.pos + 32) % 32; await laufen(vor); }
   async function landen(){ const f = FELD[st.pos]; if(!st.besucht.includes(st.pos)) st.besucht.push(st.pos);
-    if(f.typ === "foto"){ const neu = FOTOS.map((_, i) => i).filter(i => !st.fotos.includes(i)), i = neu.length ? neu[0] : Math.floor(Math.random() * FOTOS.length);
-      if(!st.fotos.includes(i)) st.fotos.push(i); zeigeFoto(i); return; }
+    if(f.typ === "foto"){ // jedes Feld behält sein Foto; ein neues Feld bekommt die nächste noch nicht gesehene Erinnerung
+      let i = st.feldFoto[st.pos];
+      if(i == null || !FOTOS[i]){ const neu = FOTOS.map((_, k) => k).filter(k => !st.fotos.includes(k)); i = neu.length ? neu[0] : Math.floor(Math.random() * FOTOS.length); st.feldFoto[st.pos] = i; }
+      if(!st.fotos.includes(i)) st.fotos.push(i); zeigeFoto(i); setTimeout(fotosAufBrett, 450); return; }
     if(f.typ === "ecke"){ zeigeKarte(f.t[0], f.t[1]);
       if(st.pos === 24){ await warte(1600); st.pos = 8; setzeFuyu(8); try{ TON("schachzug", .7); }catch(e){} if(!st.besucht.includes(8)) st.besucht.push(8); } return; }
     const stapel = f.typ === "rot" ? ROT : GRUEN, [text, wirkung] = stapel[Math.floor(Math.random() * stapel.length)];
@@ -2719,6 +2730,10 @@ window.Mono = (function(){
   zeigeWuerfel(wue[0], 6); zeigeWuerfel(wue[1], 6); setzeFuyu(st.pos);
   zeigeKarte("Monopoly", "Auf jedem Feld wartet eine Erinnerung. Würfel los!"); standZeigen();
   if(!Array.isArray(st.fotos)) st.fotos = [];
+  if(!st.feldFoto || typeof st.feldFoto !== "object") st.feldFoto = {};
+  o.querySelectorAll(".mo-feld").forEach(f => f.style.pointerEvents = "none"); fotosAufBrett();
+  // gemalte Ecken: Los, Nur zu Besuch (Fuyus Häuschen), Frei parken (Kakao), Ab ins Bett
+  [["los", 0], ["besuch", 8], ["kakao", 16], ["bett", 24]].forEach(([n, i]) => { const f = o.querySelector(`.mo-feld[data-i="${i}"]`); f.innerHTML = `<img class="mo-ecke" src="bilder/mono/ecke-${n}.webp" alt="">`; });
   const knopf = document.querySelector(".spot.monoknopf");
   if(knopf) knopf.addEventListener("click", e=>{ e.stopPropagation(); o.classList.add("on"); });
   return { auf: () => o.classList.add("on") };
