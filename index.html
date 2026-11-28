@@ -1567,7 +1567,10 @@ const cm = document.getElementById("card-media");
   if(clipPlayer && clipReady){
     // mit Vorspann startet der Clip erst kurz vor dessen Ende (das regelt der Vorspann selbst)
     const vor = +box.dataset.vorspann || 0, au = box.querySelector("audio");
-    try{ if(ev === "play"){ if(!vor || (au && au.currentTime >= vor - 4.5)){ clipPlayer.mute(); clipPlayer.playVideo(); } } else clipPlayer.pauseVideo(); }catch(err){}
+    try{ if(ev === "play"){ if(!vor || (au && au.currentTime >= vor - 4.5)){ clipPlayer.mute(); clipPlayer.playVideo();
+            // Play während des Vorwärmens: Clip läuft schon, YouTube meldet keinen neuen Start, also hier einblenden
+            if(box.dataset.warm === "an" && clipPlayer.getPlayerState() === 1){ box.dataset.warm = "ja"; clearTimeout(clipShowT); clipShowT = setTimeout(()=>{ if(box.classList.contains("playing")) box.classList.add("clip-on"); }, 2500); } } }
+          else clipPlayer.pauseVideo(); }catch(err){}
   }
 }, true));
 scrim.addEventListener("click", e=>{ if(e.target === scrim) closeCard(); });
@@ -1606,11 +1609,18 @@ function initClip(el){
         onReady: e=>{
           clipReady = true; e.target.mute();
           if(box.classList.contains("playing") && !box.dataset.vorspann) e.target.playVideo();
+          // Vorwärmen: Clip läuft schon unsichtbar an, bis YouTubes Titel und Logo weg sind, und wartet dann am Anfang.
+          // Drückt sie danach auf Play, kann der Clip fast sofort erscheinen.
+          else if(!box.dataset.vorspann){ box.dataset.warm = "an"; e.target.playVideo(); }
         },
         onStateChange: e=>{
           clearTimeout(clipShowT);
+          if(e.data === 1 && box.dataset.warm === "an" && !box.classList.contains("playing")){
+            clipShowT = setTimeout(()=>{ try{ if(!box.classList.contains("playing")){ e.target.pauseVideo(); e.target.seekTo(0, true); } }catch(er){} box.dataset.warm = "ja"; }, 3800);
+            return; }
           if(e.data === 1 && box.classList.contains("playing")){
-            clipShowT = setTimeout(()=>{ if(box.classList.contains("playing")) box.classList.add("clip-on"); }, 4000);
+            const warm = box.dataset.warm === "ja";
+            clipShowT = setTimeout(()=>{ if(box.classList.contains("playing")) box.classList.add("clip-on"); }, warm ? 900 : 4000);
           } else if(e.data === 2 || e.data === 0) box.classList.remove("clip-on");
         }
       }
